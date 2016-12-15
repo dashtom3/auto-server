@@ -31,7 +31,7 @@ router.get('/add',checkCompanyLogin,function (req,res,next) {
     FinanceModel.create(finance)
         .then(function (result) {
             resData = new ResData();
-            resData.setData(result);
+            resData.setData(result.ops[0]);
             resData.setIsSuccess(1);
             res.send(JSON.stringify(resData));
         })
@@ -103,7 +103,7 @@ router.get('/delete',checkCompanyLogin,function (req,res,next) {
     company=req.session.company;
 
     //更改用户类型
-    FinanceModel.deleteRecord(company.name,urlQuery.year)
+    FinanceModel.deleteRecord(company.name,year)
         .then(function (result) {
             resData = new ResData();
             resData.setData("delete success");
@@ -119,4 +119,4 @@ router.get('/delete',checkCompanyLogin,function (req,res,next) {
         });
 });
 
-module.exports = router;
+module.exports = router

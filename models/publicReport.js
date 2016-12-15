@@ -18,16 +18,16 @@ module.exports = {
     },
     //修改:productId,productName,date,team,site
     modify: function modify(id,productId,productName,date,team,site) {
-        return PubReport.update({"_id" : ObjectId(id)},{$set:{productId:productId,
+        return PubReport.update({"_id" : id},{$set:{productId:productId,
             productName:productName,date:date,team:team,site:site}}).exec();
     },
     //删除
     deleteRecord: function deleteRecord(id) {
-        return PubReport.remove({"_id" : ObjectId(id)}).exec();
+        return PubReport.remove({"_id" : id}).exec();
     },
     //设置上线／下线
     modifyOnline: function modifyOnline(id,online) {
-        return PubReport.update({"_id" : ObjectId(id)},{$set:{isOnline:online}}).exec();
+        return PubReport.update({"_id" : id},{$set:{isOnline:online}}).exec();
     }
 
 };

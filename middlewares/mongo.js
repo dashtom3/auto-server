@@ -21,18 +21,22 @@ exports.User.index({name:1},{unique:true}).exec();//设置name为索引，唯一
 
 //定义公司的modle
 exports.Company = mongolass.model('Company',{
-    //name,type,shortName,logo,address,field,regTime,legalEntity,regCapital,regAddress,position,companyDesc,productDesc,userDesc
+    //longName,shortName,logo,address,field,regTime,legalEntity,regCapital,regAddress,isNeedCapital,companyDesc,productDesc,userDesc
     name: {type:'string'},
+    password: {type:'string'},
+    position: {type:'string'},
+    info: {type:'string'},//file
     type: {type:'string', enum:['no','normal']},
+    longName: {type:'string'},
     shortName: {type:'string'},
-    logo: {type:'string'},
+    logo: {type:'string'},//file
     address: {type:'string'},
     field: {type:'string'},
     regTime: {type:'string'},
     legalEntity: {type:'string'},
     regCapital: {type:'string'},
     regAddress: {type:'string'},
-    position: {type:'string'},
+    isNeedCapital: {type:'string'},
     companyDesc: {type:'string'},
     productDesc: {type:'string'},
     userDesc: {type:'string'}
@@ -46,7 +50,7 @@ exports.News = mongolass.model('New',{
     title: {type:'string'},
     author: {type:'string'},
     isFirst: {type:'string'},
-    isOnline: {type:'string'},
+    isOnline: {type:'string'},//0:下线  1:上线
     company: {type:'string'},
     tag: {type:'string'},
     desc: {type:'string'},
@@ -111,6 +115,7 @@ exports.product = mongolass.model('product',{
     state: {type:'string'},
     argc: {type:'string'},
     desc: {type:'string'},
-    images: {type:'string'}
+    images: {type:'string'},
+    isOnline: {type:'string'}
 });
 exports.product.index({_id:-1}).exec();//按日期降序

@@ -5,8 +5,8 @@ var News = require('../middlewares/mongo').News;
 
 module.exports = {
     //添加
-    create: function create(News) {
-        return News.create(News).exec();
+    create: function create(news) {
+        return News.create(news).exec();
     },
     //按分类取出所有资讯
     getNewsByField: function getNewsList(field) {
@@ -18,20 +18,20 @@ module.exports = {
     },
     //根据ID查找资讯
     getNewsById: function getNewsById(id) {
-        return News.findOne({"_id" : ObjectId(id)}).exec();
+        return News.findOne({"_id" : id}).exec();
     },
     //设置上线／下线
     modifyOnline: function modifyOnline(id,NewsType) {
-        return News.update({"_id" : ObjectId(id)},{$set:{isOnline:NewsType}}).exec();
+        return News.update({"_id" : id},{$set:{isOnline:NewsType}}).exec();
     },
     //修改:title,author,isFirst,tag,desc,pic,wysiwyg
     modify: function modify(id,title,author,isFirst,tag,desc,pic,wysiwyg) {
-        return News.update({"_id" : ObjectId(id)},{$set:{title:title,author:author,
+        return News.update({"_id" : id},{$set:{title:title,author:author,
             isFirst:isFirst,tag:tag,desc:desc,pic:pic,wysiwyg:wysiwyg}}).exec();
     },
-    //删除
+    //删除ObjectId
     deleteRecord: function deleteRecord(id) {
-        return News.remove({"_id" : ObjectId(id)}).exec();
+        return News.remove({"_id" : id}).exec();
     }
 
 

@@ -28,7 +28,7 @@ router.get('/add',checkCompanyLogin,function (req,res,next) {
     PubReportModel.create(pubReport)
         .then(function (result) {
             resData = new ResData();
-            resData.setData(result);
+            resData.setData(result.ops[0]);
             resData.setIsSuccess(1);
             res.send(JSON.stringify(resData));
         })
@@ -78,7 +78,7 @@ router.get('/modifyOnline',checkCompanyLogin,function (req,res,next) {
         .then(function (result) {
             resData = new ResData();
             resData.setIsSuccess(1);
-            resData.setData(result);
+            resData.setData("modify success");
             res.send(JSON.stringify(resData));
         })
         .catch(next);

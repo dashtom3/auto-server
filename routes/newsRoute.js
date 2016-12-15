@@ -18,20 +18,23 @@ router.post('/add',checkCompanyLogin,function (req,res,next) {
         title: postFields.title,
         author: postFields.author,
         isFirst: postFields.isFirst,
-        isOnline: postFields.isOnline,
+        isOnline: "0",
         company: req.session.company.name,
         tag: postFields.tag,
         desc: postFields.desc,
-        pic: postFields.pic,
+        pic: req.files.pic.path.split('/').pop(),
         wysiwyg: postFields.wysiwyg
     };
 
     NewsModel.create(news)
         .then(function (result) {
             resData = new ResData();
-            resData.setData(result);
+            // resData.setData(result.ops[0]);
+            // resData.setIsSuccess(1);
+            // res.send(resData.data.wysiwyg);
+            resData.setData("添加成功");
             resData.setIsSuccess(1);
-            res.send(JSON.stringify(resData));
+            res.send(resData);
         })
         .catch(function (e) {
             resData = new ResData();
@@ -79,7 +82,8 @@ router.get('/getNewsById',checkCompanyLogin,function (req,res,next) {
             resData = new ResData();
             resData.setData(result);
             resData.setIsSuccess(1);
-            res.send(JSON.stringify(resData));
+            // res.send(JSON.stringify(resData));
+            res.send(resData.data.wysiwyg);
         })
         .catch(function (e) {
             resData = new ResData();
@@ -111,12 +115,12 @@ router.get('/modifyOnline',checkCompanyLogin,function (req,res,next) {
 });
 
 //6.修改资讯
-router.get('/modify',checkCompanyLogin,function (req,res,next) {
-    //修改:title,author,isFirst,tag,desc,pic,wysiwyg
-    var urlQuery = url.parse(req.url,true).query;
+router.post('/modify',checkCompanyLogin,function (req,res,next) {
+    //提交post表单修改：title,author,isFirst,tag,desc,pic,wysiwyg
+    var postFields = req.fields;
 
-    NewsModel.modify(urlQuery.id,urlQuery.title,urlQuery.author,urlQuery.isFirst,
-        urlQuery.tag,urlQuery.desc,urlQuery.pic,urlQuery.wysiwyg)
+    NewsModel.modify(postFields.id,postFields.title,postFields.author,postFields.isFirst,
+        postFields.tag,postFields.desc,req.files.pic.path.split('/').pop(),postFields.wysiwyg)
         .then(function (result) {
             resData = new ResData();
             resData.setData("modify success");

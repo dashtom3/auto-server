@@ -8,16 +8,14 @@ var ResData = require('../models/res');
 var checkUserLogin = require('../middlewares/check').checkUserLogin;
 
 //用户注册
-router.get('/signup', function(req, res, next) {
-    var urlQuery=url.parse(req.url,true).query;
-    var name=urlQuery.name;
-    var nikeName=urlQuery.nikeName;
-    var password=urlQuery.password;
-    var mail=urlQuery.mail;
-    var phone=urlQuery.phone;
-    var idImg1=urlQuery.idImg1;
-    var idImg2=urlQuery.idImg2;
-    var userType=urlQuery.userType;
+router.post('/signup', function(req, res, next) {
+    var name = req.fields.name;
+    var nikeName=req.fields.nikeName;
+    var password=req.fields.password;
+    var mail=req.fields.mail;
+    var phone=req.fields.phone;
+    var idImg1=req.files.idImg1.path.split('/').pop();
+    var idImg2=req.files.idImg2.path.split('/').pop();
     // 明文密码加密
     password = sha1(password);
 
@@ -30,7 +28,7 @@ router.get('/signup', function(req, res, next) {
         phone: phone,
         idImg1: idImg1,
         idImg2: idImg2,
-        userType: userType
+        userType: 'no'
     };
     // 用户信息写入数据库
     UserModel.create(user)
@@ -47,7 +45,6 @@ router.get('/signup', function(req, res, next) {
             res.send(JSON.stringify(resData));
         })
         .catch(function (e) {
-            // 用户名被占用则跳回注册页，而不是错误页
             if (e.message.match('E11000 duplicate key')) {
                 resData = new ResData();
                 resData.setData("user exist");

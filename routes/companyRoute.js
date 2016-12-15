@@ -11,12 +11,98 @@ var ResData = require('../models/res');
 var checkCompanyLogin = require('../middlewares/check').checkCompanyLogin;
 
 //注册
-router.get('/signup',function (req,res,next) {
+router.post('/signup', function(req, res, next) {
+    //longName,shortName,address,field,regTime,legalEntity,regCapital,regAddress,isNeedCapital,info
+    //companyDesc,productDesc,userDesc
+    var name = req.fields.name;
+    var password=req.fields.password;
+    var position=req.fields.position;
+    var info=req.files.info.path.split('/').pop();
 
+    var longName="";
+    var shortName = "";
+    var address="";
+    var field="";
+    var regTime = "";
+    var legalEntity="";
+    var regCapital="";
+    var regAddress="";
+    var isNeedCapital = "";
+
+    var logo="";
+    var companyDesc="";
+    var productDesc="";
+    var userDesc = "";
+
+
+    // var longName=req.fields.longName;
+    // var shortName = req.fields.shortName;
+    // var address=req.fields.address;
+    // var field=req.fields.field;
+    // var regTime = req.fields.regTime;
+    // var legalEntity=req.fields.legalEntity;
+    // var regCapital=req.fields.regCapital;
+    // var regAddress=req.fields.regAddress;
+    // var isNeedCapital = req.fields.isNeedCapital;
+
+    // var logo=req.files.logo.path.split('/').pop();
+    // var companyDesc=req.fields.companyDesc;
+    // var productDesc=req.fields.productDesc;
+    // var userDesc = req.fields.userDesc;
+    // 明文密码加密
+    password = sha1(password);
+
+    // 待写入数据库的公司信息
+    var company = {
+        name: name,
+        password: password,
+        position: position,
+        info: info,//file
+        type: 'no',
+        longName: longName,
+        shortName: shortName,
+        logo: logo,//file
+        address: address,
+        field: field,
+        regTime: regTime,
+        legalEntity: legalEntity,
+        regCapital: regCapital,
+        regAddress: regAddress,
+        isNeedCapital: isNeedCapital,
+        companyDesc: companyDesc,
+        productDesc: productDesc,
+        userDesc: userDesc
+    };
+    // 信息写入数据库
+    CompanyModel.create(company)
+        .then(function (result) {
+            company = result.ops[0];
+            // 将信息存入 session
+            delete company.password;
+            req.session.company = company;
+            //返回用户json
+            resData = new ResData();
+            resData.setData(company);
+            resData.setIsSuccess(1);
+            res.send(JSON.stringify(resData));
+        })
+        .catch(function (e) {
+            if (e.message.match('E11000 duplicate key')) {
+                resData = new ResData();
+                resData.setData("user exist");
+                resData.setIsSuccess(0);
+                res.send(JSON.stringify(resData));
+            }
+            next(e);
+        });
+});
+
+router.get('/', function (req, res) {
+    res.send('Hello company');
 });
 
 //登录
-router.get('login',function (req,res,next) {
+router.get('/login',function (req,res,next) {
     var urlQuery = url.parse(req.url,true).query;
     var name = urlQuery.name;
     var password = urlQuery.password;
@@ -88,20 +174,18 @@ router.get('/modifyType',checkCompanyLogin,function (req,res,next) {
     company=req.session.company;
     company.type=newType;
 
-    //更改用户类型
     CompanyModel.modifyType(company.name,newType)
         .then(function (result) {
-            resData = new ResData();
-            resData.setData(user);
+            var resData = new ResData();
+            resData.setData("modify succeff");
             resData.setIsSuccess(1);
             res.send(JSON.stringify(resData));
         })
         .catch(function (e) {
-            resData = new ResData();
+            var resData = new ResData();
             resData.setData("modify error");
             resData.setIsSuccess(0);
             res.send(JSON.stringify(resData));
-            next(e);
         });
 });
 
@@ -123,7 +207,7 @@ router.get('/modifyPassword',checkCompanyLogin,function (req,res,next) {
             else{
                 resData.setIsSuccess(1);
                 resData.setData("modifyPassword success");
-                UserModel.modifyPassword(company.name,sha1(newPassword))
+                CompanyModel.modifyPassword(company.name,sha1(newPassword))
                     .then(function (result) {
                         res.send(JSON.stringify(resData));
                     })
@@ -132,7 +216,6 @@ router.get('/modifyPassword',checkCompanyLogin,function (req,res,next) {
                         resData.setData("modify error");
                         resData.setIsSuccess(0);
                         res.send(JSON.stringify(resData));
-                        next(e);
                     });
             }
         })
@@ -140,33 +223,45 @@ router.get('/modifyPassword',checkCompanyLogin,function (req,res,next) {
 });
 
 //修改企业信息：
-//TODO
-// router.get('/modifyInfo',checkUserLogin,function (req,res,next) {
-//     var urlQuery=url.parse(req.url,true).query;
-//     var newNickName=urlQuery.newNickName;
-//     var newMail=urlQuery.newMail;
-//     var newPhone=urlQuery.newPhone;
-//     user=req.session.user;
-//
-//     //更改用户类型
-//     UserModel.modifyInfo(user.name,newNickName,newMail,newPhone)
-//         .then(function (result) {
-//             user.nikeName=newNickName;
-//             user.mail=newMail;
-//             user.phone=newPhone
-//             resData = new ResData();
-//             resData.setData(user);
-//             resData.setIsSuccess(1);
-//             res.send(JSON.stringify(resData));
-//         })
-//         .catch(function (e) {
-//             resData = new ResData();
-//             resData.setData("modify error");
-//             resData.setIsSuccess(0);
-//             res.send(JSON.stringify(resData));
-//             next(e);
-//         });
-// });
+router.post('/modifyInfo',checkCompanyLogin,function (req,res,next) {
+    var longName=req.fields.longName;
+    var shortName = req.fields.shortName;
+    var address=req.fields.address;
+    var field=req.fields.field;
+    var regTime = req.fields.regTime;
+    var legalEntity=req.fields.legalEntity;
+    var regCapital=req.fields.regCapital;
+    var regAddress=req.fields.regAddress;
+    var isNeedCapital = req.fields.isNeedCapital;
+
+    var logo=req.files.logo.path.split('/').pop();
+    var companyDesc=req.fields.companyDesc;
+    var productDesc=req.fields.productDesc;
+    var userDesc = req.fields.userDesc;
+    company=req.session.company;
+
+
+    CompanyModel.modify(company.name,longName,shortName,logo,address,field,regTime,legalEntity,
+        regCapital,regAddress, isNeedCapital,companyDesc,productDesc,userDesc)
+        .then(function (result) {
+            //更新session
+            CompanyModel.getCompanyByName(sessionCompany.name)
+                .then(function (newCompany) {
+                    req.session.company=newCompany;
+                    resData = new ResData();
+                    resData.setData("modify success");
+                    resData.setIsSuccess(1);
+                    res.send(JSON.stringify(resData));
+                })
+        })
+        .catch(function (e) {
+            resData = new ResData();
+            resData.setData("modify error");
+            resData.setIsSuccess(0);
+            res.send(JSON.stringify(resData));
+            next(e);
+        });
+});
 
 
 module.exports = router;

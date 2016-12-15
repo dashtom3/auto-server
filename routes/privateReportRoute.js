@@ -25,24 +25,26 @@ router.get('/add',checkCompanyLogin,function (req,res,next) {
         state: "0",//0:待审核  1:已发布  2:已结束  －1:已被拒
         maxUserNum: urlQuery.maxUserNum,
         signUserNum: "0",
-        signUserName: "",
+        signUserName: "aaa",
         passUserNum: "0",
-        passUserName: ""
+        passUserName: "aaa"
     };
 
+    console.log("###");
+    console.log(priReport);
+    console.log("###");
     PriReportModel.create(priReport)
         .then(function (result) {
-            resData = new ResData();
-            resData.setData(result);
+            var resData = new ResData();
+            resData.setData(result.ops[0]);
             resData.setIsSuccess(1);
             res.send(JSON.stringify(resData));
         })
         .catch(function (e) {
-            resData = new ResData();
-            resData.setData("添加测评出错");
-            resData.setIsSuccess(0);
-            res.send(JSON.stringify(resData));
-            next(e);
+            var resData2 = new ResData();
+            resData2.setData("添加测评出错");
+            resData2.setIsSuccess(0);
+            res.send(JSON.stringify(resData2));
         });
 });
 

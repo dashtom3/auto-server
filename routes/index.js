@@ -8,4 +8,5 @@ module.exports=function (app) {
     app.use('/news',require('./newsRoute'));
     app.use('/privateReport',require('./privateReportRoute'));
     app.use('/publicReport',require('./publicReportRoute'));
+    app.use('/product',require('./productRoute'));
 };

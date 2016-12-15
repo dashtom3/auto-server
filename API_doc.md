@@ -1,6 +1,6 @@
-##用户接口
+##用户接口(已测试)
 ###注册(post)
-[http://localhost:3300/user/signup?name=zzz&nikeName=joseph&password=123&mail=qq.com&phone=123&idImg1=xxx&idImg2=yyy&userType=no](http://localhost:3300/user/signup?name=zzz&nikeName=joseph&password=123&mail=qq.com&phone=123&idImg1=xxx&idImg2=yyy&userType=no)
+test/userSignup.thml
 
 ###登录
 [http://localhost:3300/user/login?name=aaa&password=123](http://localhost:3300/user/login?name=aaa&password=123)
@@ -22,30 +22,30 @@
 [http://localhost:3300/user/modifyInfo?newNickName=test&newMail=qq.com&newPhone=152](http://localhost:3300/user/modifyInfo?newNickName=test&newMail=qq.com&newPhone=152)
 
 ----
-##企业接口
+##企业接口(已测试)
 ###注册(post)
-[]()
+test/companySignup.html
 ###登录
-[http://localhost:3300/company/login?name=aaa&password=123](http://localhost:3300/company/login?name=aaa&password=123)
+[http://localhost:3300/company/login?name=XJ&password=123](http://localhost:3300/company/login?name=XJ&password=123)
 ###登出
 [http://localhost:3300/company/logout](http://localhost:3300/company/logout)
 ###获取企业详细信息
 [http://localhost:3300/company/getCompanyByName?name=xxx]()
 ###分类获取企业列表
-[http://localhost:3300/company/logout](http://localhost:3300/company/getCompanyByField?field=xxx]()
-###修改权限
-[http://localhost:3300/company/modifyType?newType=xx](http://localhost:3300/company/modifyType?newType=xx)
+[http://localhost:3300/company/getCompanyByField?field=xxx](http://localhost:3300/company/getCompanyByField?field=xxx)
+###修改权限(enum:['no','normal'])
+[http://localhost:3300/company/modifyType?newType=no](http://localhost:3300/company/modifyType?newType=no)
 
 ###更改密码
 [http://localhost:3300/company/modifyPassword?oldPassword=456&newPassword=123](http://localhost:3300/company/modifyPassword?oldPassword=456&newPassword=123)
-###修改信息
-[]()
+###修改信息(post)
+表单：longName,shortName,logo,address,field,regTime,legalEntity,regCapital,regAddress,isNeedCapital,companyDesc,productDesc,userDesc
 
 ----
-##企业财务接口
+##企业财务接口(已测试)
 ###添加
 [http://localhost:3300/finance/add?year=2016&ratio=xxx&input=xxx&increase=xxx&allCapital=xxx&realCapital=xxx&allRatio=xxx&realRatio=xxx&debtRatio=xxx&inputRatio=xxx]()
-###修改
+###修改某年财务报表
 [http://localhost:3300/finance/modify?year=2016&ratio=xxx&input=xxx&increase=xxx&allCapital=xxx&realCapital=xxx&allRatio=xxx&realRatio=xxx&debtRatio=xxx&inputRatio=xxx]()
 ###删除
 [http://localhost:3300/finance/delete?year=2016]()
@@ -55,17 +55,17 @@
 [http://localhost:3300/finance/getFinance?year=2016]()
 
 ----
-##企业资讯接口
+##企业资讯接口(已测试)
 ###添加(post)
-[http://localhost:3300/news/add]()
+使用wysiwyg富态框
 
-post表单：title,author,isFirst,isOnline,tag,desc,pic,wysiwyg
-###修改
-[http://localhost:3300/news/modify?id=xxx&title=xxx&author=xxx&isFirst=xxx&tag=xxx&desc=xxx&pic=xxx&wysiwyg=xxx]()
+post表单：title,author,isFirst,tag,desc,pic,wysiwyg
+###修改(post)
+
 ###删除
 [http://localhost:3300/news/delete?id=xxx]()
 ###设置上线／下线
-[http://localhost:3300/news/modifyOnline?id=xxx&type=xxx]()
+[http://localhost:3300/news/modifyOnline?id=xxx&type=1]()
 ###根据分类获取资讯
 [http://localhost:3300/news/getNewsByField?tag=xxx]()
 ###根据公司获取资讯
@@ -97,7 +97,7 @@ post表单：title,author,isFirst,isOnline,tag,desc,pic,wysiwyg
 [http://localhost:3300/privateReport/pass?id=xxx&newName=xxx]()
 
 ----
-##企业专业测评接口
+##企业专业测评接口(已测试)
 ###添加
 [http://localhost:3300/publicReport/add?productId=xxx&productName=xxx&date=xxx&team=xxx&site=xxx]()
 ###修改
@@ -110,5 +110,20 @@ post表单：title,author,isFirst,isOnline,tag,desc,pic,wysiwyg
 [http://localhost:3300/publicReport/getPubReportByOnline?isOnline=1]()
 ###根据公司获取测评列表
 [http://localhost:3300/publicReport/getPubReportByCompany?companyName=xxx]()
+
+----
+##企业产品接口
+###添加(post)
+[http://localhost:3300/product/]()
+###修改(post)
+[http://localhost:3300/product/]()
+###删除
+[http://localhost:3300/product/delete?id=xxx]()
+###设置上线／下线
+[http://localhost:3300/product/modifyOnline?id=xxx&isOnline=1]()
+###根据分类获取产品列表
+[http://localhost:3300/product/getProductByType?type=1]()
+###根据公司获取产品列表
+[http://localhost:3300/product/getProductByCompany?companyName=xxx]()
 
 

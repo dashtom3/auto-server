@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>用户注册</title>
+</head>
+<body>
+<form action="http://127.0.0.1:3300/user/signup" class="ui form segment" method="post" enctype="multipart/form-data">
+    <div class="field required">
+        <label>用户名</label>
+        <input placeholder="用户名" type="text" name="name" >
+    </div>
+    <div class="field required">
+        <label>密码</label>
+        <input placeholder="密码" type="password" name="password">
+    </div>
+    <div class="field required">
+        <label>重复密码</label>
+        <input placeholder="重复密码" type="password" name="repassword">
+    </div>
+    <div class="field required">
+        <label>昵称</label>
+        <input placeholder="昵称" type="text" name="nikeName">
+    </div>
+    <div class="field required">
+        <label>邮箱</label>
+        <input placeholder="邮箱" type="password" name="mail">
+    </div>
+    <div class="field required">
+        <label>电话</label>
+        <input placeholder="电话" type="password" name="phone">
+    </div>
+    <div class="field required">
+        <label>身份证正面照</label>
+        <input type="file" name="idImg1">
+    </div>
+    <div class="field required">
+        <label>身份证反面照</label>
+        <input type="file" name="idImg2">
+    </div>
+    <input type="submit" class="ui button fluid" value="注册">
+</form>
+</body>
+</html>
