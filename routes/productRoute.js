@@ -11,18 +11,18 @@ var checkCompanyLogin = require('../middlewares/check').checkCompanyLogin;
 
 //1.添加产品
 router.post('/add',checkCompanyLogin,function (req,res,next) {
-    //add post(name,tag,argc,desc,images)
+    //post(name,tag,argc,desc,images)
     var name = req.fields.name;
     var tag = req.fields.tag;
     var argc = req.fields.argc;
     var desc = req.fields.desc;
 
     //todo
-    // var images = req.files.images.path.split(path.sep).pop();
+    // var images = req.files.images.path.split('/').pop();
     var images="";
     var item;
     for (item in files) {
-        var filePath = files[item].path.split(path.sep).pop();
+        var filePath = files[item].path.split('/').pop();
         images = images + filePath + ";" ;
     }
     company=req.session.company;

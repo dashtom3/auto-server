@@ -42,7 +42,7 @@ router.get('/add',checkCompanyLogin,function (req,res,next) {
         })
         .catch(function (e) {
             var resData2 = new ResData();
-            resData2.setData("添加测评出错");
+            resData2.setData(e);
             resData2.setIsSuccess(0);
             res.send(JSON.stringify(resData2));
         });
