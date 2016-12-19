@@ -57,7 +57,7 @@ exports.News = mongolass.model('New',{
     pic: {type:'string'},
     wysiwyg: {type:'string'}
 });
-exports.News.index({_id:-1}).exec();//按日期降序
+// exports.News.index({_id:-1}).exec();//按日期降序
 
 
 //定义财务信息的modl，companyName和year可唯一标示
@@ -92,7 +92,7 @@ exports.privateReport = mongolass.model('privateReport',{
     passUserNum: {type:'string'},
     passUserName: {type:'string'}
 });
-exports.privateReport.index({_id:-1}).exec();//按日期降序
+// exports.privateReport.index({_id:-1}).exec();//按日期降序
 
 
 //定义专业测评信息的modle
@@ -105,7 +105,7 @@ exports.publicReport = mongolass.model('publicReport',{
     site: {type:'string'},
     isOnline: {type:'string'}
 });
-exports.publicReport.index({_id:-1}).exec();//按日期降序
+// exports.publicReport.index({_id:-1}).exec();//按日期降序
 
 //定义企业产品的modle
 exports.product = mongolass.model('product',{
@@ -118,4 +118,12 @@ exports.product = mongolass.model('product',{
     images: {type:'string'},
     isOnline: {type:'string'}
 });
-exports.product.index({_id:-1}).exec();//按日期降序
+// exports.product.index({_id:-1}).exec();//按日期降序
+
+// 定义图片存储model
+exports.Image = mongolass.model('image',{
+    timestamp : {type : 'string'},
+    path : {type : 'string'},
+    isDeleted : {type : 'boolean'},
+    article_id : {type : 'string'}
+});

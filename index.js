@@ -38,10 +38,11 @@ app.use(require('express-formidable')({
 // 正常请求的日志
 app.use(expressWinston.logger({
     transports: [
-        new (winston.transports.Console)({
-            json: true,
-            colorize: true
-        }),
+        // 正常请求不用在控制台打印日志
+        // new (winston.transports.Console)({
+        //     json: true,
+        //     colorize: true
+        // }),
         new winston.transports.File({
             filename: 'logs/success.log'
         })
