@@ -5,9 +5,10 @@ var fs = require('fs');
 var ImageModel = require('../models/image');
 var ResData = require('../models/res');
 const crypto = require('crypto');
+var config = require('config-lite');
 
-var protocol = 'http';
-var hostname = '127.0.0.1:3300';
+const protocol = config.protocol;
+const hostname = config.hostname;
 
 // Requires controller
 uploadHelper = require('../middlewares/uploadHelper');
@@ -58,7 +59,6 @@ module.exports=function (app) {
 
     //上传单张图片到本地，返回url
     app.post('/picupload',(req,res,next)=>{
-
         // console.log(req.fields.picbin);
         var data = req.fields.picbin.split(',');
         const hash = crypto.createHash('md5');
@@ -66,13 +66,27 @@ module.exports=function (app) {
         var bf = new Buffer(data[1],'base64');
         var fileName = hash.digest('hex')+'.'+data[0].split(';')[0].split('/')[1];//获取文件MIME格式后缀
         fs.writeFile('./public/image/'+fileName,bf,()=>{
-            var resData = new ResData();
-            resData.setData('添加成功');
-            resData.setIsSuccess(1);
-            resData.url = protocol + '://' + hostname + '/image/'+fileName;
-            res.json(resData);
+            var image = {
+                timestamp : new Date().getTime().toString(),
+                path : protocol + '://' + hostname + '/image/'+fileName,
+                isDeleted : false
+            };
+            ImageModel.create(image)
+            .then(function (result) {
+                resData = new ResData();
+                resData.setData("添加成功");
+                resData.setIsSuccess(1);
+                resData.url=image.path;
+                res.json(resData);
+            })
+            .catch(function (e) {
+                resData = new ResData();
+                resData.setData("添加失败");
+                resData.setIsSuccess(0);
+                res.send(JSON.stringify(resData));
+                next(e);
+            });
         });
-
     });
 
 
