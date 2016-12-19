@@ -8,6 +8,7 @@ var pkg = require('./package');
 var winston = require('winston');
 var expressWinston = require('express-winston');
 var app = express();
+var cors = require('cors');
 
 // 1.设置模板目录和引擎
 app.set('views', path.join(__dirname, 'views'));
@@ -27,6 +28,9 @@ app.use(session({
         url: config.mongodb// mongodb 地址
     })
 }));
+
+//跨域中间件
+app.use(cors());
 
 //处理表单及文件上传的中间件
 app.use(require('express-formidable')({
