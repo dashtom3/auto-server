@@ -12,15 +12,15 @@ var checkCompanyLogin = require('../middlewares/check').checkCompanyLogin;
 
 //测试
 router.post('/test', function(req, res, next) {
-    var images="";
-    var item;
-    for (item in req.fields) {
-        var filePath = files[item].path.split('/').pop();
-        images = images + filePath + ";" ;
-    }
+    // var images="";
+    // var item;
+    // for (item in req.fields) {
+    //     var filePath = files[item].path.split('/').pop();
+    //     images = images + filePath + ";" ;
+    // }
     // console.log(req.fields.pic);
     // var info=req.files.info.path.split('/').pop();
-    res.send(images);
+    res.send(req.fields.info);
 });
 
 
