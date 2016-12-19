@@ -124,6 +124,5 @@ exports.product = mongolass.model('product',{
 exports.Image = mongolass.model('image',{
     timestamp : {type : 'string'},
     path : {type : 'string'},
-    isDeleted : {type : 'boolean'},
-    article_id : {type : 'string'}
+    isDeleted : {type : 'boolean'}
 });

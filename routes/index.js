@@ -4,7 +4,6 @@ multipartyMiddleware = multiparty();
 
 var protocol = 'http';
 var hostname = '127.0.0.1:3300';
-var util = require('util');
 
 // Requires controller
 uploadHelper = require('../middlewares/uploadHelper');
@@ -16,10 +15,14 @@ module.exports=function (app) {
     //测试
     app.post('/upload', function(req, res, next) {
         var ImageModel = require('../models/image');
+        var ResData = require('../models/res');
+
         var fs = require('fs');
 
-        var images="";
+        var images=[];
         var item;
+
+        var arr_promise = [];
 
         for (item in req.files) {
             // console.log(req.files[item].displayImage);
@@ -28,14 +31,30 @@ module.exports=function (app) {
             var image = {
                 timestamp : new Date().getTime().toString(),
                 path : absPath,
-                isDeleted : false,
-                article_id : '123'
-            }
-            console.log(image);
-
-            images = images + filePath + ";" ;
+                isDeleted : false
+            };
+            images.push(image);
+            arr_promise.push(ImageModel.create(image));
+            // images = images + filePath + ";" ;
         }
-        res.send(images);
+
+        Promise.all(arr_promise)
+        .then(function (result) {
+                resData = new ResData();
+                resData.setData("添加成功");
+                resData.setIsSuccess(1);
+                resData.imgs=images;
+                res.send(resData);
+            })
+            .catch(function (e) {
+                resData = new ResData();
+                resData.setData("添加失败");
+                resData.setIsSuccess(0);
+                res.send(JSON.stringify(resData));
+                next(e);
+            });
+        // console.log(images);
+        // res.send(images);
     });
 
 
