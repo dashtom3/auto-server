@@ -57,10 +57,10 @@ routes(app);
 // 错误请求的日志
 app.use(expressWinston.errorLogger({
     transports: [
-        new winston.transports.Console({
-            json: true,
-            colorize: true
-        }),
+        // new winston.transports.Console({
+        //     json: true,
+        //     colorize: true
+        // }),
         new winston.transports.File({
             filename: 'logs/error.log'
         })
