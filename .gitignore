@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-*.idea
-/logs/
-=======
 .vscode
 
 logs/*
@@ -13,4 +9,3 @@ npm-debug.log
 node_modules/
 
 .idea/
->>>>>>> fc622b745bef7fc6a79af09cfdde2bc561d70939
