@@ -8,6 +8,7 @@ var pkg = require('./package');
 var winston = require('winston');
 var expressWinston = require('express-winston');
 var app = express();
+var cors = require('cors');
 
 // 1.设置模板目录和引擎
 app.set('views', path.join(__dirname, 'views'));
@@ -28,6 +29,9 @@ app.use(session({
     })
 }));
 
+//跨域中间件
+app.use(cors());
+
 //处理表单及文件上传的中间件
 app.use(require('express-formidable')({
     uploadDir: path.join(__dirname, 'public/image'),// 上传文件目录
@@ -38,10 +42,11 @@ app.use(require('express-formidable')({
 // 正常请求的日志
 app.use(expressWinston.logger({
     transports: [
-        new (winston.transports.Console)({
-            json: true,
-            colorize: true
-        }),
+        // 正常请求不用在控制台打印日志
+        // new (winston.transports.Console)({
+        //     json: true,
+        //     colorize: true
+        // }),
         new winston.transports.File({
             filename: 'logs/success.log'
         })
