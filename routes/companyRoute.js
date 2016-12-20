@@ -20,7 +20,11 @@ router.post('/test', function(req, res, next) {
     // }
     // console.log(req.fields.pic);
     // var info=req.files.info.path.split('/').pop();
-    res.send(req.fields.info);
+    res.send("hhh");//req.fields.info
+});
+
+router.post('/', function(req, res, next) {
+    res.send("hhhh");
 });
 
 
