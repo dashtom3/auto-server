@@ -20,12 +20,10 @@
       "load": "",
       "modules": ""
     },
-    "es_modules": {},
     "requirejs": {
       "baseURL": "",
       "paths": "",
       "override": ""
-    },
-    "commonjs": {}
+    }
   }
 }

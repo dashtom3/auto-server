@@ -5,17 +5,29 @@ var url = require('url');
 
 var UserModel = require('../models/user');
 var ResData = require('../models/res');
+var Response = require('../models/response');
 var checkUserLogin = require('../middlewares/check').checkUserLogin;
 
 //用户注册
 router.post('/signup', function(req, res, next) {
+
     var name = req.fields.name;
     var nikeName=req.fields.nikeName;
     var password=req.fields.password;
-    var mail=req.fields.mail;
-    var phone=req.fields.phone;
-    var idImg1=req.files.idImg1.path.split('/').pop();
-    var idImg2=req.files.idImg2.path.split('/').pop();
+    var mail=req.fields.mail || "";
+    var phone=req.fields.phone || "";
+    var idImg1=(req.files.idImg1 == undefined)
+        ?"":req.files.idImg1.path.split('/').pop();
+    var idImg2=(req.files.idImg2 == undefined)
+        ?"":req.files.idImg2.path.split('/').pop();
+
+    if((name == null)
+    || (nikeName == null)
+    || (password == null)){
+        res.json(Response(0,'101'));
+        return;
+    }
+
     // 明文密码加密
     password = sha1(password);
 
@@ -39,19 +51,19 @@ router.post('/signup', function(req, res, next) {
             delete user.password;
             req.session.user = user;
             //返回用户json
-            resData = new ResData();
+            var resData = new ResData();
             resData.setData(user);
             resData.setIsSuccess(1);
-            res.send(JSON.stringify(resData));
+            res.json(resData);
         })
         .catch(function (e) {
             if (e.message.match('E11000 duplicate key')) {
-                resData = new ResData();
+                var resData = new ResData();
                 resData.setData("user exist");
                 resData.setIsSuccess(0);
-                res.send(JSON.stringify(resData));
+                res.json(resData);
             }
-            next(e);
+            // next(e);
         });
 });
 
@@ -59,12 +71,21 @@ router.post('/signup', function(req, res, next) {
 router.get('/login',function (req, res , next) {
     var urlQuery=url.parse(req.url,true).query;
     var name=urlQuery.name;
-    var password=urlQuery.password;
+    var password=urlQuery.password ;
+
+    if((name == null || name == '')
+    || (password == null || password == '')){
+        res.json(Response(0,'101'));
+        return;
+    }
+
+    console.log('name',name);
+    console.log('pwd',password);
 
     //找到用户
     UserModel.getUserByname(name)
         .then(function (user) {
-            resData = new ResData();
+            var resData = new ResData();
             if(!user){
                 resData.setData("user not exist");
                 resData.setIsSuccess(0);
@@ -77,9 +98,14 @@ router.get('/login',function (req, res , next) {
                 delete user.password;
                 req.session.user=user;
             }
-            res.send(JSON.stringify(resData))
+            res.json(resData);
         })
-        .catch(next);
+        .catch((e)=>{
+            var resData = new ResData();
+            resData.setData("901");
+            resData.setIsSuccess(0);
+            res.json(resData);
+        });
 
 });
 
