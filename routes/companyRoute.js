@@ -198,6 +198,8 @@ router.post('/signup', function(req, res, next) {
  *              "timestamp":"1482309213079",
  *              "isPassed":0,
  *              "token":"6b2c60171cdc4bc925259af73a8a3b7c"
+ *          }
+ *      }
  * @apiErrorExample {json} Error-Response:
  *      HTTP/1.1 200 OK
  *      {
@@ -242,50 +244,32 @@ router.get('/login',function (req,res,next) {
  * @apiName company_logout
  * @apiGroup Company
  *
- * @apiParam {String} name 用户名
- * @apiParam {String} password 密码
+ * @apiParam {String} token Token
  * @apiSuccessExample {json} Success-Response:
  *      HTTP/1.1 200 OK
  *      {
  *          "callStatus":"SUCCEED",
  *          "errCode":"NO_ERROR",
- *          "data":
- *          {
- *              "_id":"585a3e5d6611b4ba5c4e12ac",
- *              "name":"company",
- *              "position":"position A",
- *              "info":"",
- *              "type":"CM",
- *              "longName":"",
- *              "shortName":"",
- *              "logo":"",
- *              "address":"",
- *              "field":"",
- *              "regTime":"yyyy-mm-dd",
- *              "legalEntity":"",
- *              "regCapital":"",
- *              "regAddress":"",
- *              "isNeedCapital":"",
- *              "companyDesc":"",
- *              "productDesc":"",
- *              "userDesc":"",
- *              "timestamp":"1482309213079",
- *              "isPassed":0,
- *              "token":"6b2c60171cdc4bc925259af73a8a3b7c"
+ *          "data":null
+ *      }
  * @apiErrorExample {json} Error-Response:
  *      HTTP/1.1 200 OK
  *      {
  *          "callStatus": "FAILED",
- *          "errCode": "USERNAME_PASSWORD_MISMATCH",
+ *          "errCode": "TOKEN_DELETE_FAILED",
  *          "data": null
  *      }
  * */
 router.get('/logout',checkCompanyLogin,function (req,res,next) {
-    req.session.company=null;
-    resData=new ResData();
-    resData.setIsSuccess(1);
-    resData.setData("logout success");
-    res.send(JSON.stringify(resData));
+    let token = req.query.token;
+
+    TokenModel.del(token)
+        .then((result)=>{
+            res.json(new ResData(1,0,null));
+        })
+        .catch((e)=>{
+            res.json(new ResData(0,802,null));
+        });
 });
 
 //获取企业详细信息

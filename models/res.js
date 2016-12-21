@@ -30,6 +30,7 @@ var errorCodeEnum = {
     701 : 'IMAGES_UPLOAD_FAILED',
     901 : 'UNKNOWN_LOGIN_ERROR',
     801 : 'TOKEN_GENERATE_FAILED',
+    802 : 'TOKEN_DELETE_FAILED',
     999 : 'UNKNOWN_ERROR'
 };
 
