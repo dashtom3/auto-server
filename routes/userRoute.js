@@ -32,10 +32,19 @@ const TokenModel = require('../models/token');
  *      {
  *          "callStatus":"SUCCEED",
  *          "errCode":"NO_ERROR",
- *          "data":{
- *              "token":"918a5eae2b58f7a7dd159da69ce3bbf4",
- *              "_id":"585a268b9ac747ad924f4545",
- *              //其他信息
+ *          "data":
+ *          {
+ *              "name":"testusername",
+ *              "nikeName":"thisisnikname",
+ *              "mail":"123@qq.com",
+ *              "phone":"12345",
+ *              "idImg1":"",
+ *              "idImg2":"",
+ *              "userType":"normal",
+ *              "timestamp":"1482314023487",
+ *              "isPassed":0,
+ *              "_id":"585a51272a4c3bc1bcef57c8",
+ *              "token":"9ccc2ff448458bdbc4a8aab5f143ddc4"
  *          }
  *      }
  * @apiErrorExample {json} Error-Response:
@@ -114,6 +123,41 @@ router.post('/signup', function(req, res, next) {
 });
 
 //用户登录
+/**
+ * @api {GET} /user/login 用户登录接口
+ * @apiName user_login
+ * @apiGroup User
+ *
+ * @apiParam {String} name 用户名
+ * @apiParam {String} password 密码
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus":"SUCCEED",
+ *          "errCode":"NO_ERROR",
+ *          "data":
+ *          {
+ *              "_id":"585a51272a4c3bc1bcef57c8",
+ *              "name":"testusername",
+ *              "nikeName":"thisisnikname",
+ *              "mail":"123@qq.com",
+ *              "phone":"12345",
+ *              "idImg1":"",
+ *              "idImg2":"",
+ *              "userType":"normal",
+ *              "timestamp":"1482314023487",
+ *              "isPassed":0,
+ *              "token":"7bce023885525c0b0fa0469caa61f961"
+ *          }
+ *      }
+ * @apiErrorExample {json} Error-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus": "FAILED",
+ *          "errCode": "USERNAME_PASSWORD_MISMATCH",
+ *          "data": null
+ *      }
+ * */
 router.get('/login',function (req, res , next) {
     let urlQuery=url.parse(req.url,true).query;
     let name=urlQuery.name;
@@ -154,12 +198,37 @@ router.get('/login',function (req, res , next) {
 });
 
 //用户登出
+/**
+ * @api {GET} /user/logout 用户登出接口
+ * @apiName user_logout
+ * @apiGroup User
+ *
+ * @apiParam {String} token Token
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus":"SUCCEED",
+ *          "errCode":"NO_ERROR",
+ *          "data":null
+ *      }
+ * @apiErrorExample {json} Error-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus": "FAILED",
+ *          "errCode": "TOKEN_DELETE_FAILED",
+ *          "data": null
+ *      }
+ * */
 router.get('/logout',checkUserLogin,function (req,res,next) {
-    req.session.user=null;
-    resData=new ResData();
-    resData.setIsSuccess(1);
-    resData.setData("logout success");
-    res.send(JSON.stringify(resData));
+    let token = req.query.token;
+
+    TokenModel.del(token)
+        .then((result)=>{
+            res.json(new ResData(1,0,null));
+        })
+        .catch((e)=>{
+            res.json(new ResData(0,802,null));
+        });
 });
 
 //获取用户列表
