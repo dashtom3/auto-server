@@ -14,7 +14,7 @@ test/userSignup.thml
 [http://localhost:3300/user/getUserList](http://localhost:3300/user/getUserList)
 
 ###更改用户类型
-5种类型：'no','normal','vc','admin','forbid'
+5种类型：'normal','vc','admin','forbid','wr'
 [http://localhost:3300/user/modifyType?newType=vc](http://localhost:3300/user/modifyType?newType=vc)
 
 ###更改密码
@@ -35,7 +35,8 @@ test/companySignup.html
 [http://localhost:3300/company/getCompanyByName?name=xxx]()
 ###分类获取企业列表
 [http://localhost:3300/company/getCompanyByField?field=xxx](http://localhost:3300/company/getCompanyByField?field=xxx)
-###修改权限(enum:['no','normal'])
+###修改权限
+9种类型：CM汽车制作，CG汽车零部件，CS汽车销售与服务，NEC新能源汽车，NOC车联网，CC车用化工品，CE汽车金融，PT公共交通，MOC汽车媒体
 [http://localhost:3300/company/modifyType?newType=no](http://localhost:3300/company/modifyType?newType=no)
 
 ###更改密码
@@ -127,5 +128,3 @@ post表单：title,author,isFirst,tag,desc,pic,wysiwyg
 [http://localhost:3300/product/getProductByType?type=1]()
 ###根据公司获取产品列表
 [http://localhost:3300/product/getProductByCompany?companyName=xxx]()
-
-
