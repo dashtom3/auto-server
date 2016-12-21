@@ -3,6 +3,12 @@ var Mongolass = require('mongolass');
 var mongolass = new Mongolass();
 mongolass.connect(config.mongodb);
 
+//定义token的model
+exports.Token = mongolass.model('Token',{
+    linkTo:{type:Mongolass.Types.ObjectId},
+    token:{type:'string'},
+    expiredAt:{type:'number'}
+});
 
 //定义用户的modle
 exports.User = mongolass.model('User',{
@@ -14,7 +20,10 @@ exports.User = mongolass.model('User',{
     phone: {type:'string'},
     idImg1: {type:'string'},
     idImg2: {type:'string'},
-    userType: {type:'string', enum:['no','normal','vc','admin','forbid']}
+    userType: {type:'string', enum:['normal','vc','admin','forbid','wr']},//-1:wr,0:admin,1:normal,2:vc,3:wr
+    isPassed:{type:'number',enum:[-1,0,1]},
+    timestamp:{type:'string'}
+
 });
 exports.User.index({name:1},{unique:true}).exec();//设置name为索引，唯一
 
@@ -26,7 +35,9 @@ exports.Company = mongolass.model('Company',{
     password: {type:'string'},
     position: {type:'string'},
     info: {type:'string'},//file
-    type: {type:'string', enum:['no','normal']},
+    //CM汽车制作，CG汽车零部件，CS汽车销售与服务，NEC新能源汽车，NOC车联网，CC车用化工品，CE汽车金融，PT公共交通，MOC汽车媒体
+    //CM:0 CG:1 CS:2 NEC:3 NOC:4 CC:5 CE:6 PT:7 MOC:8
+    type: {type:'string', enum:['CM','CG','CS','NEC','NOC','CC','CE','PT','MOC']},
     longName: {type:'string'},
     shortName: {type:'string'},
     logo: {type:'string'},//file
@@ -39,7 +50,9 @@ exports.Company = mongolass.model('Company',{
     isNeedCapital: {type:'string'},
     companyDesc: {type:'string'},
     productDesc: {type:'string'},
-    userDesc: {type:'string'}
+    userDesc: {type:'string'},
+    timestamp: {type:'string'},
+    isPassed: {type:'number',enum:[-1,0,1]}
 });
 exports.Company.index({name:1},{unique:true}).exec();//name为索引，且唯一,
 
@@ -112,11 +125,10 @@ exports.product = mongolass.model('product',{
     companyName: {type:'string'},
     name: {type:'string'},
     tag: {type:'string'},
-    state: {type:'string'},
+    state: {type:'number',enum:[0,1]},
     argc: {type:'string'},
     desc: {type:'string'},
-    images: {type:'string'},
-    isOnline: {type:'string'}
+    images: {type:'string'}
 });
 // exports.product.index({_id:-1}).exec();//按日期降序
 

@@ -3,7 +3,10 @@ module.exports={
     session:{
         secrct:'autobiz',
         key:'autobiz',
-        maxAge:2592000000
+        maxAge:86400000//24小时
+    },
+    token:{
+        maxAge:86400000//24小时
     },
     mongodb:'mongodb://localhost:27017/autobiz',
     protocol:'http',

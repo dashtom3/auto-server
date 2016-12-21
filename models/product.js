@@ -8,6 +8,8 @@ module.exports = {
     create: function create(product) {
         return Product.create(product).exec();
     },
+    //TODO:获取所有产品
+
     //按分类取出所有产品
     getProductByType: function getProductByType(type) {
         return Product.find({tag:type}).exec();

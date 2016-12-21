@@ -1,38 +1,80 @@
-var sha1 = require('sha1');
-var express = require('express');
-var router = express.Router();
-var url = require('url');
+const sha1 = require('sha1');
+const express = require('express');
+const router = express.Router();
+const url = require('url');
+const crypto = require('crypto');
+const secret = 'xjkjpassword';
 
-var UserModel = require('../models/user');
-var ResData = require('../models/res');
-var Response = require('../models/response');
-var checkUserLogin = require('../middlewares/check').checkUserLogin;
+const UserModel = require('../models/user');
+const ResData = require('../models/res');
+const Response = require('../models/response');
+const checkUserLogin = require('../middlewares/check').checkUserLogin;
+
+const TokenModel = require('../models/token');
+
 
 //用户注册
+/**
+ * @api {post} /user/signup 用户注册接口
+ * @apiName user_signup
+ * @apiGroup User
+ *
+ * @apiParam {String} name 用户名
+ * @apiParam {String} password 密码
+ * @apiParam {String} nickname 昵称
+ * @apiParam {String} mail 邮箱
+ * @apiParam {String} phone 手机号
+ * @apiParam {File} idImg1 ?
+ * @apiParam {File} idImg2 ?
+ * @apiParam {String} userType 用户类型
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus":"SUCCEED",
+ *          "errCode":"NO_ERROR",
+ *          "data":{
+ *              "token":"918a5eae2b58f7a7dd159da69ce3bbf4",
+ *              "_id":"585a268b9ac747ad924f4545",
+ *              //其他信息
+ *          }
+ *      }
+ * @apiErrorExample {json} Error-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus": "FAILED",
+ *          "errCode": "USER_EXIST",
+ *          "data": null
+ *      }
+ * */
 router.post('/signup', function(req, res, next) {
 
-    var name = req.fields.name;
-    var nikeName=req.fields.nikeName;
-    var password=req.fields.password;
-    var mail=req.fields.mail || "";
-    var phone=req.fields.phone || "";
-    var idImg1=(req.files.idImg1 == undefined)
+    let name = req.fields.name;
+    let nikeName=req.fields.nickname;
+    let password=req.fields.password;
+    let userType=req.fields.userType;
+    let mail=req.fields.mail || "";
+    let phone=req.fields.phone || "";
+    let idImg1=(req.files.idImg1 == undefined)
         ?"":req.files.idImg1.path.split('/').pop();
-    var idImg2=(req.files.idImg2 == undefined)
+    let idImg2=(req.files.idImg2 == undefined)
         ?"":req.files.idImg2.path.split('/').pop();
 
     if((name == null)
     || (nikeName == null)
-    || (password == null)){
+    || (password == null)
+    || (userType == null)){
         res.json(Response(0,'101'));
         return;
     }
 
     // 明文密码加密
-    password = sha1(password);
+    // password = sha1(password);
+    password = crypto.createHmac('md5', secret)
+                   .update(password)
+                   .digest('hex');
 
     // 待写入数据库的用户信息
-    var user = {
+    let user = {
         name: name,
         nikeName: nikeName,
         password: password,
@@ -40,38 +82,42 @@ router.post('/signup', function(req, res, next) {
         phone: phone,
         idImg1: idImg1,
         idImg2: idImg2,
-        userType: 'no'
+        userType: userType,
+        timestamp: new Date().getTime().toString(),
+        isPassed: 0
     };
     // 用户信息写入数据库
     UserModel.create(user)
         .then(function (result) {
             // 此 user 是插入 mongodb 后的值，包含 _id
             user = result.ops[0];
-            // 将用户信息存入 session
-            delete user.password;
-            req.session.user = user;
-            //返回用户json
-            var resData = new ResData();
-            resData.setData(user);
-            resData.setIsSuccess(1);
-            res.json(resData);
+            // console.log(user);
+            TokenModel.create(user._id)
+                .then((token)=>{
+                    // console.log('token:',token);
+                    //添加token信息
+                    user.token = token;
+                    delete user.password;
+                    //返回用户json
+                    res.json(new ResData(1,0,user));
+                })
+                .catch((e)=>{
+                    // console.log(e.toString());
+                    res.json(new ResData(0,801,null));
+                });
         })
         .catch(function (e) {
             if (e.message.match('E11000 duplicate key')) {
-                var resData = new ResData();
-                resData.setData("user exist");
-                resData.setIsSuccess(0);
-                res.json(resData);
+                res.json(new ResData(0,102,null));
             }
-            // next(e);
         });
 });
 
 //用户登录
 router.get('/login',function (req, res , next) {
-    var urlQuery=url.parse(req.url,true).query;
-    var name=urlQuery.name;
-    var password=urlQuery.password ;
+    let urlQuery=url.parse(req.url,true).query;
+    let name=urlQuery.name;
+    let password=urlQuery.password ;
 
     if((name == null || name == '')
     || (password == null || password == '')){
@@ -79,32 +125,30 @@ router.get('/login',function (req, res , next) {
         return;
     }
 
-    console.log('name',name);
-    console.log('pwd',password);
-
     //找到用户
     UserModel.getUserByname(name)
         .then(function (user) {
             var resData = new ResData();
             if(!user){
-                resData.setData("user not exist");
-                resData.setIsSuccess(0);
-            }else if(user.password!==sha1(password)){
-                resData.setData("password error");
-                resData.setIsSuccess(0);
+                res.json(new ResData(0,104,null));
+            }else if(user.password!==crypto.createHmac('md5', secret).update(password).digest('hex')){
+                res.json(new ResData(0,106,null));
             }else {
-                resData.setData(user);
-                resData.setIsSuccess(1);
-                delete user.password;
-                req.session.user=user;
+                TokenModel.create(user._id)
+                    .then((token)=>{
+                        //添加token信息
+                        user.token = token;
+                        delete user.password;
+                        //返回用户json
+                        res.json(new ResData(1,0,user));
+                    })
+                    .catch((e)=>{
+                        res.json(new ResData(0,801,null));
+                    });
             }
-            res.json(resData);
         })
         .catch((e)=>{
-            var resData = new ResData();
-            resData.setData("901");
-            resData.setIsSuccess(0);
-            res.json(resData);
+            res.json(new ResData(0,901,null));
         });
 
 });
@@ -120,7 +164,7 @@ router.get('/logout',checkUserLogin,function (req,res,next) {
 
 //获取用户列表
 router.get('/getUserList',checkUserLogin,function (req,res,next) {
-    UserModel.getUserList()
+    UserModel.getUserList(2,2)
         .then(function (result) {
             for (var i = 0; i < result.length; i++) {
                 delete result[i].password;
@@ -128,14 +172,24 @@ router.get('/getUserList',checkUserLogin,function (req,res,next) {
             resData=new ResData();
             resData.setData(result);
             resData.setIsSuccess(1);
-            res.send(JSON.stringify(resData));
+            res.json(resData);
         })
         .catch(function (e) {
             resData = new ResData();
             resData.setData("getUserList error");
             resData.setIsSuccess(0);
-            res.send(JSON.stringify(resData));
-            next(e);
+            res.json(resData);
+            // next(e);
+        });
+});
+
+router.get('/count',(req,res,next)=>{
+    UserModel.getTotalNum()
+        .then((result)=>{
+            res.json({count:result});
+        })
+        .catch((e)=>{
+
         });
 });
 

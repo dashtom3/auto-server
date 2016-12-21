@@ -1,74 +1,123 @@
 /**
  * Created by joseph on 16/12/12.
  */
-var express = require('express');
-var router = express.Router();
-var url = require('url');
+const express = require('express');
+const router = express.Router();
+const url = require('url');
 // var sha1 = require('sha1');
 const crypto = require('crypto');
 const secret = 'xjkjpassword';
 
-var CompanyModel = require('../models/company');
-var ResData = require('../models/res');
-var Response = require('../models/response');
-var checkCompanyLogin = require('../middlewares/check').checkCompanyLogin;
+const CompanyModel = require('../models/company');
+const ResData = require('../models/res');
+const Response = require('../models/response');
+const checkCompanyLogin = require('../middlewares/check').checkCompanyLogin;
+
+const TokenModel = require('../models/token');
 
 //注册
+/**
+ * @api {POST} /company/signup 企业注册接口
+ * @apiName company_signup
+ * @apiGroup Company
+ *
+ * @apiParam {String} name 用户名
+ * @apiParam {String} password 密码
+ * @apiParam {String} position 地域
+ * @apiParam {File} info 企业信息文件
+ * @apiParam {String} type 企业类型
+ * @apiParam {String} longName ?
+ * @apiParam {String} shortName ?
+ * @apiParam {File} logo Logo
+ * @apiParam {String} address 地址
+ * @apiParam {String} field ?
+ * @apiParam {String} regTime 注册时间
+ * @apiParam {String} legalEntity ?
+ * @apiParam {String} regCapital 注册资金？
+ * @apiParam {String} regAddress ?
+ * @apiParam {String} isNeedCapital 是否需要融资?
+ * @apiParam {String} companyDesc 公司介绍
+ * @apiParam {String} productDesc 产品介绍
+ * @apiParam {String} userDesc ?
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus":"SUCCEED",
+ *          "errCode":"NO_ERROR",
+ *          "data":
+ *          {
+ *              "name":"nametestanabda",
+ *              "position":"position A",
+ *              "info":"",
+ *              "type":"CM",
+ *              "longName":"",
+ *              "shortName":"",
+ *              "logo":"",
+ *              "address":"",
+ *              "field":"",
+ *              "regTime":"yyyy-mm-dd",
+ *              "legalEntity":"",
+ *              "regCapital":"",
+ *              "regAddress":"",
+ *              "isNeedCapital":"",
+ *              "companyDesc":"",
+ *              "productDesc":"",
+ *              "userDesc":"",
+ *              "timestamp":"1482308102170",
+ *              "isPassed":0,
+ *              "_id":"585a3a06bb0880b84291290d",
+ *              "token":"e481fbecc301b158a30cc6eba448fdbb"
+ *          }
+ *      }
+ * @apiErrorExample {json} Error-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus": "FAILED",
+ *          "errCode": "USER_EXIST",
+ *          "data": null
+ *      }
+ * */
 router.post('/signup', function(req, res, next) {
     //longName,shortName,address,field,regTime,legalEntity,regCapital,regAddress,isNeedCapital,info
     //companyDesc,productDesc,userDesc
-    var name = req.fields.name;
-    var password=req.fields.password;
-    var position=req.fields.position;
-    var info=(req.files.info == undefined)
+    let name = req.fields.name;
+    let password=req.fields.password;
+    let position=req.fields.position;
+    let info=(req.files.info == undefined)
         ?"":req.files.info.path.split('/').pop();
-    var type=req.fields.type;
+    let type=req.fields.type;
+    let regTime = req.fields.regTime;
 
     if((name == null)
     || (position == null)
     || (password == null)
-    || (type == null)){
+    || (type == null)
+    || (regTime == null)){
         res.json(Response(0,'101'));
         return;
     }
 
-    var longName="";
-    var shortName = "";
-    var address="";
-    var field="";
-    var regTime = "";
-    var legalEntity="";
-    var regCapital="";
-    var regAddress="";
-    var isNeedCapital = "";
+    let longName="";
+    let shortName = "";
+    let address="";
+    let field="";
+    let legalEntity="";
+    let regCapital="";
+    let regAddress="";
+    let isNeedCapital = "";
 
-    var logo="";
-    var companyDesc="";
-    var productDesc="";
-    var userDesc = "";
+    let logo="";
+    let companyDesc="";
+    let productDesc="";
+    let userDesc = "";
 
-
-    // var longName=req.fields.longName;
-    // var shortName = req.fields.shortName;
-    // var address=req.fields.address;
-    // var field=req.fields.field;
-    // var regTime = req.fields.regTime;
-    // var legalEntity=req.fields.legalEntity;
-    // var regCapital=req.fields.regCapital;
-    // var regAddress=req.fields.regAddress;
-    // var isNeedCapital = req.fields.isNeedCapital;
-
-    // var logo=req.files.logo.path.split('/').pop();
-    // var companyDesc=req.fields.companyDesc;
-    // var productDesc=req.fields.productDesc;
-    // var userDesc = req.fields.userDesc;
     // 明文密码加密
     password = crypto.createHmac('md5', secret)
                    .update(password)
                    .digest('hex');
 
     // 待写入数据库的公司信息
-    var company = {
+    let company = {
         name: name,
         password: password,
         position: position,
@@ -94,57 +143,143 @@ router.post('/signup', function(req, res, next) {
     CompanyModel.create(company)
         .then(function (result) {
             company = result.ops[0];
-            // 将信息存入 session
-            delete company.password;
-            req.session.company = company;
-            //返回用户json
-            resData = new ResData();
-            resData.setData(company);
-            resData.setIsSuccess(1);
-            res.send(JSON.stringify(resData));
+            TokenModel.create(company._id)
+                .then((token)=>{
+                    //添加token信息
+                    company.token = token;
+                    delete company.password;
+                    //返回用户json
+                    res.json(new ResData(1,0,company));
+                })
+                .catch((e)=>{
+                    res.json(new ResData(0,801,null));
+                });
         })
         .catch(function (e) {
             if (e.message.match('E11000 duplicate key')) {
-                resData = new ResData();
-                resData.setData("user exist");
-                resData.setIsSuccess(0);
-                res.send(JSON.stringify(resData));
+                res.json(new ResData(0,104,null));
             }
-            next(e);
         });
 });
 
-router.get('/', function (req, res) {
-    res.send('Hello company');
-});
-
 //登录
+/**
+ * @api {GET} /company/login 企业登录接口
+ * @apiName company_login
+ * @apiGroup Company
+ *
+ * @apiParam {String} name 用户名
+ * @apiParam {String} password 密码
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus":"SUCCEED",
+ *          "errCode":"NO_ERROR",
+ *          "data":
+ *          {
+ *              "_id":"585a3e5d6611b4ba5c4e12ac",
+ *              "name":"company",
+ *              "position":"position A",
+ *              "info":"",
+ *              "type":"CM",
+ *              "longName":"",
+ *              "shortName":"",
+ *              "logo":"",
+ *              "address":"",
+ *              "field":"",
+ *              "regTime":"yyyy-mm-dd",
+ *              "legalEntity":"",
+ *              "regCapital":"",
+ *              "regAddress":"",
+ *              "isNeedCapital":"",
+ *              "companyDesc":"",
+ *              "productDesc":"",
+ *              "userDesc":"",
+ *              "timestamp":"1482309213079",
+ *              "isPassed":0,
+ *              "token":"6b2c60171cdc4bc925259af73a8a3b7c"
+ * @apiErrorExample {json} Error-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus": "FAILED",
+ *          "errCode": "USERNAME_PASSWORD_MISMATCH",
+ *          "data": null
+ *      }
+ * */
 router.get('/login',function (req,res,next) {
-    var urlQuery = url.parse(req.url,true).query;
-    var name = urlQuery.name;
-    var password = urlQuery.password;
+    let urlQuery = url.parse(req.url,true).query;
+    let name = urlQuery.name;
+    let password = urlQuery.password;
 
     CompanyModel.getCompanyByName(name)
         .then(function (company) {
-            resData = new ResData();
             if(!company){
-                resData.setData("company not exist");
-                resData.setIsSuccess(0);
+                res.json(new ResData(0,105,null));
             }else if(company.password!==crypto.createHmac('md5', secret).update(password).digest('hex')){
-                resData.setData("password error");
-                resData.setIsSuccess(0);
+                res.json(new ResData(0,106,null));
             }else {
-                resData.setData(company);
-                resData.setIsSuccess(1);
-                delete company.password;
-                req.session.company=company;
+                TokenModel.create(company._id)
+                    .then((token)=>{
+                        //添加token信息
+                        company.token = token;
+                        delete company.password;
+                        //返回用户json
+                        res.json(new ResData(1,0,company));
+                    })
+                    .catch((e)=>{
+                        res.json(new ResData(0,801,null));
+                    });
             }
-            res.send(JSON.stringify(resData));
         })
-        .catch(next);
+        .catch((e)=>{
+            res.json(new ResData(0,901,null));
+        });
 });
 
 //登出
+/**
+ * @api {GET} /company/logout 企业登出接口
+ * @apiName company_logout
+ * @apiGroup Company
+ *
+ * @apiParam {String} name 用户名
+ * @apiParam {String} password 密码
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus":"SUCCEED",
+ *          "errCode":"NO_ERROR",
+ *          "data":
+ *          {
+ *              "_id":"585a3e5d6611b4ba5c4e12ac",
+ *              "name":"company",
+ *              "position":"position A",
+ *              "info":"",
+ *              "type":"CM",
+ *              "longName":"",
+ *              "shortName":"",
+ *              "logo":"",
+ *              "address":"",
+ *              "field":"",
+ *              "regTime":"yyyy-mm-dd",
+ *              "legalEntity":"",
+ *              "regCapital":"",
+ *              "regAddress":"",
+ *              "isNeedCapital":"",
+ *              "companyDesc":"",
+ *              "productDesc":"",
+ *              "userDesc":"",
+ *              "timestamp":"1482309213079",
+ *              "isPassed":0,
+ *              "token":"6b2c60171cdc4bc925259af73a8a3b7c"
+ * @apiErrorExample {json} Error-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus": "FAILED",
+ *          "errCode": "USERNAME_PASSWORD_MISMATCH",
+ *          "data": null
+ *      }
+ * */
 router.get('/logout',checkCompanyLogin,function (req,res,next) {
     req.session.company=null;
     resData=new ResData();
@@ -169,6 +304,9 @@ router.get('/getCompanyByName',checkCompanyLogin,function (req,res,next) {
 });
 
 //TODO:getlist
+
+//更改公司审核状态
+router.get('/modify');
 
 //根据分类获取企业信息
 router.get('/getCompanyByField',checkCompanyLogin,function (req,res,next) {

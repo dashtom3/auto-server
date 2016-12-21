@@ -7,6 +7,9 @@ var ResData = require('../models/res');
 const crypto = require('crypto');
 var config = require('config-lite');
 
+//test
+// var TokenModel = require('../models/token');
+
 const protocol = config.protocol;
 const hostname = config.hostname;
 
@@ -23,7 +26,7 @@ module.exports=function (app) {
         var item;
 
         var arr_promise = [];
-
+        let urlList = [];
         for (item in req.files) {
             // console.log(req.files[item].displayImage);
             var filePath = req.files[item].path.split('/').pop();
@@ -33,28 +36,19 @@ module.exports=function (app) {
                 path : absPath,
                 isDeleted : false
             };
+            urlList.push(absPath);
             images.push(image);
             arr_promise.push(ImageModel.create(image));
             // images = images + filePath + ";" ;
         }
 
         Promise.all(arr_promise)
-        .then(function (result) {
-                resData = new ResData();
-                resData.setData("添加成功");
-                resData.setIsSuccess(1);
-                resData.imgs=images;
-                res.send(resData);
+            .then((result)=>{
+                res.json(new ResData(1,0,{urls:urlList}));
             })
-            .catch(function (e) {
-                resData = new ResData();
-                resData.setData("添加失败");
-                resData.setIsSuccess(0);
-                res.send(JSON.stringify(resData));
-                next(e);
+            .catch((e)=>{
+                res.json(new ResData(0,701,null));
             });
-        // console.log(images);
-        // res.send(images);
     });
 
     //上传单张图片到本地，返回url
@@ -89,6 +83,12 @@ module.exports=function (app) {
         });
     });
 
+    // app.get('/token',(req,res,next)=>{
+    //     TokenModel.put(req.query.id)
+    //         .then((result)=>{
+    //             res.send(result);
+    //         });
+    // });
 
     app.post('/api/uploads', multipartyMiddleware, uploadHelper.uploadFile);
 

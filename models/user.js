@@ -5,9 +5,13 @@ module.exports={
     create: function create(user) {
         return User.create(user).exec();
     },
-    //获取所有用户
-    getUserList: function getUserList() {
-        return User.find().exec();
+    //获取总用户数量
+    getTotalNum: ()=>{
+        return User.count().exec();
+    },
+    //获取用户列表(numPerPage，pageNum)
+    getUserList: (numPerPage,pageNum)=>{
+        return User.find().skip(numPerPage*(pageNum-1)).limit(numPerPage).exec();
     },
     //根据name找到用户
     getUserByname: function getUserByname(name) {
