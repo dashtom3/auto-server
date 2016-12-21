@@ -4,29 +4,14 @@
 var express = require('express');
 var router = express.Router();
 var url = require('url');
-var sha1 = require('sha1');
+// var sha1 = require('sha1');
+const crypto = require('crypto');
+const secret = 'xjkjpassword';
 
 var CompanyModel = require('../models/company');
 var ResData = require('../models/res');
+var Response = require('../models/response');
 var checkCompanyLogin = require('../middlewares/check').checkCompanyLogin;
-
-//测试
-router.post('/test', function(req, res, next) {
-    // var images="";
-    // var item;
-    // for (item in req.fields) {
-    //     var filePath = files[item].path.split('/').pop();
-    //     images = images + filePath + ";" ;
-    // }
-    // console.log(req.fields.pic);
-    // var info=req.files.info.path.split('/').pop();
-    res.send("hhh");//req.fields.info
-});
-
-router.post('/', function(req, res, next) {
-    res.send("hhhh");
-});
-
 
 //注册
 router.post('/signup', function(req, res, next) {
@@ -35,7 +20,17 @@ router.post('/signup', function(req, res, next) {
     var name = req.fields.name;
     var password=req.fields.password;
     var position=req.fields.position;
-    var info=req.files.info.path.split('/').pop();
+    var info=(req.files.info == undefined)
+        ?"":req.files.info.path.split('/').pop();
+    var type=req.fields.type;
+
+    if((name == null)
+    || (position == null)
+    || (password == null)
+    || (type == null)){
+        res.json(Response(0,'101'));
+        return;
+    }
 
     var longName="";
     var shortName = "";
@@ -68,7 +63,9 @@ router.post('/signup', function(req, res, next) {
     // var productDesc=req.fields.productDesc;
     // var userDesc = req.fields.userDesc;
     // 明文密码加密
-    password = sha1(password);
+    password = crypto.createHmac('md5', secret)
+                   .update(password)
+                   .digest('hex');
 
     // 待写入数据库的公司信息
     var company = {
@@ -76,7 +73,7 @@ router.post('/signup', function(req, res, next) {
         password: password,
         position: position,
         info: info,//file
-        type: 'no',
+        type: type,
         longName: longName,
         shortName: shortName,
         logo: logo,//file
@@ -89,7 +86,9 @@ router.post('/signup', function(req, res, next) {
         isNeedCapital: isNeedCapital,
         companyDesc: companyDesc,
         productDesc: productDesc,
-        userDesc: userDesc
+        userDesc: userDesc,
+        timestamp: new Date().getTime().toString(),
+        isPassed: 0
     };
     // 信息写入数据库
     CompanyModel.create(company)
@@ -131,7 +130,7 @@ router.get('/login',function (req,res,next) {
             if(!company){
                 resData.setData("company not exist");
                 resData.setIsSuccess(0);
-            }else if(company.password!==sha1(password)){
+            }else if(company.password!==crypto.createHmac('md5', secret).update(password).digest('hex')){
                 resData.setData("password error");
                 resData.setIsSuccess(0);
             }else {
@@ -156,18 +155,20 @@ router.get('/logout',checkCompanyLogin,function (req,res,next) {
 
 //获取企业详细信息
 router.get('/getCompanyByName',checkCompanyLogin,function (req,res,next) {
-    var name = req.session.company.name;
+    var name = req.query.name;
 
     CompanyModel.getCompanyByName(name)
         .then(function (company) {
             delete company.password;
-            resData = new ResData();
-            resData.setIsSuccess(1);
-            resData.setData(company);
-            res.send(JSON.stringify(resData));
+            // resData = new ResData();
+            // resData.setIsSuccess(1);
+            // resData.setData(company);
+            res.send(company);
         })
         .catch(next);
 });
+
+//TODO:getlist
 
 //根据分类获取企业信息
 router.get('/getCompanyByField',checkCompanyLogin,function (req,res,next) {
@@ -283,19 +284,3 @@ router.post('/modifyInfo',checkCompanyLogin,function (req,res,next) {
 
 
 module.exports = router;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
