@@ -1,4 +1,4 @@
-var Token=require('../middlewares/mongo').Token;
+const Token=require('../middlewares/mongo').Token;
 const crypto = require('crypto');
 const config = require('config-lite');
 
@@ -74,5 +74,10 @@ module.exports={
     //删除token
     del : (_token)=>{
         return Token.remove({token : _token}).exec();
+    },
+
+    //反查用户账户
+    findUser : (_token)=>{
+        return Token.findOne({token : _token}).exec();
     }
-}
+};

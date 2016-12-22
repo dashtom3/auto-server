@@ -25,7 +25,7 @@ const TokenModel = require('../models/token');
  * @apiParam {String} password 密码
  * @apiParam {String} position 地域
  * @apiParam {File} info 企业信息文件
- * @apiParam {String} type 企业类型
+ * @apiParam {String} type 企业类型  CM汽车制作，CG汽车零部件，CS汽车销售与服务，NEC新能源汽车，NOC车联网，CC车用化工品，CE汽车金融，PT公共交通，MOC汽车媒体
  * @apiParam {String} longName ?
  * @apiParam {String} shortName ?
  * @apiParam {File} logo Logo
@@ -290,7 +290,6 @@ router.get('/logout',checkCompanyLogin,function (req,res,next) {
  *          {
  *              "_id":"585a3e5d6611b4ba5c4e12ac",
  *              "name":"company",
- *              "password":"08f65b41ac269fa578cae6272374a204",
  *              "position":"position A",
  *              "info":"",
  *              "type":"CM",
@@ -375,7 +374,7 @@ router.get('/getCompanyByField',checkCompanyLogin,function (req,res,next) {
 
 //更改公司审核状态
 /**
- * @api {GET} /company/modify/approval 更改公司审核状态
+ * @api {GET} /company/modify/approval 更改企业审核状态
  * @apiName company_modifyApprovalStatus
  * @apiGroup Company
  *
@@ -430,60 +429,129 @@ router.get('/modify/approval',checkCompanyLogin,(req,res)=>{
         });
 });
 
-
-
 //审核&修改企业权限
-router.get('/modifyType',checkCompanyLogin,function (req,res,next) {
-    var newType=url.parse(req.url,true).query.newType;
-    company=req.session.company;
-    company.type=newType;
-
-    CompanyModel.modifyType(company.name,newType)
-        .then(function (result) {
-            var resData = new ResData();
-            resData.setData("modify succeff");
-            resData.setIsSuccess(1);
-            res.send(JSON.stringify(resData));
-        })
-        .catch(function (e) {
-            var resData = new ResData();
-            resData.setData("modify error");
-            resData.setIsSuccess(0);
-            res.send(JSON.stringify(resData));
-        });
-});
+// router.get('/modifyType',checkCompanyLogin,function (req,res,next) {
+//     var newType=url.parse(req.url,true).query.newType;
+//     company=req.session.company;
+//     company.type=newType;
+//
+//     CompanyModel.modifyType(company.name,newType)
+//         .then(function (result) {
+//             var resData = new ResData();
+//             resData.setData("modify succeff");
+//             resData.setIsSuccess(1);
+//             res.send(JSON.stringify(resData));
+//         })
+//         .catch(function (e) {
+//             var resData = new ResData();
+//             resData.setData("modify error");
+//             resData.setIsSuccess(0);
+//             res.send(JSON.stringify(resData));
+//         });
+// });
 
 //修改密码
-router.get('/modifyPassword',checkCompanyLogin,function (req,res,next) {
-    var urlQuery=url.parse(req.url,true).query;
-    var oldPassword=urlQuery.oldPassword;
-    var newPassword=urlQuery.newPassword;
+/**
+ * @api {GET} /company/modify/password 更改企业用户密码
+ * @apiName company_modifyPassword
+ * @apiGroup Company
+ *
+ * @apiParam {String} token Token
+ * @apiParam {String} oldPassword 旧密码
+ * @apiParam {String} newPassword 新密码
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus":"SUCCEED",
+ *          "errCode":"NO_ERROR",
+ *          "data":null
+ *      }
+ * @apiErrorExample {json} Error-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus": "FAILED",
+ *          "errCode": "USERNAME_PASSWORD_MISMATCH",
+ *          "data": null
+ *      }
+ * */
+router.get('/modify/password',checkCompanyLogin,function (req,res,next) {
+    let urlQuery=url.parse(req.url,true).query;
+    let oldPassword=urlQuery.oldPassword;
+    let newPassword=urlQuery.newPassword;
+    let token = urlQuery.token;
 
-    sessionCompany=req.session.company;
-    resData=new ResData();
-    CompanyModel.getCompanyByName(sessionCompany.name)
-        .then(function (company) {
-            if(sha1(oldPassword)!==company.password){
-                resData.setIsSuccess(0);
-                resData.setData("password error");
-                res.send(JSON.stringify(resData));
+    TokenModel.findUser(token)
+        .then((result)=>{
+            if(result == null){
+                res.json(new ResData(0,803));
+                return;
             }
-            else{
-                resData.setIsSuccess(1);
-                resData.setData("modifyPassword success");
-                CompanyModel.modifyPassword(company.name,sha1(newPassword))
-                    .then(function (result) {
-                        res.send(JSON.stringify(resData));
-                    })
-                    .catch(function (e) {
-                        resData = new ResData();
-                        resData.setData("modify error");
-                        resData.setIsSuccess(0);
-                        res.send(JSON.stringify(resData));
-                    });
+            let user_id = result.linkTo;
+            if (user_id == undefined || user_id == null){
+                res.json(new ResData(0,804));
+                return;
             }
+            return Promise.resolve(user_id);
         })
-        .catch();
+        .then((user_id)=>{
+            return CompanyModel.getOldPassword(user_id)
+                .then((result)=>{
+                    return Promise.resolve(result);
+                })
+                .catch((e)=>{
+                    res.json(new ResData(0,703));
+                    return;
+                });
+        })
+        .then((result)=>{
+            const encrypted = crypto.createHmac('md5', secret).update(oldPassword).digest('hex');
+            if(encrypted != result.password){
+                res.json(new ResData(0,106));
+                return;
+            }
+            CompanyModel.modifyPassword(result._id,crypto.createHmac('md5', secret).update(newPassword).digest('hex'))
+                .then((result)=>{
+                    res.json(new ResData(1,0));
+                })
+                .catch((e)=>{
+                    res.json(new ResData(0,704));
+                    return;
+                });
+        })
+        .catch((e)=>{
+            res.json(new ResData(0,804));
+            return;
+        });
+
+
+
+
+    // sessionCompany=req.session.company;
+    // resData=new ResData();
+    // CompanyModel.getCompanyByName(sessionCompany.name)
+    //     .then(function (company) {
+    //         if(sha1(oldPassword)!==company.password){
+    //             resData.setIsSuccess(0);
+    //             resData.setData("password error");
+    //             res.send(JSON.stringify(resData));
+    //         }
+    //         else{
+    //             resData.setIsSuccess(1);
+    //             resData.setData("modifyPassword success");
+    //             CompanyModel.modifyPassword(company.name,sha1(newPassword))
+    //                 .then(function (result) {
+    //                     res.send(JSON.stringify(resData));
+    //                 })
+    //                 .catch(function (e) {
+    //                     resData = new ResData();
+    //                     resData.setData("modify error");
+    //                     resData.setIsSuccess(0);
+    //                     res.send(JSON.stringify(resData));
+    //                 });
+    //         }
+    //     })
+    //     .catch();
 });
 
 //修改企业信息：

@@ -16,17 +16,22 @@ module.exports = {
     getCompanyByName: function getCompanyByName(name) {
         return Company.findOne({name:name}).exec();
     },
+    //根据id查详情
     getDetail: (_id)=>{
-        return Company.findOne({_id:_id}).exec();
+        return Company.findOne({_id:_id},{password:0}).exec();
+    },
+    //根据id查详情
+    getOldPassword: (_id)=>{
+        return Company.findOne({_id:_id},{password:1}).exec();
     },
     //更改密码
-    modifyPassword: function modifyPassword(name,newPassword) {
-        return Company.update({name:name},{$set:{password:newPassword}}).exec();
+    modifyPassword: function modifyPassword(companyId,newPassword) {
+        return Company.update({_id:companyId},{$set:{password:newPassword}}).exec();
     },
     //修改权限
-    modifyType: function modifyType(name,newType) {
-        return Company.update({name:name},{$set:{type:newType}}).exec();
-    },
+    // modifyType: function modifyType(name,newType) {
+    //     return Company.update({name:name},{$set:{type:newType}}).exec();
+    // },
     //修改信息：longName,shortName,logo,address,field,regTime,legalEntity,regCapital,regAddress,
     // isNeedCapital,companyDesc,productDesc,userDesc
     modify: function modify(name,longName,shortName,logo,address,field,regTime,legalEntity,
