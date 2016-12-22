@@ -1,7 +1,7 @@
 /**
  * Created by joseph on 16/12/9.
  */
-var Company = require('../middlewares/mongo').Company;
+const Company = require('../middlewares/mongo').Company;
 
 module.exports = {
     //注册
@@ -15,6 +15,9 @@ module.exports = {
     //根据name查找公司
     getCompanyByName: function getCompanyByName(name) {
         return Company.findOne({name:name}).exec();
+    },
+    getDetail: (_id)=>{
+        return Company.findOne({_id:_id}).exec();
     },
     //更改密码
     modifyPassword: function modifyPassword(name,newPassword) {
@@ -33,5 +36,9 @@ module.exports = {
             regAddress:regAddress,isNeedCapital:isNeedCapital,
             companyDesc:companyDesc,productDesc:productDesc,userDesc:userDesc}}).exec();
     },
+    //修改审核状态
+    modifyApproval : (companyId,isPassed)=>{
+        return Company.update({_id:companyId},{$set:{isPassed:isPassed}}).exec();
+    }
 
 };

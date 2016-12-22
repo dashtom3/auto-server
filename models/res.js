@@ -27,15 +27,19 @@ var errorCodeEnum = {
     104 : 'COMPANY_EXIST',
     105 : 'COMPANY_NOT_EXIST',
     106 : 'USERNAME_PASSWORD_MISMATCH',
+    107 : 'INVALID_ARGUMENT',
+    201 : 'COMPANY_APPROVAL_NOT_CHANGED',
     701 : 'IMAGES_UPLOAD_FAILED',
-    901 : 'UNKNOWN_LOGIN_ERROR',
+    702 : 'MODIFY_APPROVAL_FAILED',
+    703 : 'GET_COMPANY_DETAIL_FAILED',
     801 : 'TOKEN_GENERATE_FAILED',
     802 : 'TOKEN_DELETE_FAILED',
+    901 : 'LOGIN_FAILED',
     999 : 'UNKNOWN_ERROR'
 };
 
 class resData {
-    constructor(_callStatus,_errorCode,_data) {
+    constructor(_callStatus,_errorCode,_data=null) {
         this.callStatus = callStatusEnum[_callStatus];
         this.errCode = errorCodeEnum[_errorCode];
         this.data = _data;

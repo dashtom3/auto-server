@@ -77,7 +77,7 @@ const TokenModel = require('../models/token');
  *          "data": null
  *      }
  * */
-router.post('/signup', function(req, res, next) {
+router.post('/signup', function(req, res) {
     //longName,shortName,address,field,regTime,legalEntity,regCapital,regAddress,isNeedCapital,info
     //companyDesc,productDesc,userDesc
     let name = req.fields.name;
@@ -208,7 +208,7 @@ router.post('/signup', function(req, res, next) {
  *          "data": null
  *      }
  * */
-router.get('/login',function (req,res,next) {
+router.get('/login',function (req,res) {
     let urlQuery = url.parse(req.url,true).query;
     let name = urlQuery.name;
     let password = urlQuery.password;
@@ -273,28 +273,92 @@ router.get('/logout',checkCompanyLogin,function (req,res,next) {
 });
 
 //获取企业详细信息
-router.get('/getCompanyByName',checkCompanyLogin,function (req,res,next) {
-    var name = req.query.name;
+/**
+ * @api {GET} /company/detail 获取企业详细信息
+ * @apiName company_getDetail
+ * @apiGroup Company
+ *
+ * @apiParam {String} token Token
+ * @apiParam {String} companyId 企业ID
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus":"SUCCEED",
+ *          "errCode":"NO_ERROR",
+ *          "data":
+ *          {
+ *              "_id":"585a3e5d6611b4ba5c4e12ac",
+ *              "name":"company",
+ *              "password":"08f65b41ac269fa578cae6272374a204",
+ *              "position":"position A",
+ *              "info":"",
+ *              "type":"CM",
+ *              "longName":"",
+ *              "shortName":"",
+ *              "logo":"",
+ *              "address":"",
+ *              "field":"",
+ *              "regTime":"yyyy-mm-dd",
+ *              "legalEntity":"",
+ *              "regCapital":"",
+ *              "regAddress":"",
+ *              "isNeedCapital":"",
+ *              "companyDesc":"",
+ *              "productDesc":"",
+ *              "userDesc":"",
+ *              "timestamp":"1482309213079",
+ *              "isPassed":-1
+ *          }
+ *      }
+ * @apiErrorExample {json} Error-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus": "FAILED",
+ *          "errCode": "COMPANY_NOT_EXIST",
+ *          "data": null
+ *      }
+ * */
+router.get('/detail',checkCompanyLogin,(req,res)=>{
+    let companyId = req.query.companyId;
 
-    CompanyModel.getCompanyByName(name)
-        .then(function (company) {
-            delete company.password;
-            // resData = new ResData();
-            // resData.setIsSuccess(1);
-            // resData.setData(company);
-            res.send(company);
+    if(companyId == null){
+        res.json(new ResData(0,101));
+        return;
+    }
+    CompanyModel.getDetail(companyId)
+        .then((result)=>{
+            if(result == null){
+                res.json(new ResData(0,105));
+            }else{
+                res.json(new ResData(1,0,result));
+            }
         })
-        .catch(next);
+        .catch((e)=>{
+            res.json(new ResData(0,703));
+        });
+
 });
+
+// router.get('/getCompanyByName',checkCompanyLogin,function (req,res,next) {
+//     let name = req.query.name;
+//
+//     CompanyModel.getCompanyByName(name)
+//         .then(function (company) {
+//             delete company.password;
+//             // resData = new ResData();
+//             // resData.setIsSuccess(1);
+//             // resData.setData(company);
+//             res.send(company);
+//         })
+//         .catch(next);
+// });
 
 //TODO:getlist
 
-//更改公司审核状态
-router.get('/modify');
-
 //根据分类获取企业信息
 router.get('/getCompanyByField',checkCompanyLogin,function (req,res,next) {
-    var field = url.parse(req.url,true).query.field;
+    let field = url.parse(req.url,true).query.field;
 
     CompanyModel.getCompanyByField(field)
         .then(function (result) {
@@ -308,6 +372,65 @@ router.get('/getCompanyByField',checkCompanyLogin,function (req,res,next) {
         })
         .catch(next);
 });
+
+//更改公司审核状态
+/**
+ * @api {GET} /company/modify/approval 更改公司审核状态
+ * @apiName company_modifyApprovalStatus
+ * @apiGroup Company
+ *
+ * @apiParam {String} token Token
+ * @apiParam {String} companyId 企业ID
+ * @apiParam {Number} approvalStatus 审核是否通过 0待审核，1审核通过，-1未通过
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus":"SUCCEED",
+ *          "errCode":"NO_ERROR",
+ *          "data":null
+ *      }
+ * @apiErrorExample {json} Error-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus": "FAILED",
+ *          "errCode": "MODIFY_APPROVAL_FAILED",
+ *          "data": null
+ *      }
+ * */
+router.get('/modify/approval',checkCompanyLogin,(req,res)=>{
+    let companyId = req.query.companyId;
+    let approvalStatus = req.query.approvalStatus;
+    const approvalStatusEnum = {
+        '-1' : -1,//未通过
+        '0' : 0,//未审核
+        '1' : 1//已通过
+    };
+    if(companyId == null
+    || approvalStatus == null){
+        res.json(new  ResData(0,101,null));
+        return;
+    }
+    if(approvalStatusEnum[approvalStatus] == undefined){
+        res.json(new ResData(0,107));
+        return;
+    }
+    CompanyModel.modifyApproval(companyId,approvalStatusEnum[approvalStatus])
+        .then((result)=>{
+            if(result.result.n == 0){
+                res.json(new ResData(0,105));
+            }else if(result.result.nModified == 0){
+                res.json(new ResData(1,201));
+            }else{
+                res.json(new ResData(1,0));
+            }
+        })
+        .catch((e)=>{
+            res.json(new ResData(0,702));
+        });
+});
+
+
 
 //审核&修改企业权限
 router.get('/modifyType',checkCompanyLogin,function (req,res,next) {
