@@ -39,6 +39,7 @@ const TokenModel = require('../models/token');
  * @apiParam {String} companyDesc 公司介绍
  * @apiParam {String} productDesc 产品介绍
  * @apiParam {String} userDesc ?
+ * @apiParam {String} phone 联系电话
  * @apiSuccessExample {json} Success-Response:
  *      HTTP/1.1 200 OK
  *      {
@@ -87,12 +88,14 @@ router.post('/signup', function(req, res) {
         ?"":req.files.info.path.split('/').pop();
     let type=req.fields.type;
     let regTime = req.fields.regTime;
+    let phone = req.fields.phone;
 
     if((name == null)
     || (position == null)
     || (password == null)
     || (type == null)
-    || (regTime == null)){
+    || (regTime == null)
+    || (phone == null)){
         res.json(Response(0,'101'));
         return;
     }
@@ -137,7 +140,8 @@ router.post('/signup', function(req, res) {
         productDesc: productDesc,
         userDesc: userDesc,
         timestamp: new Date().getTime().toString(),
-        isPassed: 0
+        isPassed: 0,
+        phone: phone
     };
     // 信息写入数据库
     CompanyModel.create(company)
@@ -495,6 +499,8 @@ router.get('/modify/password',checkCompanyLogin,function (req,res,next) {
             return Promise.resolve(user_id);
         })
         .then((user_id)=>{
+            if(user_id === undefined)
+                return;
             return CompanyModel.getOldPassword(user_id)
                 .then((result)=>{
                     return Promise.resolve(result);
@@ -505,6 +511,8 @@ router.get('/modify/password',checkCompanyLogin,function (req,res,next) {
                 });
         })
         .then((result)=>{
+            if(result === undefined)
+                return;
             const encrypted = crypto.createHmac('md5', secret).update(oldPassword).digest('hex');
             if(encrypted != result.password){
                 res.json(new ResData(0,106));
@@ -523,76 +531,122 @@ router.get('/modify/password',checkCompanyLogin,function (req,res,next) {
             res.json(new ResData(0,804));
             return;
         });
-
-
-
-
-    // sessionCompany=req.session.company;
-    // resData=new ResData();
-    // CompanyModel.getCompanyByName(sessionCompany.name)
-    //     .then(function (company) {
-    //         if(sha1(oldPassword)!==company.password){
-    //             resData.setIsSuccess(0);
-    //             resData.setData("password error");
-    //             res.send(JSON.stringify(resData));
-    //         }
-    //         else{
-    //             resData.setIsSuccess(1);
-    //             resData.setData("modifyPassword success");
-    //             CompanyModel.modifyPassword(company.name,sha1(newPassword))
-    //                 .then(function (result) {
-    //                     res.send(JSON.stringify(resData));
-    //                 })
-    //                 .catch(function (e) {
-    //                     resData = new ResData();
-    //                     resData.setData("modify error");
-    //                     resData.setIsSuccess(0);
-    //                     res.send(JSON.stringify(resData));
-    //                 });
-    //         }
-    //     })
-    //     .catch();
 });
 
 //修改企业信息：
-router.post('/modifyInfo',checkCompanyLogin,function (req,res,next) {
-    var longName=req.fields.longName;
-    var shortName = req.fields.shortName;
-    var address=req.fields.address;
-    var field=req.fields.field;
-    var regTime = req.fields.regTime;
-    var legalEntity=req.fields.legalEntity;
-    var regCapital=req.fields.regCapital;
-    var regAddress=req.fields.regAddress;
-    var isNeedCapital = req.fields.isNeedCapital;
+/**
+ * @api {POST} /company/modify/info 更改企业信息
+ * @apiName company_modifyInfo
+ * @apiGroup Company
+ *
+ * @apiParam {String} token Token
+ * @apiParam {String} longName 公司名称
+ * @apiParam {String} shortName 公司简称
+ * @apiParam {String} address 省市id
+ * @apiParam {String} field 业务简述
+ * @apiParam {String} regTime 成立时间
+ * @apiParam {String} legalEntity 法人代表
+ * @apiParam {String} regCapital 注册资本
+ * @apiParam {String} regAddress 详细地址
+ * @apiParam {Boolean} isNeedCapital 有无投融资需求
+ * @apiParam {File} logo Logo
+ * @apiParam {String} companyDesc 公司简介
+ * @apiParam {String} productDesc 产品简介
+ * @apiParam {String} userDesc 目标用户简介
+ * @apiParam {String} phone 联系方式
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus":"SUCCEED",
+ *          "errCode":"NO_ERROR",
+ *          "data":null
+ *      }
+ * @apiErrorExample {json} Error-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus": "FAILED",
+ *          "errCode": "USERNAME_PASSWORD_MISMATCH",
+ *          "data": null
+ *      }
+ * */
+router.post('/modify/info',checkCompanyLogin,function (req,res,next) {
+    const token = req.fields.token;
+    let longName=req.fields.longName;
+    let shortName = req.fields.shortName;
+    let address=req.fields.address;
+    let field=req.fields.field;
+    let regTime = req.fields.regTime;
+    let legalEntity=req.fields.legalEntity;
+    let regCapital=req.fields.regCapital;
+    let regAddress=req.fields.regAddress;
+    let isNeedCapital = req.fields.isNeedCapital;
+    let logo=(req.files.logo == undefined)
+        ?"":req.files.logo.path.split('/').pop();
+    let companyDesc=req.fields.companyDesc;
+    let productDesc=req.fields.productDesc;
+    let userDesc = req.fields.userDesc;
+    let phone = req.fields.phone;
 
-    var logo=req.files.logo.path.split('/').pop();
-    var companyDesc=req.fields.companyDesc;
-    var productDesc=req.fields.productDesc;
-    var userDesc = req.fields.userDesc;
-    company=req.session.company;
+    if(longName == null || longName.trim() == ''
+    || shortName == null || shortName.trim() == ''
+    || address == undefined//TODO: 省市idEnum[address] == undefined
+    || regTime.trim() ==''
+    || regAddress.trim() ==''
+    || (isNeedCapital !== true && isNeedCapital !== false)
+    || phone.trim() == ''){
+        res.json(new ResData(0,101));
+        return;
+    }
 
+    let newCompanyInfo = {
+        longName: longName,
+        shortName: shortName,
+        logo: logo,//file
+        address: address,
+        field: field,
+        regTime: regTime,
+        legalEntity: legalEntity,
+        regCapital: regCapital,
+        regAddress: regAddress,
+        isNeedCapital: isNeedCapital,
+        companyDesc: companyDesc,
+        productDesc: productDesc,
+        userDesc: userDesc,
+        phoen: phone
+    };
 
-    CompanyModel.modify(company.name,longName,shortName,logo,address,field,regTime,legalEntity,
-        regCapital,regAddress, isNeedCapital,companyDesc,productDesc,userDesc)
-        .then(function (result) {
-            //更新session
-            CompanyModel.getCompanyByName(sessionCompany.name)
-                .then(function (newCompany) {
-                    req.session.company=newCompany;
-                    resData = new ResData();
-                    resData.setData("modify success");
-                    resData.setIsSuccess(1);
-                    res.send(JSON.stringify(resData));
-                })
+    TokenModel.findUser(token)
+        .then((result)=>{
+            if(result == null){
+                res.json(new ResData(0,803));
+                return;
+            }
+            let user_id = result.linkTo;
+            if (user_id == undefined || user_id == null){
+                res.json(new ResData(0,804));
+                return;
+            }
+            return Promise.resolve(user_id);
         })
-        .catch(function (e) {
-            resData = new ResData();
-            resData.setData("modify error");
-            resData.setIsSuccess(0);
-            res.send(JSON.stringify(resData));
-            next(e);
+        .then((user_id)=>{
+            if(user_id === undefined)
+                return;
+            CompanyModel.modifyInfo(user_id,newCompanyInfo)
+                .then((result)=>{
+                    res.json(new ResData(1,0));
+                    return;
+                })
+                .catch((e)=>{
+                    res.json(new ResData(0,705));
+                    return;
+                });
+        })
+        .catch((e)=>{
+            res.json(new ResData(0,705));
+            return;
         });
+
 });
 
 

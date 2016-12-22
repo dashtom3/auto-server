@@ -34,12 +34,8 @@ module.exports = {
     // },
     //修改信息：longName,shortName,logo,address,field,regTime,legalEntity,regCapital,regAddress,
     // isNeedCapital,companyDesc,productDesc,userDesc
-    modify: function modify(name,longName,shortName,logo,address,field,regTime,legalEntity,
-                            regCapital,regAddress,isNeedCapital,companyDesc,productDesc,userDesc) {
-        return Company.update({name:name},{$set:{longName:longName,shortName:shortName,logo:logo,
-            address:address, field:field,regTime:regTime,legalEntity:legalEntity,regCapital:regCapital,
-            regAddress:regAddress,isNeedCapital:isNeedCapital,
-            companyDesc:companyDesc,productDesc:productDesc,userDesc:userDesc}}).exec();
+    modifyInfo: function modify(companyId,newInfo) {
+        return Company.update({_id:companyId},{$set:newInfo}).exec();
     },
     //修改审核状态
     modifyApproval : (companyId,isPassed)=>{

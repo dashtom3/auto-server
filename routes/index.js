@@ -1,11 +1,11 @@
 // Requires multiparty
 multiparty = require('connect-multiparty');
 multipartyMiddleware = multiparty();
-var fs = require('fs');
-var ImageModel = require('../models/image');
-var ResData = require('../models/res');
+const fs = require('fs');
+const ImageModel = require('../models/image');
+const ResData = require('../models/res');
 const crypto = require('crypto');
-var config = require('config-lite');
+const config = require('config-lite');
 
 //test
 // var TokenModel = require('../models/token');
@@ -22,16 +22,16 @@ module.exports=function (app) {
     });
     //测试
     app.post('/upload', function(req, res, next) {
-        var images=[];
-        var item;
+        let images=[];
+        let item;
 
-        var arr_promise = [];
+        let arr_promise = [];
         let urlList = [];
         for (item in req.files) {
             // console.log(req.files[item].displayImage);
-            var filePath = req.files[item].path.split('/').pop();
-            var absPath = protocol + '://' + hostname + '/image/'+filePath;
-            var image = {
+            let filePath = req.files[item].path.split('/').pop();
+            let absPath = protocol + '://' + hostname + '/image/'+filePath;
+            let image = {
                 timestamp : new Date().getTime().toString(),
                 path : absPath,
                 isDeleted : false
@@ -54,13 +54,13 @@ module.exports=function (app) {
     //上传单张图片到本地，返回url
     app.post('/picupload',(req,res,next)=>{
         // console.log(req.fields.picbin);
-        var data = req.fields.picbin.split(',');
+        let data = req.fields.picbin.split(',');
         const hash = crypto.createHash('md5');
         hash.update(data[1]);//第二部分才是base64编码内容
-        var bf = new Buffer(data[1],'base64');
-        var fileName = hash.digest('hex')+'.'+data[0].split(';')[0].split('/')[1];//获取文件MIME格式后缀
+        let bf = new Buffer(data[1],'base64');
+        let fileName = hash.digest('hex')+'.'+data[0].split(';')[0].split('/')[1];//获取文件MIME格式后缀
         fs.writeFile('./public/image/'+fileName,bf,()=>{
-            var image = {
+            let image = {
                 timestamp : new Date().getTime().toString(),
                 path : protocol + '://' + hostname + '/image/'+fileName,
                 isDeleted : false

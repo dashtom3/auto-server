@@ -46,7 +46,7 @@ exports.Company = mongolass.model('Company',{
     legalEntity: {type:'string'},//法人代表
     regCapital: {type:'string'},//注册资本
     regAddress: {type:'string'},//详细地址 *
-    isNeedCapital: {type:'string'},//有无投融资需求 *
+    isNeedCapital: {type:'boolean'},//有无投融资需求 *
     companyDesc: {type:'string'},//公司简介
     productDesc: {type:'string'},//产品简介
     userDesc: {type:'string'},//目标用户简介
