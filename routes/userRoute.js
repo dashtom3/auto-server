@@ -275,6 +275,10 @@ router.get('/list/:numPerPage/:pageNum',checkUserLogin,(req,res,next)=>{
         //     queryString.phone = new RegExp(queryString.phone);
         // }
 
+        //处理数字
+        if(queryString.isPassed != undefined){
+            queryString.isPassed = parseInt(queryString.isPassed);
+        }
 
         let numPerPage = parseInt(req.params.numPerPage);
         let pageNum = parseInt(req.params.pageNum);
