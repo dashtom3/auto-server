@@ -74,17 +74,15 @@ router.get('/add',checkCompanyLogin,function (req,res,next) {
  * @apiParam {String} numPerPage 每页条目数量 这是URL参数不要写在?参数里
  * @apiParam {String} pageNum 第几页 这是URL参数不要写在?参数里
  * @apiParam {String} companyId 公司Id（精准）
- * @apiParam {String} companyName 公司名（模糊）
  * @apiParam {String} yearStart 开始年份
  * @apiParam {String} yserEnd 结束年份
  * */
 router.get('/getFinanceList',checkCompanyLogin,(req,res,next)=>{
     JF(req,res,next,{
         companyId:null,
-        companyName:null,
         yearStart:null,
         yserEnd:null
-    },[]);
+    },['companyId']);
 },function (req,res,next) {
     //预处理查询语句
     const _getData = req.query;
@@ -94,11 +92,6 @@ router.get('/getFinanceList',checkCompanyLogin,(req,res,next)=>{
         }
     }
     let queryString = _getData;
-
-    //处理模糊查询字段
-    if(queryString.companyName != undefined){
-        queryString.companyName = new RegExp(queryString.companyName);
-    }
 
     //处理时间字段
     let _regTimeUnix = {
@@ -136,13 +129,14 @@ router.get('/getFinanceList',checkCompanyLogin,(req,res,next)=>{
         });
 });
 
-//4.修改财务信息
+//3.修改财务信息
 /**
  * @api {GET} /finance/modify 修改财务信息
  * @apiName finance_modify
  * @apiGroup Finance
  *
  * @apiParam {String} token Token
+ * @apiParam {String} financeRecordId 财务信息ID
  * @apiParam {String} year 财年
  * @apiParam {String} ratio 市盈率
  * @apiParam {String} input 营业收入
@@ -155,25 +149,16 @@ router.get('/getFinanceList',checkCompanyLogin,(req,res,next)=>{
  * @apiParam {String} inputRatio 资产收益率
  * */
 router.get('/modify',checkCompanyLogin,function (req,res,next) {
-    //可修改：ratio,input,increase,allCapital,realCapital,allRatio,realRatio,debtRatio,inputRatio
     var urlQuery = url.parse(req.url,true).query;
-    company=req.session.company;
 
-    //更改用户类型
-    FinanceModel.modify(company.name,urlQuery.year,urlQuery.ratio,urlQuery.input,urlQuery.increase,urlQuery.allCapital,
+    //更改财务信息
+    FinanceModel.modify(urlQuery.financeRecordId,urlQuery.year,urlQuery.ratio,urlQuery.input,urlQuery.increase,urlQuery.allCapital,
         urlQuery.realCapital,urlQuery.allRatio,urlQuery.realRatio,urlQuery.debtRatio,urlQuery.inputRatio)
         .then(function (result) {
-            resData = new ResData();
-            resData.setData("modify success");
-            resData.setIsSuccess(1);
-            res.send(JSON.stringify(resData));
+            res.json(new ResData(1,0,result));
         })
         .catch(function (e) {
-            resData = new ResData();
-            resData.setData("modify error");
-            resData.setIsSuccess(0);
-            res.send(JSON.stringify(resData));
-            next(e);
+            res.json(new ResData(0,710,null));
         });
 });
 
@@ -187,23 +172,14 @@ router.get('/modify',checkCompanyLogin,function (req,res,next) {
  * @apiParam {String} financeRecordId 财务信息ID
  * */
 router.get('/delete',checkCompanyLogin,function (req,res,next) {
-    var year = url.parse(req.url,true).query.year;
-    company=req.session.company;
-
-    //更改用户类型
-    FinanceModel.deleteRecord(company.name,year)
+    var id = url.parse(req.url,true).query.financeRecordId;
+    
+    FinanceModel.deleteRecord(id)
         .then(function (result) {
-            resData = new ResData();
-            resData.setData("delete success");
-            resData.setIsSuccess(1);
-            res.send(JSON.stringify(resData));
+            res.json(new ResData(1,0,result));
         })
         .catch(function (e) {
-            resData = new ResData();
-            resData.setData("delete error");
-            resData.setIsSuccess(0);
-            res.send(JSON.stringify(resData));
-            next(e);
+            res.json(new ResData(0,711,null));
         });
 });
 

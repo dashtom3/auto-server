@@ -17,15 +17,15 @@ module.exports = {
         return Finance.findOne({companyName:name,year:year}).exec();
     },
     //修改：ratio,input,increase,allCapital,realCapital,allRatio,realRatio,debtRatio,inputRatio
-    modify: function modify(name,year,ratio,input,increase,allCapital,
+    modify: function modify(id,year,ratio,input,increase,allCapital,
                             realCapital,allRatio,realRatio,debtRatio,inputRatio) {
-        return Finance.update({companyName:name,year:year},{$set:{ratio:ratio,
+        return Finance.update({"_id" : id},{$set:{year:year,ratio:ratio,
             input:input,increase:increase, allCapital:allCapital,realCapital:realCapital,
             allRatio:allRatio,realRatio:realRatio,debtRatio:debtRatio,inputRatio:inputRatio}}).exec();
     },
     //删除
-    deleteRecord: function deleteRecord(name,year) {
-        return Finance.remove({companyName:name,year:year}).exec();
+    deleteRecord: function deleteRecord(id) {
+        return Finance.remove({"_id" : id}).exec();
     }
 
 
