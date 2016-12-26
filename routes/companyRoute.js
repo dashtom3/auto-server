@@ -367,8 +367,8 @@ router.get('/detail',checkCompanyLogin,(req,res)=>{
  * @apiName company_getList
  * @apiGroup Company
  *
- * @apiParam {String} numPerPage 每页条目数量 这是URL参数不要写在JSON里
- * @apiParam {String} pageNum 第几页 这是URL参数不要写在JSON里
+ * @apiParam {String} numPerPage 每页条目数量 这是URL参数不要写在?参数里
+ * @apiParam {String} pageNum 第几页 这是URL参数不要写在?参数里
  * @apiParam {String} longName 公司名（模糊查询？）
  * @apiParam {String} type 企业类型
  * @apiParam {String} shortName 简称（模糊查询？）
