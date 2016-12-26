@@ -17,7 +17,6 @@ module.exports={
                         token : crypto.createHmac('md5',salt.toString()).update(linkId.toHexString()).digest('hex'),
                         expiredAt : expireTS
                     };
-                    console.log('here');
                     return Token.create(token).exec()
                         .then((result)=>{
                             return Promise.resolve(token.token);

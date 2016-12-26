@@ -32,7 +32,10 @@ module.exports = {
     //删除ObjectId
     deleteRecord: function deleteRecord(id) {
         return News.remove({"_id" : id}).exec();
-    }
+    },
 
+    getlist: (query)=>{
+        return News.find(query,{_id:0}).exec();
+    }
 
 };

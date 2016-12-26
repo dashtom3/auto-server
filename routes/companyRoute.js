@@ -14,6 +14,7 @@ const Response = require('../models/response');
 const checkCompanyLogin = require('../middlewares/check').checkCompanyLogin;
 
 const TokenModel = require('../models/token');
+const JF = require('../middlewares/JsonFilter');
 
 //注册
 /**
@@ -84,11 +85,23 @@ router.post('/signup', function(req, res) {
     let name = req.fields.name;
     let password=req.fields.password;
     let position=req.fields.position;
-    let info=(req.files.info == undefined)
-        ?"":req.files.info.path.split('/').pop();
+    let info=req.fields.info || '';
     let type=req.fields.type;
     let regTime = req.fields.regTime;
     let phone = req.fields.phone;
+    let longName = req.fields.longName || '';
+    let shortName = req.fields.shortName || "";
+    let address = req.fields.address || "";
+    let field = req.fields.field || "";
+    let legalEntity = req.fields.legalEntity || "";
+    let regCapital = req.fields.regCapital || "";
+    let regAddress = req.fields.regAddress || "";
+    let isNeedCapital = req.fields.isNeedCapital || "";
+    let logo = req.fields.logo || "";
+    let companyDesc = req.fields.companyDesc || "";
+    let productDesc = req.fields.productDesc ||"";
+    let userDesc = req.fields.userDesc || "";
+
 
     if((name == null)
     || (position == null)
@@ -96,23 +109,12 @@ router.post('/signup', function(req, res) {
     || (type == null)
     || (regTime == null)
     || (phone == null)){
-        res.json(Response(0,'101'));
+        res.json(new ResData(0,101));
         return;
     }
 
-    let longName="";
-    let shortName = "";
-    let address="";
-    let field="";
-    let legalEntity="";
-    let regCapital="";
-    let regAddress="";
-    let isNeedCapital = "";
 
-    let logo="";
-    let companyDesc="";
-    let productDesc="";
-    let userDesc = "";
+
 
     // 明文密码加密
     password = crypto.createHmac('md5', secret)
@@ -360,20 +362,72 @@ router.get('/detail',checkCompanyLogin,(req,res)=>{
 //TODO:getlist
 
 //根据分类获取企业信息
-router.get('/getCompanyByField',checkCompanyLogin,function (req,res,next) {
-    let field = url.parse(req.url,true).query.field;
+/**
+ * @api {GET} /company/list/:numPerPage/:pageNum 条件获取企业列表
+ * @apiName company_getList
+ * @apiGroup Company
+ *
+ * @apiParam {String} numPerPage 每页条目数量 这是URL参数不要写在JSON里
+ * @apiParam {String} pageNum 第几页 这是URL参数不要写在JSON里
+ * @apiParam {String} longName 公司名（模糊查询？）
+ * @apiParam {String} type 企业类型
+ * @apiParam {String} shortName 简称（模糊查询？）
+ * @apiParam {String} address 省市
+ * @apiParam {String} regTimeFrom 成立时间搜索起点
+ * @apiParam {String} regTimeTo 成立时间搜索终点
+ * @apiParam {String} legalEntity 法人
+ * @apiParam {String} isNeedCapital 是否需要投融资
+ * @apiParam {String} isPassed 是否通过投融资
+ * */
+router.get('/list/:numPerPage/:pageNum',checkCompanyLogin,(req,res,next)=>{
+    JF(req,res,next,{
+        longName:null,
+        type:null,
+        shortName:null,
+        address:null,
+        // regTimeFrom:null,
+        // regTimeTo:null,
+        legalEntity:null,
+        isNeedCapital:null,
+        isPassed:null
+    },[]);
+},function (req,res,next) {
+    const _getData = req.query;
+    for(key in _getData){
+        if(_getData[key] == null){
+            delete _getData[key];
+        }
+    }
 
-    CompanyModel.getCompanyByField(field)
-        .then(function (result) {
-            for(var i=0;i<result.length;i++){
-                delete result[i].password;
-            }
-            resData = new ResData();
-            resData.setIsSuccess(1);
-            resData.setData(result);
-            res.send(JSON.stringify(resData));
+    let queryString = _getData;
+    if(queryString.longName != undefined){
+        queryString.longName = new RegExp(queryString.longName);
+    }
+
+    let numPerPage = parseInt(req.params.numPerPage);
+    let pageNum = parseInt(req.params.pageNum);
+    // console.log(_getData);
+    CompanyModel.getList(_getData,numPerPage,pageNum)
+        .then((result)=>{
+            res.json(new ResData(1,0,result));
         })
-        .catch(next);
+        .catch((e)=>{
+            res.json(new ResData(0,707,e.toString()));
+        });
+
+    // let field = url.parse(req.url,true).query.field;
+    //
+    // CompanyModel.getCompanyByField(field)
+    //     .then(function (result) {
+    //         for(var i=0;i<result.length;i++){
+    //             delete result[i].password;
+    //         }
+    //         resData = new ResData();
+    //         resData.setIsSuccess(1);
+    //         resData.setData(result);
+    //         res.send(JSON.stringify(resData));
+    //     })
+    //     .catch(next);
 });
 
 //更改公司审核状态

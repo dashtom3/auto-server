@@ -45,6 +45,49 @@ router.post('/add',checkCompanyLogin,function (req,res,next) {
         });
 });
 
+/**
+ * @api {GET} /news/list 根据条件获取新闻列表
+ * @apiName news_getList
+ * @apiGroup News
+ *
+ * @apiParam {String} title 标题匹配条件
+ * @apiParam {String} author 作者匹配条件
+ * @apiParam {String} isFirst 是否原创匹配条件
+ * @apiParam {String} tag 根据标签匹配条件
+ * @apiParam {String} isOnline 根据是否上线匹配条件
+ * */
+router.get('/list',(req,res,next)=>{
+    let data = req.query;
+
+    let query={};
+
+    if(data.title){
+        query.title = data.title;
+    }
+    if(data.author){
+        query.author = data.author;
+    }
+    if(data.isFirst){
+        query.isFirst = data.isFirst;
+    }
+    if(data.tag){
+        query.tag = data.tag;
+    }
+    if(data.isOnline){
+        query.isOnline = data.isOnline;
+    }
+
+    NewsModel.getlist(query)
+        .then((result)=>{
+            res.json(new ResData(1,0,result));
+        })
+        .catch((e)=>{
+            res.json(new ResData(0,706,e.toString()));
+        });
+
+});
+
+
 //2.根据分类获取资讯(不显示详情)
 router.get('/getNewsByField',checkCompanyLogin,function (req,res,next) {
     var tag = url.parse(req.url,true).query.tag;

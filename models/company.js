@@ -40,6 +40,10 @@ module.exports = {
     //修改审核状态
     modifyApproval : (companyId,isPassed)=>{
         return Company.update({_id:companyId},{$set:{isPassed:isPassed}}).exec();
+    },
+    //按需查询
+    getList : (query,numPerPage,pageNum)=>{
+        return Company.find(query).skip(numPerPage*(pageNum-1)).limit(numPerPage).exec();
     }
 
 };

@@ -1,11 +1,13 @@
 // Requires multiparty
-multiparty = require('connect-multiparty');
-multipartyMiddleware = multiparty();
+const multiparty = require('connect-multiparty');
+const multipartyMiddleware = multiparty();
 const fs = require('fs');
 const ImageModel = require('../models/image');
 const ResData = require('../models/res');
 const crypto = require('crypto');
 const config = require('config-lite');
+
+const JF = require('../middlewares/JsonFilter');
 
 //test
 // var TokenModel = require('../models/token');
