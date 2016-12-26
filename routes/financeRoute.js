@@ -8,6 +8,7 @@ var url = require('url');
 var FinanceModel = require('../models/finance');
 var ResData = require('../models/res');
 var checkCompanyLogin = require('../middlewares/check').checkCompanyLogin;
+const TokenModel = require('../models/token');
 
 //1.添加财务信息
 /**
@@ -30,10 +31,17 @@ var checkCompanyLogin = require('../middlewares/check').checkCompanyLogin;
  * */
 router.get('/add',checkCompanyLogin,function (req,res,next) {
     var urlQuery = url.parse(req.url,true).query;
-    company=req.session.company;
+    var token = urlQuery.token;
+    //通过token获取企业用户id
+    TokenModel.findUser(token)
+        .then(function(result){
+            var companyId=result.linkTo;
+        }).catch(function(e){
+            res.json(new ResData(0,803,null));
+        });
 
     var finance = {
-        companyName: company.name,
+        companyId: companyId,
         year: urlQuery.year,
         ratio: urlQuery.ratio,
         input: urlQuery.input,
@@ -43,22 +51,16 @@ router.get('/add',checkCompanyLogin,function (req,res,next) {
         allRatio: urlQuery.allRatio,
         realRatio: urlQuery.realRatio,
         debtRatio: urlQuery.debtRatio,
-        inputRatio: urlQuery.inputRatio
+        inputRatio: urlQuery.inputRatio,
+        token: token
     };
 
     FinanceModel.create(finance)
         .then(function (result) {
-            resData = new ResData();
-            resData.setData(result.ops[0]);
-            resData.setIsSuccess(1);
-            res.send(JSON.stringify(resData));
+            res.json(new ResData(1,0,finance));
         })
         .catch(function (e) {
-            resData = new ResData();
-            resData.setData("该年度财务信息已存在");
-            resData.setIsSuccess(0);
-            res.send(JSON.stringify(resData));
-            next(e);
+            res.json(new ResData(0,708,null));
         });
 });
 
