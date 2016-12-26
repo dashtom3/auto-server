@@ -11,6 +11,7 @@ const Response = require('../models/response');
 const checkUserLogin = require('../middlewares/check').checkUserLogin;
 
 const TokenModel = require('../models/token');
+const JF = require('../middlewares/JsonFilter');
 
 
 //用户注册
@@ -21,7 +22,7 @@ const TokenModel = require('../models/token');
  *
  * @apiParam {String} name 用户名
  * @apiParam {String} password 密码
- * @apiParam {String} nickname 昵称
+ * @apiParam {String} nikeName 昵称
  * @apiParam {String} mail 邮箱
  * @apiParam {String} phone 手机号
  * @apiParam {File} idImg1 ?
@@ -58,7 +59,7 @@ const TokenModel = require('../models/token');
 router.post('/signup', function(req, res, next) {
 
     let name = req.fields.name;
-    let nikeName=req.fields.nickname;
+    let nikeName=req.fields.nikeName;
     let password=req.fields.password;
     let userType=req.fields.userType;
     let mail=req.fields.mail || "";
@@ -231,121 +232,323 @@ router.get('/logout',checkUserLogin,function (req,res,next) {
         });
 });
 
-//获取用户列表
-router.get('/getUserList',checkUserLogin,function (req,res,next) {
-    UserModel.getUserList(2,2)
-        .then(function (result) {
-            for (var i = 0; i < result.length; i++) {
-                delete result[i].password;
-            };
-            resData=new ResData();
-            resData.setData(result);
-            resData.setIsSuccess(1);
-            res.json(resData);
-        })
-        .catch(function (e) {
-            resData = new ResData();
-            resData.setData("getUserList error");
-            resData.setIsSuccess(0);
-            res.json(resData);
-            // next(e);
-        });
+//条件获取用户列表
+/**
+ * @api {GET} /user/list/:numPerPage/:pageNum 按条件获取用户列表
+ * @apiName user_getList
+ * @apiGroup User
+ *
+ * @apiParam {String} numPerPage 每页条目数量 这是URL参数不要写在?参数里
+ * @apiParam {String} pageNum 第几页 这是URL参数不要写在?参数里
+ * @apiParam {String} nikeName 用户昵称（模糊）
+ * @apiParam {String} userType 用户类型（精准）
+ * @apiParam {String} isPassed 是否通过审核
+ * */
+router.get('/list/:numPerPage/:pageNum',checkUserLogin,(req,res,next)=>{
+    JF(req,res,next,{
+        nikeName:null,
+        // mail:null,
+        // phone:null,
+        userType:null,
+        isPassed:null
+    },[]);
+},
+    function (req,res,next) {
+        const _getData = req.query;
+
+        for(let key in _getData){
+            if(_getData[key] == null){
+                delete _getData[key];
+            }
+        }
+
+        let queryString = _getData;
+
+        //处理模糊查询字段
+        if(queryString.nikeName != undefined){
+            queryString.nikeName = new RegExp(queryString.nikeName);
+        }
+        // if(queryString.mail != undefined){
+        //     queryString.mail = new RegExp(queryString.mail)
+        // }
+        // if(queryString.phone != undefined){
+        //     queryString.phone = new RegExp(queryString.phone);
+        // }
+
+
+        let numPerPage = parseInt(req.params.numPerPage);
+        let pageNum = parseInt(req.params.pageNum);
+
+        UserModel.getUserList(queryString,numPerPage,pageNum)
+            .then((result)=>{
+                let responseData={
+                    list:result
+                };
+                return UserModel.count(queryString)
+                    .then((result)=>{
+                    responseData.totalNum=result;
+                    responseData.totalPageNum=Math.ceil(result/numPerPage);
+                        return Promise.resolve(responseData);
+                    });
+            })
+            .then((result)=>{
+                res.json(new ResData(1,0,result));
+            })
+            .catch(function (e) {
+                res.json({e:e.toString()});
+            });
 });
 
-router.get('/count',(req,res,next)=>{
-    UserModel.getTotalNum()
-        .then((result)=>{
-            res.json({count:result});
-        })
-        .catch((e)=>{
+//修改用户类型
+/**
+ * @api {GET} /user/modify/type 更改用户类型
+ * @apiName user_modifyType
+ * @apiGroup User
+ *
+ * @apiParam {String} token Token
+ * @apiParam {String} newType 新的用户类型
+ * */
+router.get('/modify/type',checkUserLogin,(req,res,next)=>{
+    JF(req,res,next,{
+        token:null,
+        newType:null
+    },['token','newType']);
+},
+    function (req,res,next) {
+        const _getData = req.query;
+        const token = _getData.token;
+        const newType = _getData.newType;
 
-        });
+        TokenModel.findUser(token)
+            .then((result)=>{
+                if(result == null){
+                    res.json(new ResData(0,803));
+                    return;
+                }
+                let user_id = result.linkTo;
+                if (user_id == undefined || user_id == null){
+                    res.json(new ResData(0,804));
+                    return;
+                }
+                return Promise.resolve(user_id);
+            })
+            .then((user_id)=>{
+                if(user_id === undefined)
+                    return;
+                UserModel.modifyUserType(user_id,newType)
+                    .then((result)=>{
+                        res.json(new ResData(1,0));
+                    })
+                    .catch((e)=>{
+                        res.json(new ResData(0,750,e.toString()));
+                    });
+            })
+            .catch((e)=>{
+                res.json(new ResData(0,804));
+            });
 });
 
+//审核用户
+/**
+ * @api {GET} /user/modify/approval 更改用户审核状态
+ * @apiName user_modifyApproval
+ * @apiGroup User
+ *
+ * @apiParam {String} token Token
+ * @apiParam {String} userId 要修改用户类型的用户ID
+ * @apiParam {Number} approvalStatus 审核是否通过 0未审核 1审核通过 -1未通过
+ * */
+router.get('/modify/approval',checkUserLogin,(req,res,next)=>{
+        JF(req,res,next,{
+            token:null,
+            userId:null,
+            approvalStatus:null
+        },['token','userId','approvalStatus']);
+    },
+    (req,res,next)=>{
+        const _getData = req.query;
+        const token = _getData.token;
+        const userId = _getData.userId;
+        const approvalStatus = parseInt(_getData.approvalStatus);
 
-//审核用户&修改用户类型
-router.get('/modifyType',checkUserLogin,function (req,res,next) {
-    var newType=url.parse(req.url,true).query.newType;
-    user=req.session.user;
-    user.userType=newType;
-
-    //更改用户类型
-    UserModel.modifyUserType(user.name,newType)
-        .then(function (result) {
-            resData = new ResData();
-            resData.setData(user);
-            resData.setIsSuccess(1);
-            res.send(JSON.stringify(resData));
-        })
-        .catch(function (e) {
-            resData = new ResData();
-            resData.setData("modify error");
-            resData.setIsSuccess(0);
-            res.send(JSON.stringify(resData));
-            next(e);
-        });
+        UserModel.modifyApproval(userId,approvalStatus)
+            .then((result)=>{
+                res.json(new ResData(1,0));
+            })
+            .catch((e)=>{
+                res.json(new ResData(0,751,e.toString()));
+            });
 });
 
 //修改密码
-router.get('/modifyPassword',checkUserLogin,function (req,res,next) {
-    var urlQuery=url.parse(req.url,true).query;
-    var oldPassword=urlQuery.oldPassword;
-    var newPassword=urlQuery.newPassword;
+/**
+ * @api {GET} /user/modify/password 修改用户密码
+ * @apiName user_modifyPassword
+ * @apiGroup User
+ *
+ * @apiParam {String} token Token
+ * @apiParam {String} oldPassword 旧密码
+ * @apiParam {String} newPassword 新密码
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus":"SUCCEED",
+ *          "errCode":"NO_ERROR",
+ *          "data":null
+ *      }
+ * @apiErrorExample {json} Error-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus": "FAILED",
+ *          "errCode": "USERNAME_PASSWORD_MISMATCH",
+ *          "data": null
+ *      }
+ * */
+router.get('/modify/password',checkUserLogin,(req,res,next)=>{
+    JF(req,res,next,{
+        token:null,
+        oldPassword:null,
+        newPassword:null,
+    },['token','oldPassword','newPassword']);
+},
+    (req,res,next)=>{
+    const _getData = req.query;
+    const token = _getData.token;
+    const oldPassword = _getData.oldPassword;
+    const newPassword = _getData.newPassword;
 
-    sessionUser=req.session.user;
-    resData=new ResData();
-    UserModel.getUserByname(sessionUser.name)
-        .then(function (user) {
-            if(sha1(oldPassword)!==user.password){
-                resData.setIsSuccess(0);
-                resData.setData("password error");
-                res.send(JSON.stringify(resData));
+    TokenModel.findUser(token)
+        .then((result)=>{
+            if(result == null){
+                res.json(new ResData(0,803));
+                return;
             }
-            else{
-                resData.setIsSuccess(1);
-                resData.setData("modifyPassword success");
-                UserModel.modifyPassword(user.name,sha1(newPassword))
-                    .then(function (result) {
-                        res.send(JSON.stringify(resData));
-                    })
-                    .catch(function (e) {
-                        resData = new ResData();
-                        resData.setData("modify error");
-                        resData.setIsSuccess(0);
-                        res.send(JSON.stringify(resData));
-                        next(e);
-                    });
+            let user_id = result.linkTo;
+            if (user_id == undefined || user_id == null){
+                res.json(new ResData(0,804));
+                return;
             }
+            return Promise.resolve(user_id);
         })
-        .catch();
+        .then((user_id)=>{
+            if(user_id === undefined)
+                return;
+            return UserModel.getOldPassword(user_id)
+                .then((result)=>{
+                    return Promise.resolve(result);
+                })
+                .catch((e)=>{
+                    res.json(new ResData(0,752));
+                    return;
+                });
+        })
+        .then((result)=>{
+            if(result === undefined)
+                return;
+            const encrypted = crypto.createHmac('md5', secret).update(oldPassword).digest('hex');
+            if(encrypted != result.password){
+                res.json(new ResData(0,106));
+                return;
+            }
+            UserModel.modifyPassword(result._id,crypto.createHmac('md5', secret).update(newPassword).digest('hex'))
+                .then((result)=>{
+                    res.json(new ResData(1,0));
+                })
+                .catch((e)=>{
+                    res.json(new ResData(0,704));
+                    return;
+                });
+        })
+        .catch((e)=>{
+            res.json(new ResData(0,804));
+            return;
+        });
 });
 
 //修改用户信息：nickName,mail,phone
-router.get('/modifyInfo',checkUserLogin,function (req,res,next) {
-    var urlQuery=url.parse(req.url,true).query;
-    var newNickName=urlQuery.newNickName;
-    var newMail=urlQuery.newMail;
-    var newPhone=urlQuery.newPhone;
-    user=req.session.user;
+/**
+ * @api {GET} /user/modify/info 更改用户信息
+ * @apiName user_modifyInfo
+ * @apiGroup User
+ *
+ * @apiParam {String} token Token
+ * @apiParam {String} nikeName 昵称
+ * @apiParam {String} mail 邮箱
+ * @apiParam {String} phone 手机号
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus":"SUCCEED",
+ *          "errCode":"NO_ERROR",
+ *          "data":null
+ *      }
+ * @apiErrorExample {json} Error-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus": "FAILED",
+ *          "errCode": "USERNAME_PASSWORD_MISMATCH",
+ *          "data": null
+ *      }
+ * */
+router.get('/modify/info',checkUserLogin,(req,res,next)=>{
+    JF(req,res,next,{
+        token:null,
+        nikeName:null,
+        mail:null,
+        phone:null
+    },['token']);
+},
+    (req,res,next)=>{
+        const _getDate = req.query;
+        const token = _getDate.token;
+        const nikeName = _getDate.nikeName;
+        const mail = _getDate.mail;
+        const phone = _getDate.phone;
 
-    //更改用户类型
-    UserModel.modifyInfo(user.name,newNickName,newMail,newPhone)
-        .then(function (result) {
-            user.nikeName=newNickName;
-            user.mail=newMail;
-            user.phone=newPhone
-            resData = new ResData();
-            resData.setData(user);
-            resData.setIsSuccess(1);
-            res.send(JSON.stringify(resData));
-        })
-        .catch(function (e) {
-            resData = new ResData();
-            resData.setData("modify error");
-            resData.setIsSuccess(0);
-            res.send(JSON.stringify(resData));
-            next(e);
-        });
+        let newUserInfo = {
+            nikeName: nikeName,
+            mail: mail,
+            phone: phone
+        };
+
+        for(let key in newUserInfo){
+            if(newUserInfo[key] == null){
+                delete newUserInfo[key];
+            }
+        }
+
+        TokenModel.findUser(token)
+            .then((result)=>{
+                if(result == null){
+                    res.json(new ResData(0,803));
+                    return;
+                }
+                let user_id = result.linkTo;
+                if (user_id == undefined || user_id == null){
+                    res.json(new ResData(0,804));
+                    return;
+                }
+                return Promise.resolve(user_id);
+            })
+            .then((user_id)=>{
+                if(user_id === undefined)
+                    return;
+                UserModel.modifyInfo(user_id,newUserInfo)
+                    .then((result)=>{
+                        res.json(new ResData(1,0));
+                        return;
+                    })
+                    .catch((e)=>{
+                        res.json(new ResData(0,753,e.toString()));
+                        return;
+                    });
+            })
+            .catch((e)=>{
+                res.json(new ResData(0,804,e.toString()));
+                return;
+            });
 });
 
 
