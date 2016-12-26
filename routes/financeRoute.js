@@ -9,6 +9,7 @@ var FinanceModel = require('../models/finance');
 var ResData = require('../models/res');
 var checkCompanyLogin = require('../middlewares/check').checkCompanyLogin;
 const TokenModel = require('../models/token');
+const JF = require('../middlewares/JsonFilter');
 
 //1.添加财务信息
 /**
@@ -64,22 +65,7 @@ router.get('/add',checkCompanyLogin,function (req,res,next) {
         });
 });
 
-//2.获取公司财务报表列表
-// router.get('/getFinance',checkCompanyLogin,function (req,res,next) {
-//     var year = url.parse(req.url,true).query.year;
-//     var name = req.session.company.name;
-//
-//     FinanceModel.getFinance(name,year)
-//         .then(function (finance) {
-//             resData = new ResData();
-//             resData.setIsSuccess(1);
-//             resData.setData(finance);
-//             res.send(JSON.stringify(resData));
-//         })
-//         .catch(next);
-// });
-
-//3.获取某公司所有财务报表
+//2.获取某公司所有财务报表
 /**
  * @api {GET} /finance/list/:numPerPage/:pageNum  获取财务报表
  * @apiName finance_getList
@@ -92,17 +78,62 @@ router.get('/add',checkCompanyLogin,function (req,res,next) {
  * @apiParam {String} yearStart 开始年份
  * @apiParam {String} yserEnd 结束年份
  * */
-router.get('/getFinanceList',checkCompanyLogin,function (req,res,next) {
-    var name = req.session.company.name;
+router.get('/getFinanceList',checkCompanyLogin,(req,res,next)=>{
+    JF(req,res,next,{
+        companyId:null,
+        companyName:null,
+        yearStart:null,
+        yserEnd:null
+    },[]);
+},function (req,res,next) {
+    //预处理查询语句
+    const _getData = req.query;
+    for(key in _getData){
+        if(_getData[key] == null){
+            delete _getData[key];
+        }
+    }
+    let queryString = _getData;
 
-    FinanceModel.getFinanceList(name)
+    //处理模糊查询字段
+    if(queryString.companyName != undefined){
+        queryString.companyName = new RegExp(queryString.companyName);
+    }
+
+    //处理时间字段
+    let _regTimeUnix = {
+        "$gte":null,
+        "$lte":null
+    };
+    if(queryString.yearStart != undefined){
+        _regTimeUnix['$gte'] = new Date(moment(queryString.yearStart,'YYYY/MM/DD')).getTime();
+        delete queryString.yearStart;
+    }
+    if(queryString.yserEnd != undefined){
+        _regTimeUnix['$lte'] = new Date(moment(queryString.yserEnd,'YYYY/MM/DD')).getTime();
+        delete queryString.yserEnd;
+    }
+    //处理空字段
+    for(key in _regTimeUnix){
+        if(_regTimeUnix[key] == null){
+            delete _regTimeUnix[key];
+        }
+    }
+    //时间添加到查询语句
+    if (!isEmptyObject(_regTimeUnix))
+        queryString.regTimeUnix = _regTimeUnix;
+
+    //分页参数
+    let numPerPage = parseInt(req.params.numPerPage);
+    let pageNum = parseInt(req.params.pageNum);
+
+    FinanceModel.getFinanceList(queryString,numPerPage,pageNum)
         .then(function (result) {
-            resData = new ResData();
-            resData.setIsSuccess(1);
-            resData.setData(result);
-            res.send(JSON.stringify(resData));
+            res.json(new ResData(1,0,result));
         })
-        .catch(next);
+        .catch(function(e){
+            res.json(new ResData(0,709,e.toString()));
+        });
 });
 
 //4.修改财务信息

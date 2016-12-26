@@ -88,7 +88,8 @@ exports.Finances = mongolass.model('Finance',{
     allRatio: {type:'string'},//毛利率
     realRatio: {type:'string'},//净利率
     debtRatio: {type:'string'},//资产负债率
-    inputRatio: {type:'string'}//资产收益率
+    inputRatio: {type:'string'},//资产收益率
+    token: {type:'string'}//token
 });
 exports.Finances.index({year:-1}).exec();//按日期降序
 

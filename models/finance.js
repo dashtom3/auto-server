@@ -9,8 +9,8 @@ module.exports = {
         return Finance.create(finance).exec();
     },
     //根据companyName获取该公司所有财务列表
-    getFinanceList: function getFinanceList(name) {
-        return Finance.find({companyName:name}).exec();
+    getFinanceList: function getFinanceList(queryString,numPerPage,pageNum) {
+        return Finance.find(queryString).skip(numPerPage*(pageNum-1)).limit(numPerPage).exec();
     },
     //根据companyName、year获取该公司该年财务列表
     getFinance: function getFinance(name,year) {
