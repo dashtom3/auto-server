@@ -78,7 +78,7 @@ exports.News = mongolass.model('New',{
 //定义财务信息的modl，companyName和year可唯一标示
 exports.Finances = mongolass.model('Finance',{
     //companyName,year,ratio,input,increase,allCapital,realCapital,allRatio,realRatio,debtRatio,inputRatio
-    companyName: {type:'string'},//TODO:改成 companyID *
+    companyID: {type:'string'},//companyID *
     year: {type:'string'},//哪个年度 *
     ratio: {type:'string'},//市盈率？
     input: {type:'string'},//营业收入 *
@@ -88,7 +88,8 @@ exports.Finances = mongolass.model('Finance',{
     allRatio: {type:'string'},//毛利率
     realRatio: {type:'string'},//净利率
     debtRatio: {type:'string'},//资产负债率
-    inputRatio: {type:'string'}//资产收益率
+    inputRatio: {type:'string'},//资产收益率
+    token: {type:'string'}//token
 });
 exports.Finances.index({year:-1}).exec();//按日期降序
 
