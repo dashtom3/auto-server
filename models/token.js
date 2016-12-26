@@ -77,6 +77,6 @@ module.exports={
 
     //反查用户账户
     findUser : (_token)=>{
-        return Token.findOne({token : _token}).exec();
+        return Token.findOne({token : _token},{linkTo:1}).exec();
     }
 };
