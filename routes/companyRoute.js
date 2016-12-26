@@ -354,23 +354,7 @@ router.get('/detail',checkCompanyLogin,(req,res)=>{
 
 });
 
-// router.get('/getCompanyByName',checkCompanyLogin,function (req,res,next) {
-//     let name = req.query.name;
-//
-//     CompanyModel.getCompanyByName(name)
-//         .then(function (company) {
-//             delete company.password;
-//             // resData = new ResData();
-//             // resData.setIsSuccess(1);
-//             // resData.setData(company);
-//             res.send(company);
-//         })
-//         .catch(next);
-// });
-
-//TODO:getlist
-
-//根据分类获取企业信息
+//根据条件获取企业信息
 /**
  * @api {GET} /company/list/:numPerPage/:pageNum 条件获取企业列表
  * @apiName company_getList
@@ -386,7 +370,7 @@ router.get('/detail',checkCompanyLogin,(req,res)=>{
  * @apiParam {String} regTimeTo 成立时间搜索终点
  * @apiParam {String} legalEntity 法人
  * @apiParam {String} isNeedCapital 是否需要投融资
- * @apiParam {String} isPassed 是否通过投融资
+ * @apiParam {String} isPassed 是否通过审核
  * */
 router.get('/list/:numPerPage/:pageNum',checkCompanyLogin,(req,res,next)=>{
     JF(req,res,next,{
@@ -400,10 +384,11 @@ router.get('/list/:numPerPage/:pageNum',checkCompanyLogin,(req,res,next)=>{
         isNeedCapital:null,
         isPassed:null
     },[]);
-},function (req,res,next) {
+},
+    function (req,res,next) {
     const _getData = req.query;
 
-    for(key in _getData){
+    for(let key in _getData){
         if(_getData[key] == null){
             delete _getData[key];
         }
@@ -437,7 +422,7 @@ router.get('/list/:numPerPage/:pageNum',checkCompanyLogin,(req,res,next)=>{
     }
 
     //处理为空字段
-    for(key in _regTimeUnix){
+    for(let key in _regTimeUnix){
         if(_regTimeUnix[key] == null){
             delete _regTimeUnix[key];
         }
@@ -453,25 +438,25 @@ router.get('/list/:numPerPage/:pageNum',checkCompanyLogin,(req,res,next)=>{
 
     CompanyModel.getList(queryString,numPerPage,pageNum)
         .then((result)=>{
+            let responseData={
+                list:result
+            };
+            return CompanyModel.count({})
+                .then((result)=>{
+                    responseData.totalNum=result;
+                    responseData.totalPageNum=Math.ceil(result/numPerPage);
+                    return Promise.resolve(responseData);
+                })
+                .catch((e)=>{
+                    return Promise.reject(e);
+                });
+        })
+        .then((result)=>{
             res.json(new ResData(1,0,result));
         })
         .catch((e)=>{
             res.json(new ResData(0,707,e.toString()));
         });
-
-    // let field = url.parse(req.url,true).query.field;
-    //
-    // CompanyModel.getCompanyByField(field)
-    //     .then(function (result) {
-    //         for(var i=0;i<result.length;i++){
-    //             delete result[i].password;
-    //         }
-    //         resData = new ResData();
-    //         resData.setIsSuccess(1);
-    //         resData.setData(result);
-    //         res.send(JSON.stringify(resData));
-    //     })
-    //     .catch(next);
 });
 
 //更改公司审核状态
@@ -530,27 +515,6 @@ router.get('/modify/approval',checkCompanyLogin,(req,res)=>{
             res.json(new ResData(0,702));
         });
 });
-
-//审核&修改企业权限
-// router.get('/modifyType',checkCompanyLogin,function (req,res,next) {
-//     var newType=url.parse(req.url,true).query.newType;
-//     company=req.session.company;
-//     company.type=newType;
-//
-//     CompanyModel.modifyType(company.name,newType)
-//         .then(function (result) {
-//             var resData = new ResData();
-//             resData.setData("modify succeff");
-//             resData.setIsSuccess(1);
-//             res.send(JSON.stringify(resData));
-//         })
-//         .catch(function (e) {
-//             var resData = new ResData();
-//             resData.setData("modify error");
-//             resData.setIsSuccess(0);
-//             res.send(JSON.stringify(resData));
-//         });
-// });
 
 //修改密码
 /**
@@ -741,11 +705,10 @@ router.post('/modify/info',checkCompanyLogin,function (req,res,next) {
                 });
         })
         .catch((e)=>{
-            res.json(new ResData(0,705));
+            res.json(new ResData(0,804));
             return;
         });
 
 });
-
 
 module.exports = router;

@@ -9,9 +9,9 @@ module.exports = {
         return Company.create(company).exec();
     },
     //按分类取出所有公司信息
-    getCompanyByField: function getCompanyList(field) {
-        return Company.find({field:field}).exec();
-    },
+    // getCompanyByField: function getCompanyList(field) {
+    //     return Company.find({field:field}).exec();
+    // },
     //根据name查找公司
     getCompanyByName: function getCompanyByName(name) {
         return Company.findOne({name:name}).exec();
@@ -20,7 +20,7 @@ module.exports = {
     getDetail: (_id)=>{
         return Company.findOne({_id:_id},{password:0}).exec();
     },
-    //根据id查详情
+    //查询旧密码
     getOldPassword: (_id)=>{
         return Company.findOne({_id:_id},{password:1}).exec();
     },
@@ -43,7 +43,11 @@ module.exports = {
     },
     //按需查询
     getList : (query,numPerPage,pageNum)=>{
-        return Company.find(query).skip(numPerPage*(pageNum-1)).limit(numPerPage).exec();
-    }
+        return Company.find(query).select({name:0,password:0}).skip(numPerPage*(pageNum-1)).limit(numPerPage).exec();
+    },
+    //获取用户数量（query）
+    count:(query)=>{
+        return Company.count(query).exec();
+    },
 
 };

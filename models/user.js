@@ -1,33 +1,41 @@
-var User=require('../middlewares/mongo').User;
+const User=require('../middlewares/mongo').User;
 
 module.exports={
     //注册
     create: function create(user) {
         return User.create(user).exec();
     },
-    //获取总用户数量
-    getTotalNum: ()=>{
-        return User.count().exec();
+    //获取用户列表(query,numPerPage，pageNum)
+    getUserList: (query,numPerPage,pageNum)=>{
+        return User.find(query).select({ name: 0, password: 0 }).skip(numPerPage*(pageNum-1)).limit(numPerPage).exec();
     },
-    //获取用户列表(numPerPage，pageNum)
-    getUserList: (numPerPage,pageNum)=>{
-        return User.find().skip(numPerPage*(pageNum-1)).limit(numPerPage).exec();
+    //获取用户数量（query）
+    count:(query)=>{
+        return User.count(query).exec();
     },
     //根据name找到用户
     getUserByname: function getUserByname(name) {
         return User.findOne({name:name}).exec();
     },
     //更改用户类型
-    modifyUserType: function modifyUserType(name,newType) {
-        return User.update({name:name},{$set:{userType:newType}}).exec();
+    modifyUserType: (id,newType)=>{
+        return User.update({_id:id},{$set:{userType:newType}}).exec();
+    },
+    //更改用户审核情况
+    modifyApproval:(id,approvalStatus)=>{
+        return User.update({_id:id},{$set:{isPassed:approvalStatus}}).exec();
+    },
+    //查询旧密码
+    getOldPassword: (_id)=>{
+        return User.findOne({_id:_id},{password:1}).exec();
     },
     //更改密码
-    modifyPassword: function modifyPassword(name,newPassword) {
-        return User.update({name:name},{$set:{password:newPassword}}).exec();
+    modifyPassword: (_id,newPassword)=>{
+        return User.update({_id:_id},{$set:{password:newPassword}}).exec();
     },
     //更改用户信息：nickName,mail,phone
-    modifyInfo: function modifyInfo(name,newNickName,newMail,newPhone) {
-        return User.update({name:name},{$set:{nikeName:newNickName,mail:newMail,phone:newPhone}}).exec();
+    modifyInfo: function modifyInfo(_id,newInfo) {
+        return User.update({_id:_id},{$set:newInfo}).exec();
     }
 
 };
