@@ -42,7 +42,8 @@ exports.Company = mongolass.model('Company',{
     logo: {type:'string'},//file
     address: {type:'string'},//省市 *
     field: {type:'string'},//业务简述
-    regTime: {type:'string'},//成立时间 *
+    regTime: {type:'string'},//成立时间 * 格式：YYYY/MM/DD
+    regTimeUnix: {type:'number'},//成立时间的Unix时间偏移量
     legalEntity: {type:'string'},//法人代表
     regCapital: {type:'string'},//注册资本
     regAddress: {type:'string'},//详细地址 *

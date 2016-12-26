@@ -4,10 +4,9 @@
 const express = require('express');
 const router = express.Router();
 const url = require('url');
-// var sha1 = require('sha1');
 const crypto = require('crypto');
 const secret = 'xjkjpassword';
-
+const moment = require('moment');
 const CompanyModel = require('../models/company');
 const ResData = require('../models/res');
 const Response = require('../models/response');
@@ -15,6 +14,14 @@ const checkCompanyLogin = require('../middlewares/check').checkCompanyLogin;
 
 const TokenModel = require('../models/token');
 const JF = require('../middlewares/JsonFilter');
+
+function isEmptyObject(obj){
+
+    for (name in obj){
+        return false;
+    }
+    return true;
+}
 
 //注册
 /**
@@ -32,7 +39,7 @@ const JF = require('../middlewares/JsonFilter');
  * @apiParam {File} logo Logo
  * @apiParam {String} address 地址
  * @apiParam {String} field ?
- * @apiParam {String} regTime 注册时间
+ * @apiParam {String} regTime 注册时间 格式YYYY/MM/DD
  * @apiParam {String} legalEntity ?
  * @apiParam {String} regCapital 注册资金？
  * @apiParam {String} regAddress ?
@@ -101,13 +108,14 @@ router.post('/signup', function(req, res) {
     let companyDesc = req.fields.companyDesc || "";
     let productDesc = req.fields.productDesc ||"";
     let userDesc = req.fields.userDesc || "";
-
+    let regTimeUnix = new Date(moment(regTime,'YYYY/MM/DD')).getTime();
 
     if((name == null)
     || (position == null)
     || (password == null)
     || (type == null)
     || (regTime == null)
+    || (regTimeUnix === 'Invalid date')
     || (phone == null)){
         res.json(new ResData(0,101));
         return;
@@ -134,6 +142,7 @@ router.post('/signup', function(req, res) {
         address: address,
         field: field,
         regTime: regTime,
+        regTimeUnix: regTimeUnix,
         legalEntity: legalEntity,
         regCapital: regCapital,
         regAddress: regAddress,
@@ -385,14 +394,15 @@ router.get('/list/:numPerPage/:pageNum',checkCompanyLogin,(req,res,next)=>{
         type:null,
         shortName:null,
         address:null,
-        // regTimeFrom:null,
-        // regTimeTo:null,
+        regTimeFrom:null,
+        regTimeTo:null,
         legalEntity:null,
         isNeedCapital:null,
         isPassed:null
     },[]);
 },function (req,res,next) {
     const _getData = req.query;
+
     for(key in _getData){
         if(_getData[key] == null){
             delete _getData[key];
@@ -400,14 +410,48 @@ router.get('/list/:numPerPage/:pageNum',checkCompanyLogin,(req,res,next)=>{
     }
 
     let queryString = _getData;
+
+    //处理模糊查询字段
     if(queryString.longName != undefined){
         queryString.longName = new RegExp(queryString.longName);
     }
+    if(queryString.shortName != undefined){
+        queryString.shortName = new RegExp(queryString.shortName)
+    }
+    if(queryString.legalEntity != undefined){
+        queryString.legalEntity = new RegExp(queryString.legalEntity);
+    }
+
+    //处理时间字段
+    let _regTimeUnix = {
+        "$gte":null,
+        "$lte":null
+    };
+    if(queryString.regTimeFrom != undefined){
+        _regTimeUnix['$gte'] = new Date(moment(queryString.regTimeFrom,'YYYY/MM/DD')).getTime();
+        delete queryString.regTimeFrom;
+    }
+    if(queryString.regTimeTo != undefined){
+        _regTimeUnix['$lte'] = new Date(moment(queryString.regTimeTo,'YYYY/MM/DD')).getTime();
+        delete queryString.regTimeTo;
+    }
+
+    //处理为空字段
+    for(key in _regTimeUnix){
+        if(_regTimeUnix[key] == null){
+            delete _regTimeUnix[key];
+        }
+    }
+
+    //添加到查询语句
+    if (!isEmptyObject(_regTimeUnix))
+        queryString.regTimeUnix = _regTimeUnix;
+
 
     let numPerPage = parseInt(req.params.numPerPage);
     let pageNum = parseInt(req.params.pageNum);
-    // console.log(_getData);
-    CompanyModel.getList(_getData,numPerPage,pageNum)
+
+    CompanyModel.getList(queryString,numPerPage,pageNum)
         .then((result)=>{
             res.json(new ResData(1,0,result));
         })
