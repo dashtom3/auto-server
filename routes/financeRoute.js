@@ -21,7 +21,7 @@ function isEmptyObject(obj){
 
 //1.添加财务信息
 /**
- * @api {GET} /finance/add 添加财务信息接口
+ * @api {POST} /finance/add 添加财务信息接口
  * @apiName finance_add
  * @apiGroup Finance
  *
@@ -38,7 +38,7 @@ function isEmptyObject(obj){
  * @apiParam {String} inputRatio 资产收益率
  * @apiParam {String} token Token
  * */
-router.get('/add',checkCompanyLogin,(req,res,next)=>{
+router.post('/add',checkCompanyLogin,(req,res,next)=>{
     JF(req,res,next,{
         token:null,
         year:null,
@@ -55,7 +55,7 @@ router.get('/add',checkCompanyLogin,(req,res,next)=>{
     },['token','year','input']);
 },
     function (req,res,next) {
-    const urlQuery = req.query;
+    const urlQuery = req.fields;
     const token = urlQuery.token;
     //通过token获取企业用户id
     TokenModel.findUser(token)
