@@ -310,46 +310,56 @@ router.get('/list/:numPerPage/:pageNum',checkUserLogin,(req,res,next)=>{
  * @apiGroup User
  *
  * @apiParam {String} token Token
+ * @apiParam {String} userId 用户Id
  * @apiParam {String} newType 新的用户类型
  * */
 router.get('/modify/type',checkUserLogin,(req,res,next)=>{
     JF(req,res,next,{
         token:null,
-        newType:null
-    },['token','newType']);
+        newType:null,
+        userId:null
+    },['token','newType','userId']);
 },
     function (req,res,next) {
         const _getData = req.query;
         const token = _getData.token;
         const newType = _getData.newType;
+        const userId = _getData.userId;
 
-        TokenModel.findUser(token)
+        UserModel.modifyUserType(userId,newType)
             .then((result)=>{
-                if(result == null){
-                    res.json(new ResData(0,803));
-                    return;
-                }
-                let user_id = result.linkTo;
-                if (user_id == undefined || user_id == null){
-                    res.json(new ResData(0,804));
-                    return;
-                }
-                return Promise.resolve(user_id);
-            })
-            .then((user_id)=>{
-                if(user_id === undefined)
-                    return;
-                UserModel.modifyUserType(user_id,newType)
-                    .then((result)=>{
-                        res.json(new ResData(1,0));
-                    })
-                    .catch((e)=>{
-                        res.json(new ResData(0,750,e.toString()));
-                    });
+                res.json(new ResData(1,0));
             })
             .catch((e)=>{
-                res.json(new ResData(0,804));
+                res.json(new ResData(0,750,e.toString()));
             });
+        // TokenModel.findUser(token)
+        //     .then((result)=>{
+        //         if(result == null){
+        //             res.json(new ResData(0,803));
+        //             return;
+        //         }
+        //         let user_id = result.linkTo;
+        //         if (user_id == undefined || user_id == null){
+        //             res.json(new ResData(0,804));
+        //             return;
+        //         }
+        //         return Promise.resolve(user_id);
+        //     })
+        //     .then((user_id)=>{
+        //         if(user_id === undefined)
+        //             return;
+        //         UserModel.modifyUserType(user_id,newType)
+        //             .then((result)=>{
+        //                 res.json(new ResData(1,0));
+        //             })
+        //             .catch((e)=>{
+        //                 res.json(new ResData(0,750,e.toString()));
+        //             });
+        //     })
+        //     .catch((e)=>{
+        //         res.json(new ResData(0,804));
+        //     });
 });
 
 //审核用户

@@ -43,7 +43,7 @@ module.exports = {
     },
     //按需查询
     getList : (query,numPerPage,pageNum)=>{
-        return Company.find(query).select({name:0,password:0}).skip(numPerPage*(pageNum-1)).limit(numPerPage).exec();
+        return Company.find(query).select({password:0}).skip(numPerPage*(pageNum-1)).limit(numPerPage).exec();
     },
     //获取用户数量（query）
     count:(query)=>{

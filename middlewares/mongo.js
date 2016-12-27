@@ -63,14 +63,14 @@ exports.News = mongolass.model('New',{
     //title,author,isFirst,isOnline,company,tag,desc,pic,wysiwyg
     title: {type:'string'}, //标题 *
     author: {type:'string'}, //作者
-    isFirst: {type:'string'}, //是否原创 *
-    isOnline: {type:'string'},//0:下线  1:上线 默认上线 *
-    company: {type:'string'},// companyId *
+    isFirst: {type:'boolean'}, //是否原创 *
+    isOnline: {type:'boolean'},//0:下线  1:上线 默认上线 *
+    companyId: {type:Mongolass.Types.ObjectId},// companyId *
     tag: {type:'string'},//标签
     desc: {type:'string'},//简述 *
     pic: {type:'string'},//缩略图 file *
     wysiwyg: {type:'string'},//文件内容*
-    timestamp:{type:'string'}//发布时间 *
+    timestamp:{type:'number'}//发布时间 *
 });
 // exports.News.index({_id:-1}).exec();//按日期降序
 
@@ -78,8 +78,8 @@ exports.News = mongolass.model('New',{
 //定义财务信息的modl，companyName和year可唯一标示
 exports.Finances = mongolass.model('Finance',{
     //companyName,year,ratio,input,increase,allCapital,realCapital,allRatio,realRatio,debtRatio,inputRatio
-    companyID: {type:'string'},//companyID *
-    year: {type:'string'},//哪个年度 *
+    companyId: {type:Mongolass.Types.ObjectId},//companyID *
+    year: {type:'number'},//哪个年度 *
     ratio: {type:'string'},//市盈率？
     input: {type:'string'},//营业收入 *
     increase: {type:'string'},//收入增长率

@@ -7,7 +7,7 @@ module.exports={
     },
     //获取用户列表(query,numPerPage，pageNum)
     getUserList: (query,numPerPage,pageNum)=>{
-        return User.find(query).select({ name: 0, password: 0 }).skip(numPerPage*(pageNum-1)).limit(numPerPage).exec();
+        return User.find(query).select({ password: 0 }).skip(numPerPage*(pageNum-1)).limit(numPerPage).exec();
     },
     //获取用户数量（query）
     count:(query)=>{

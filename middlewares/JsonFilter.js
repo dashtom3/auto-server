@@ -38,8 +38,8 @@ function filter(req, res, next,defaultJson={},requiredParam=[]) {
             let _key = requiredParam[key];
             if(_postData[_key] === undefined
             || _postData[_key] === null
-            || _postData[_key].trim() === ''){
-                res.json(new ResData(0,101));
+            || (typeof _postData[_key] == 'string' && _postData[_key].trim() === '')){
+                res.json(new ResData(0,101,_postData));
                 return;
             }
         }

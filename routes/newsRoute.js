@@ -1,60 +1,104 @@
 /**
  * Created by joseph on 16/12/12.
  */
-var express = require('express');
-var router = express.Router();
-var url = require('url');
+const express = require('express');
+const router = express.Router();
+const url = require('url');
 
-var NewsModel = require('../models/news');
-var ResData = require('../models/res');
-var checkCompanyLogin = require('../middlewares/check').checkCompanyLogin;
+const NewsModel = require('../models/news');
+const ResData = require('../models/res');
+const checkCompanyLogin = require('../middlewares/check').checkCompanyLogin;
+
+const TokenModel = require('../models/token');
+const JF = require('../middlewares/JsonFilter');
 
 //1.添加信息
-router.post('/add',checkCompanyLogin,function (req,res,next) {
-    //post表单：title,author,isFirst,isOnline,tag,desc,pic,wysiwyg
-    var postFields = req.fields;
+/**
+ * @api {POST} /news/add 添加一条资讯
+ * @apiName news_add
+ * @apiGroup News
+ *
+ * @apiParam {String} token Token
+ * @apiParam {String} title 资讯标题
+ * @apiParam {String} author 作者
+ * @apiParam {Boolean} isFirst 是否原创
+ * @apiParam {String} companyId 企业ID
+ * @apiParam {String} tag 资讯标签
+ * @apiParam {String} desc 简述
+ * @apiParam {String} pic 缩略图URL
+ * @apiParam {String} wysiwyg 资讯内容DOM
+ * */
+router.post('/add',checkCompanyLogin,(req,res,next)=>{
+    JF(req,res,next,{
+        token:null,
+        title:null,
+        author:'',
+        isFirst:null,
+        // companyId:null,
+        tag:'',
+        desc:null,
+        pic:null,
+        wysiwyg:null
+    },['title','isFirst','desc','pic','wysiwyg']);
+},
+    function (req,res,next) {
+        //post表单：title,author,isFirst,isOnline,tag,desc,pic,wysiwyg
+        const _postData = req.fields;
+        // news.isOnline = true;
+        // news.timestamp = new Date().getTime();
 
-    var news = {
-        title: postFields.title,
-        author: postFields.author,
-        isFirst: postFields.isFirst,
-        isOnline: "0",
-        company: req.session.company.name,
-        tag: postFields.tag,
-        desc: postFields.desc,
-        pic: req.files.pic.path.split('/').pop(),
-        wysiwyg: postFields.wysiwyg
-    };
+        TokenModel.findUser(_postData.token)
+            .then((result)=>{
+                if(result == null){
+                    res.json(new ResData(0,803));
+                    return;
+                }
+                let user_id = result.linkTo;
+                if (user_id == undefined || user_id == null){
+                    res.json(new ResData(0,804));
+                    return;
+                }
+                return Promise.resolve(user_id);
+            })
+            .then((user_id)=>{
+                if(user_id === undefined)
+                    return;
+                let news = _postData;
+                delete news.token;
+                news.isOnline = true;
+                news.timestamp = new Date().getTime();
+                news.companyId = user_id;
+                return Promise.resolve(news);
+            })
+            .then((news)=>{
+                if(news === undefined)
+                    return;
+                NewsModel.create(news)
+                    .then(function (result) {
+                        res.json(new ResData(1,0));
+                    })
+                    .catch(function (e) {
+                        res.json(new ResData(0,754,e.toString()));
+                    });
+            })
+            .catch((e)=>{
+                res.json(new ResData(0,804,e.toString()));
+            });
 
-    NewsModel.create(news)
-        .then(function (result) {
-            resData = new ResData();
-            // resData.setData(result.ops[0]);
-            // resData.setIsSuccess(1);
-            // res.send(resData.data.wysiwyg);
-            resData.setData("添加成功");
-            resData.setIsSuccess(1);
-            res.send(resData);
-        })
-        .catch(function (e) {
-            resData = new ResData();
-            resData.setData("添加失败");
-            resData.setIsSuccess(0);
-            res.send(JSON.stringify(resData));
-            next(e);
-        });
+
 });
 
+//2.条件获取资讯列表
 /**
- * @api {GET} /news/list 根据条件获取新闻列表
+ * @api {GET} /news/list 根据条件获取资讯列表
  * @apiName news_getList
  * @apiGroup News
  *
- * @apiParam {String} title 标题匹配条件
- * @apiParam {String} author 作者匹配条件
- * @apiParam {String} isFirst 是否原创匹配条件
- * @apiParam {String} tag 根据标签匹配条件
- * @apiParam {String} isOnline 根据是否上线匹配条件
+ * @apiParam {String} title 标题（模糊）
+ * @apiParam {String} author 作者（模糊）
+ * @apiParam {String} isFirst 是否原创匹配条件（精确）
+ * @apiParam {String} tag 根据标签匹配条件（精确）
+ * @apiParam {String} isOnline 根据是否上线匹配条件（精确）
  * */
 router.get('/list',(req,res,next)=>{
     let data = req.query;
@@ -89,32 +133,32 @@ router.get('/list',(req,res,next)=>{
 
 
 //2.根据分类获取资讯(不显示详情)
-router.get('/getNewsByField',checkCompanyLogin,function (req,res,next) {
-    var tag = url.parse(req.url,true).query.tag;
-
-    NewsModel.getNewsByField(tag)
-        .then(function (result) {
-            resData = new ResData();
-            resData.setIsSuccess(1);
-            resData.setData(result);
-            res.send(JSON.stringify(resData));
-        })
-        .catch(next);
-});
-
-//3.根据公司获取资讯(不显示详情)
-router.get('/getNewsByCompany',checkCompanyLogin,function (req,res,next) {
-    var company = url.parse(req.url,true).query.company;
-
-    NewsModel.getNewsByCompany(company)
-        .then(function (result) {
-            resData = new ResData();
-            resData.setIsSuccess(1);
-            resData.setData(result);
-            res.send(JSON.stringify(resData));
-        })
-        .catch(next);
-});
+// router.get('/getNewsByField',checkCompanyLogin,function (req,res,next) {
+//     var tag = url.parse(req.url,true).query.tag;
+//
+//     NewsModel.getNewsByField(tag)
+//         .then(function (result) {
+//             resData = new ResData();
+//             resData.setIsSuccess(1);
+//             resData.setData(result);
+//             res.send(JSON.stringify(resData));
+//         })
+//         .catch(next);
+// });
+//
+// //3.根据公司获取资讯(不显示详情)
+// router.get('/getNewsByCompany',checkCompanyLogin,function (req,res,next) {
+//     var company = url.parse(req.url,true).query.company;
+//
+//     NewsModel.getNewsByCompany(company)
+//         .then(function (result) {
+//             resData = new ResData();
+//             resData.setIsSuccess(1);
+//             resData.setData(result);
+//             res.send(JSON.stringify(resData));
+//         })
+//         .catch(next);
+// });
 
 //4.获取资讯详情
 router.get('/getNewsById',checkCompanyLogin,function (req,res,next) {

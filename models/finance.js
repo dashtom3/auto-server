@@ -1,7 +1,7 @@
 /**
  * Created by joseph on 16/12/12.
  */
-var Finance = require('../middlewares/mongo').Finances;
+const Finance = require('../middlewares/mongo').Finances;
 
 module.exports = {
     //添加
@@ -17,15 +17,16 @@ module.exports = {
         return Finance.findOne({companyName:name,year:year}).exec();
     },
     //修改：ratio,input,increase,allCapital,realCapital,allRatio,realRatio,debtRatio,inputRatio
-    modify: function modify(id,year,ratio,input,increase,allCapital,
-                            realCapital,allRatio,realRatio,debtRatio,inputRatio) {
-        return Finance.update({"_id" : id},{$set:{year:year,ratio:ratio,
-            input:input,increase:increase, allCapital:allCapital,realCapital:realCapital,
-            allRatio:allRatio,realRatio:realRatio,debtRatio:debtRatio,inputRatio:inputRatio}}).exec();
+    modify: function modify(id,newFinance) {
+        return Finance.update({"_id" : id},{$set:newFinance}).exec();
     },
     //删除
     deleteRecord: function deleteRecord(id) {
         return Finance.remove({"_id" : id}).exec();
+    },
+    //获取财务列表数量（query）
+    count:(query)=>{
+        return Finance.count(query).exec();
     }
 
 
