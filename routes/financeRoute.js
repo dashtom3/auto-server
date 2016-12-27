@@ -163,6 +163,10 @@ router.get('/list/:numPerPage/:pageNum',checkCompanyLogin,(req,res,next)=>{
                 .then((result)=>{
                     responseData.totalNum=result;
                     responseData.totalPageNum=Math.ceil(result/numPerPage);
+                    responseData.currentPage=pageNum;
+                    responseData.numPerPage=numPerPage;
+                    if(responseData.totalPageNum==0)
+                        responseData.totalPageNum=1;
                     res.json(new ResData(1,0,responseData));
                 });
         })
