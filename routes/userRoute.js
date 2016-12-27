@@ -73,7 +73,7 @@ router.post('/signup', function(req, res, next) {
     || (nikeName == null)
     || (password == null)
     || (userType == null)){
-        res.json(Response(0,'101'));
+        res.json(new ResData(0,101));
         return;
     }
 
