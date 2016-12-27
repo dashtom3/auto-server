@@ -292,7 +292,11 @@ router.get('/list/:numPerPage/:pageNum',checkUserLogin,(req,res,next)=>{
                     .then((result)=>{
                     responseData.totalNum=result;
                     responseData.totalPageNum=Math.ceil(result/numPerPage);
-                        return Promise.resolve(responseData);
+                    responseData.currentPage=pageNum;
+                    responseData.numPerPage=numPerPage;
+                    if(responseData.totalPageNum==0)
+                        responseData.totalPageNum=1;
+                    return Promise.resolve(responseData);
                     });
             })
             .then((result)=>{

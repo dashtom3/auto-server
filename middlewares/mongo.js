@@ -152,14 +152,16 @@ exports.publicReport = mongolass.model('publicReport',{
 
 //定义企业产品的modle
 exports.product = mongolass.model('product',{
-    companyName: {type:'string'},//TODO:companyID
+    companyId: {type:Mongolass.Types.ObjectId},//
     name: {type:'string'},//产品名称 *
     tag: {type:'string'},//标签 同企业type *
-    state: {type:'number',enum:[0,1]},//上下线 默认1
+    state: {type:'boolean'},//上下线 默认1
+
     argc: {type:'string'},//参数
     desc: {type:'string'},//介绍
-    images: {type:'string'},//File[] *
-    releaseDate:{type:'string'}//预计发布日期
+    images: [{type:'string'}],//File[] *
+    releaseDate:{type:'string'},//预计发布日期
+    timestamp:{type:'number'}//创建时间戳
 });
 // exports.product.index({_id:-1}).exec();//按日期降序
 

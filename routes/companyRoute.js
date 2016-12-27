@@ -431,7 +431,7 @@ router.get('/list/:numPerPage/:pageNum',checkCompanyLogin,(req,res,next)=>{
     if(queryString.isPassed != undefined){
         queryString.isPassed = parseInt(queryString.isPassed);
     }
-    
+
     //添加到查询语句
     if (!isEmptyObject(_regTimeUnix))
         queryString.regTimeUnix = _regTimeUnix;
@@ -449,6 +449,10 @@ router.get('/list/:numPerPage/:pageNum',checkCompanyLogin,(req,res,next)=>{
                 .then((result)=>{
                     responseData.totalNum=result;
                     responseData.totalPageNum=Math.ceil(result/numPerPage);
+                    responseData.currentPage=pageNum;
+                    responseData.numPerPage=numPerPage;
+                    if(responseData.totalPageNum==0)
+                        responseData.totalPageNum=1;
                     return Promise.resolve(responseData);
                 })
                 .catch((e)=>{

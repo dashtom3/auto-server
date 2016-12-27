@@ -106,7 +106,7 @@ router.get('/add',checkCompanyLogin,(req,res,next)=>{
  *
  * @apiParam {String} numPerPage 每页条目数量 这是URL参数不要写在?参数里
  * @apiParam {String} pageNum 第几页 这是URL参数不要写在?参数里
- * @apiParam {String} companyId 公司Id（精准）
+ * @apiParam {String} companyId 公司Id（精准）(必填)
  * @apiParam {String} yearStart 开始年份
  * @apiParam {String} yearEnd 结束年份
  * */

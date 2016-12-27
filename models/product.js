@@ -1,15 +1,25 @@
 /**
  * Created by joseph on 16/12/14.
  */
-var Product = require('../middlewares/mongo').product;
+const Product = require('../middlewares/mongo').product;
+Product.plugin('POPULATE', require('mongolass-plugin-populate'));
 
 module.exports = {
     //添加
     create: function create(product) {
         return Product.create(product).exec();
     },
-    //TODO:获取所有产品
-
+    //条件查询产品列表
+    getList: (query,numPerPage,pageNum)=>{
+        return Product.find(query).POPULATE({ path: 'companyId', select:{'longName':1} , model: 'Company' }).select().skip(numPerPage*(pageNum-1)).limit(numPerPage).exec();
+    },
+    //获取总产品数
+    count:(query)=>{
+        return Product.count(query).exec();
+    },
+    getDetail:(id)=>{
+        return Product.findOne({_id:id}).exec();
+    },
     //按分类取出所有产品
     getProductByType: function getProductByType(type) {
         return Product.find({tag:type}).exec();

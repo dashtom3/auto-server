@@ -11,11 +11,20 @@ const checkCompanyLogin = require('../middlewares/check').checkCompanyLogin;
 
 const TokenModel = require('../models/token');
 const JF = require('../middlewares/JsonFilter');
+const moment = require('moment');
+
 
 const str2bool={
     'true':true,
     'false':false
 };
+function isEmptyObject(obj){
+
+    for (name in obj){
+        return false;
+    }
+    return true;
+}
 
 //1.添加信息
 /**
@@ -87,8 +96,6 @@ router.post('/add',checkCompanyLogin,(req,res,next)=>{
             .catch((e)=>{
                 res.json(new ResData(0,804,e.toString()));
             });
-
-
 });
 
 //2.条件获取资讯列表
@@ -105,6 +112,8 @@ router.post('/add',checkCompanyLogin,(req,res,next)=>{
  * @apiParam {String} tag 根据标签匹配条件（精确）
  * @apiParam {String} isOnline 根据是否上线匹配条件（精确）
  * @apiParam {String} companyId 企业Id
+ * @apiParam {String} startTime 时间搜索起点
+ * @apiParam {String} endTime 时间搜索终点
  * */
 router.get('/list/:numPerPage/:pageNum',(req,res,next)=>{
     JF(req,res,next,{
@@ -115,7 +124,9 @@ router.get('/list/:numPerPage/:pageNum',(req,res,next)=>{
         tag:null,
         desc:null,
         wysiwyg:null,
-        isOnline:null
+        isOnline:null,
+        startTime:null,
+        endTime:null
     },[]);
 },
     (req,res,next)=>{
@@ -153,6 +164,31 @@ router.get('/list/:numPerPage/:pageNum',(req,res,next)=>{
             queryString.isOnline = str2bool[queryString.isOnline];
         }
 
+        //处理时间字段
+        let _regTimeUnix = {
+            "$gte":null,
+            "$lte":null
+        };
+        if(queryString.startTime != undefined){
+            _regTimeUnix['$gte'] = new Date(moment(queryString.startTime,'YYYY/MM/DD')).getTime();
+            delete queryString.startTime;
+        }
+        if(queryString.endTime != undefined){
+            _regTimeUnix['$lte'] = new Date(moment(queryString.endTime,'YYYY/MM/DD')).getTime();
+            delete queryString.endTime;
+        }
+
+        //处理为空字段
+        for(let key in _regTimeUnix){
+            if(_regTimeUnix[key] == null){
+                delete _regTimeUnix[key];
+            }
+        }
+
+        //添加到查询语句
+        if (!isEmptyObject(_regTimeUnix))
+            queryString.timestamp = _regTimeUnix;
+
         let numPerPage = parseInt(req.params.numPerPage);
         let pageNum = parseInt(req.params.pageNum);
 
@@ -165,6 +201,10 @@ router.get('/list/:numPerPage/:pageNum',(req,res,next)=>{
                     .then((result)=>{
                         responseData.totalNum=result;
                         responseData.totalPageNum=Math.ceil(result/numPerPage);
+                        responseData.currentPage=pageNum;
+                        responseData.numPerPage=numPerPage;
+                        if(responseData.totalPageNum==0)
+                            responseData.totalPageNum=1;
                         res.json(new ResData(1,0,responseData));
                     })
                     .catch((e)=>{

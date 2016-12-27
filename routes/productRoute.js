@@ -1,85 +1,284 @@
 /**
  * Created by joseph on 16/12/14.
  */
-var express = require('express');
-var router = express.Router();
-var url = require('url');
+const express = require('express');
+const router = express.Router();
+const url = require('url');
 
-var ProductModel = require('../models/product');
-var ResData = require('../models/res');
-var checkCompanyLogin = require('../middlewares/check').checkCompanyLogin;
+const ProductModel = require('../models/product');
+const ResData = require('../models/res');
+const checkCompanyLogin = require('../middlewares/check').checkCompanyLogin;
+
+const TokenModel = require('../models/token');
+const JF = require('../middlewares/JsonFilter');
+const moment = require('moment');
+
+
+const str2bool={
+    'true':true,
+    'false':false
+};
+function isEmptyObject(obj){
+
+    for (name in obj){
+        return false;
+    }
+    return true;
+}
 
 //1.添加产品
-router.post('/add',checkCompanyLogin,function (req,res,next) {
-    //post(name,tag,argc,desc,images)
-    var name = req.fields.name;
-    var tag = req.fields.tag;
-    var argc = req.fields.argc;
-    var desc = req.fields.desc;
+/**
+ * @api {POST} /product/add 添加产品信息
+ * @apiName product_add
+ * @apiGroup Product
+ *
+ * @apiParam {String} token Token *
+ * @apiParam {String} name 产品名称 *
+ * @apiParam {String} tag 标签 9大类 * CM汽车制作，CG汽车零部件，CS汽车销售与服务，NEC新能源汽车，NOC车联网，CC车用化工品，CE汽车金融，PT公共交通，MOC汽车媒体
+ * @apiParam {String} argc 参数
+ * @apiParam {String} desc 介绍
+ * @apiParam {Array} images 产品图片URL数组 *
+ * @apiParam {String} releaseDate 预计发布日期
+ * */
+router.post('/add',checkCompanyLogin,(req,res,next)=>{
+    JF(req,res,next,{
+        token:null,
+        name: null,//产品名称 *
+        tag: null,//标签 同企业type *
+        argc: '',//参数
+        desc: '',//介绍
+        images: [],//File[] *
+        releaseDate:''//预计发布日期
+    },['token','name','tag','images']);
+},
+    function (req,res,next) {
 
-    //todo
-    // var images = req.files.images.path.split('/').pop();
-    var images="";
-    var item;
-    for (item in files) {
-        var filePath = files[item].path.split('/').pop();
-        images = images + filePath + ";" ;
-    }
-    company=req.session.company;
+        const _postData = req.fields;
 
-    var product = {
-        companyName: company.name,
-        name: name,
-        tag: tag,
-        state: "0",
-        argc: argc,
-        desc: desc,
-        images: images,
-        isOnline: "0"  //0:下线  1:上线
-    };
-
-    ProductModel.create(product)
-        .then(function (result) {
-            resData = new ResData();
-            resData.setData(result);
-            resData.setIsSuccess(1);
-            res.send(JSON.stringify(resData));
-        })
-        .catch(function (e) {
-            resData = new ResData();
-            resData.setData("添加产品出错");
-            resData.setIsSuccess(0);
-            res.send(JSON.stringify(resData));
-            next(e);
-        });
+        TokenModel.findUser(_postData.token)
+            .then((result)=>{
+                if(result == null){
+                    res.json(new ResData(0,803));
+                    return;
+                }
+                let user_id = result.linkTo;
+                if (user_id == undefined || user_id == null){
+                    res.json(new ResData(0,804));
+                    return;
+                }
+                return Promise.resolve(user_id);
+            })
+            .catch((e)=>{
+                res.json(new ResData(0,804,e.toString()));
+            })
+            .then((user_id)=>{
+                if(user_id === undefined)
+                    return;
+                let product = _postData;
+                delete product.token;
+                product.state = true;
+                product.timestamp = new Date().getTime();
+                product.companyId = user_id;
+                return Promise.resolve(product);
+            })
+            .then((product)=>{
+                if(product === undefined)
+                    return;
+                ProductModel.create(product)
+                    .then(function (result) {
+                        res.json(new ResData(1,0));
+                    })
+                    .catch(function (e) {
+                        res.json(new ResData(0,716,e.toString()));
+                    });
+            });
 });
 
 //2.按分类取出所有产品
-router.get('/getProductByType',checkCompanyLogin,function (req,res,next) {
-    var type = url.parse(req.url,true).query.type;
+// router.get('/getProductByType',checkCompanyLogin,function (req,res,next) {
+//     var type = url.parse(req.url,true).query.type;
+//
+//     ProductModel.getProductByType(type)
+//         .then(function (result) {
+//             resData = new ResData();
+//             resData.setIsSuccess(1);
+//             resData.setData(result);
+//             res.send(JSON.stringify(resData));
+//         })
+//         .catch(next);
+// });
+//
+// //3.按公司取出所有产品
+// router.get('/getProductByCompany',checkCompanyLogin,function (req,res,next) {
+//     var companyName = url.parse(req.url,true).query.companyName;
+//
+//     ProductModel.getProductByCompany(companyName)
+//         .then(function (result) {
+//             resData = new ResData();
+//             resData.setIsSuccess(1);
+//             resData.setData(result);
+//             res.send(JSON.stringify(resData));
+//         })
+//         .catch(next);
+// });
 
-    ProductModel.getProductByType(type)
-        .then(function (result) {
-            resData = new ResData();
-            resData.setIsSuccess(1);
-            resData.setData(result);
-            res.send(JSON.stringify(resData));
-        })
-        .catch(next);
+//2.条件获取产品列表
+/**
+ * @api {GET} /product/list/:numPerPage/:pageNum 根据条件获取产品列表
+ * @apiName product_getList
+ * @apiGroup Product
+ *
+ * @apiParam {String} numPerPage 每页的数量（URL参数）*
+ * @apiParam {String} pageNum 第几页（URL参数）*
+ * @apiParam {String} name 产品名称（模糊）
+ * @apiParam {String} tag 产品标签（精确）
+ * @apiParam {String} argc 产品参数（模糊？精确？）
+ * @apiParam {String} desc 产品简述（模糊）
+ * @apiParam {boolean} state 产品上下线状态（精确）
+ * @apiParam {String} companyId 企业Id
+ * @apiParam {String} startTime 添加产品时间搜索起点
+ * @apiParam {String} endTime 添加产品时间搜索终点
+ * @apiParam {String} releaseStartTime 预计发布时间搜索起点
+ * @apiParam {String} endTime 预计发布时间搜索终点
+ * */
+router.get('/list/:numPerPage/:pageNum',(req,res,next)=>{
+    JF(req,res,next,{
+        "name" : null,
+        "tag" : null,
+        "argc" : null,
+        "desc" : null,
+        "state" : null,
+        "companyId" : null,
+        startTime:null,
+        endTime:null,
+        releaseStartTime:null,
+        releaseEndTime:null
+    },[]);
+},
+    (req,res,next)=>{
+        const _getData = req.query;
+
+        //处理未传入的查询字段
+        for(let key in _getData){
+            if(_getData[key] == null){
+                delete _getData[key];
+            }
+        }
+
+        let queryString = _getData;
+
+        //处理模糊查询字段
+        if(queryString.name != undefined){
+            queryString.name = new RegExp(queryString.name);
+        }
+        if(queryString.tag != undefined){
+            queryString.tag = new RegExp(queryString.tag)
+        }
+        if(queryString.desc != undefined){
+            queryString.desc = new RegExp(queryString.desc);
+        }
+        if(queryString.argc != undefined){
+            queryString.argc = new RegExp(queryString.argc);
+        }
+
+        //处理boolean类型
+        if(queryString.state != undefined && str2bool[queryString.state] !== undefined){
+            queryString.state = str2bool[queryString.state];
+        }
+
+        //处理时间字段
+        let timestamp = {
+            "$gte":null,
+            "$lte":null
+        };
+        if(queryString.startTime != undefined){
+            timestamp['$gte'] = new Date(moment(queryString.startTime,'YYYY/MM/DD')).getTime();
+            delete queryString.startTime;
+        }
+        if(queryString.endTime != undefined){
+            timestamp['$lte'] = new Date(moment(queryString.endTime,'YYYY/MM/DD')).getTime();
+            delete queryString.endTime;
+        }
+
+        let releaseDate = {
+            "$gte":null,
+            "$lte":null
+        };
+        if(queryString.releaseStartTime != undefined){
+            releaseDate['$gte'] = new Date(moment(queryString.releaseStartTime,'YYYY/MM/DD')).getTime();
+            delete queryString.releaseStartTime;
+        }
+        if(queryString.releaseEndTime != undefined){
+            releaseDate['$lte'] = new Date(moment(queryString.releaseEndTime,'YYYY/MM/DD')).getTime();
+            delete queryString.releaseEndTime;
+        }
+
+        //处理为空字段
+        for(let key in timestamp){
+            if(timestamp[key] == null){
+                delete timestamp[key];
+            }
+        }
+        for(let key in releaseDate){
+            if(releaseDate[key] == null){
+                delete releaseDate[key];
+            }
+        }
+
+        //添加到查询语句
+        if (!isEmptyObject(timestamp))
+            queryString.timestamp = timestamp;
+        if (!isEmptyObject(releaseDate))
+            queryString.releaseDate = releaseDate;
+
+        let numPerPage = parseInt(req.params.numPerPage);
+        let pageNum = parseInt(req.params.pageNum);
+
+        ProductModel.getList(queryString,numPerPage,pageNum)
+            .then((result)=>{
+                let responseData={
+                    list:result
+                };
+                return ProductModel.count(queryString)
+                    .then((result)=>{
+                        responseData.totalNum=result;
+                        responseData.totalPageNum=Math.ceil(result/numPerPage);
+                        responseData.currentPage=pageNum;
+                        responseData.numPerPage=numPerPage;
+                        if(responseData.totalPageNum==0)
+                            responseData.totalPageNum=1;
+                        res.json(new ResData(1,0,responseData));
+                    })
+                    .catch((e)=>{
+                        return Promise.reject(e);
+                    });
+            })
+            .catch((e)=>{
+                res.json(new ResData(0,706,e.toString()));
+            });
 });
 
-//3.按公司取出所有产品
-router.get('/getProductByCompany',checkCompanyLogin,function (req,res,next) {
-    var companyName = url.parse(req.url,true).query.companyName;
+//3.获取产品详情
+/**
+ * @api {GET} /product/detail 获取资讯详情
+ * @apiName product_getDetail
+ * @apiGroup Product
+ *
+ * @apiParam {String} productId 产品Id
+ * */
+router.get('/detail',(req,res,next)=>{
+    JF(req,res,next,{productId:null},['productId']);
+},
+    (req,res,next)=>{
+        const id = req.query.productId;
 
-    ProductModel.getProductByCompany(companyName)
-        .then(function (result) {
-            resData = new ResData();
-            resData.setIsSuccess(1);
-            resData.setData(result);
-            res.send(JSON.stringify(resData));
-        })
-        .catch(next);
+        ProductModel.getDetail(id)
+            .then(function (result) {
+                res.json(new ResData(1,0,result));
+            })
+            .catch(function (e) {
+                res.json(new ResData(0,718,e.toString()));
+            });
 });
 
 //4.设置上线／下线
