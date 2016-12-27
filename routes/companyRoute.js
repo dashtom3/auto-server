@@ -428,6 +428,10 @@ router.get('/list/:numPerPage/:pageNum',checkCompanyLogin,(req,res,next)=>{
         }
     }
 
+    if(queryString.isPassed != undefined){
+        queryString.isPassed = parseInt(queryString.isPassed);
+    }
+    
     //添加到查询语句
     if (!isEmptyObject(_regTimeUnix))
         queryString.regTimeUnix = _regTimeUnix;
