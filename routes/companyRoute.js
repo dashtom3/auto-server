@@ -441,7 +441,7 @@ router.get('/list/:numPerPage/:pageNum',checkCompanyLogin,(req,res,next)=>{
             let responseData={
                 list:result
             };
-            return CompanyModel.count({})
+            return CompanyModel.count(queryString)
                 .then((result)=>{
                     responseData.totalNum=result;
                     responseData.totalPageNum=Math.ceil(result/numPerPage);
