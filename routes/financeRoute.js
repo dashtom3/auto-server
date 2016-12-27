@@ -1,15 +1,23 @@
 /**
  * Created by joseph on 16/12/12.
  */
-var express = require('express');
-var router = express.Router();
-var url = require('url');
+const express = require('express');
+const router = express.Router();
+const url = require('url');
 
-var FinanceModel = require('../models/finance');
-var ResData = require('../models/res');
-var checkCompanyLogin = require('../middlewares/check').checkCompanyLogin;
+const FinanceModel = require('../models/finance');
+const ResData = require('../models/res');
+const checkCompanyLogin = require('../middlewares/check').checkCompanyLogin;
 const TokenModel = require('../models/token');
 const JF = require('../middlewares/JsonFilter');
+
+function isEmptyObject(obj){
+
+    for (name in obj){
+        return false;
+    }
+    return true;
+}
 
 //1.添加财务信息
 /**
@@ -30,38 +38,63 @@ const JF = require('../middlewares/JsonFilter');
  * @apiParam {String} inputRatio 资产收益率
  * @apiParam {String} token Token
  * */
-router.get('/add',checkCompanyLogin,function (req,res,next) {
-    var urlQuery = url.parse(req.url,true).query;
-    var token = urlQuery.token;
+router.get('/add',checkCompanyLogin,(req,res,next)=>{
+    JF(req,res,next,{
+        token:null,
+        year:null,
+        ratio:'',
+        input:null,
+        increase:'',
+        allCapital:'',
+        realCapital:'',
+        allRatio:'',
+        realRatio:'',
+        debtRatio:'',
+        inputRatio:''
+
+    },['token','year','input']);
+},
+    function (req,res,next) {
+    const urlQuery = req.query;
+    const token = urlQuery.token;
     //通过token获取企业用户id
     TokenModel.findUser(token)
         .then(function(result){
-            var companyId=result.linkTo;
-        }).catch(function(e){
-            res.json(new ResData(0,803,null));
-        });
-
-    var finance = {
-        companyId: companyId,
-        year: urlQuery.year,
-        ratio: urlQuery.ratio,
-        input: urlQuery.input,
-        increase: urlQuery.increase,
-        allCapital: urlQuery.allCapital,
-        realCapital: urlQuery.realCapital,
-        allRatio: urlQuery.allRatio,
-        realRatio: urlQuery.realRatio,
-        debtRatio: urlQuery.debtRatio,
-        inputRatio: urlQuery.inputRatio,
-        token: token
-    };
-
-    FinanceModel.create(finance)
-        .then(function (result) {
-            res.json(new ResData(1,0,finance));
+            // console.log(result);
+            let companyId=result.linkTo;
+            if (companyId == undefined || companyId == null){
+                res.json(new ResData(0,804));
+                return;
+            }
+            let finance = {
+                companyId: companyId,
+                year: parseInt(urlQuery.year),
+                ratio: urlQuery.ratio,
+                input: urlQuery.input,
+                increase: urlQuery.increase,
+                allCapital: urlQuery.allCapital,
+                realCapital: urlQuery.realCapital,
+                allRatio: urlQuery.allRatio,
+                realRatio: urlQuery.realRatio,
+                debtRatio: urlQuery.debtRatio,
+                inputRatio: urlQuery.inputRatio
+            };
+            return Promise.resolve(finance);
         })
-        .catch(function (e) {
-            res.json(new ResData(0,708,null));
+        .catch(function(e){
+            res.json(new ResData(0,803,e.toString()));
+        })
+        .then((finance)=>{
+            FinanceModel.create(finance)
+                .then(function (result) {
+                    res.json(new ResData(1,0,finance));
+                })
+                .catch(function (e) {
+                    res.json(new ResData(0,708,e.toString()));
+                });
+        })
+        .catch((e)=>{
+            res.json(new ResData(0,999,e.toString()));
         });
 });
 
@@ -75,15 +108,16 @@ router.get('/add',checkCompanyLogin,function (req,res,next) {
  * @apiParam {String} pageNum 第几页 这是URL参数不要写在?参数里
  * @apiParam {String} companyId 公司Id（精准）
  * @apiParam {String} yearStart 开始年份
- * @apiParam {String} yserEnd 结束年份
+ * @apiParam {String} yearEnd 结束年份
  * */
-router.get('/getFinanceList',checkCompanyLogin,(req,res,next)=>{
+router.get('/list/:numPerPage/:pageNum',checkCompanyLogin,(req,res,next)=>{
     JF(req,res,next,{
         companyId:null,
         yearStart:null,
-        yserEnd:null
+        yearEnd:null
     },['companyId']);
-},function (req,res,next) {
+},
+    function (req,res,next) {
     //预处理查询语句
     const _getData = req.query;
     for(key in _getData){
@@ -98,13 +132,13 @@ router.get('/getFinanceList',checkCompanyLogin,(req,res,next)=>{
         "$gte":null,
         "$lte":null
     };
-    if(queryString.yearStart != undefined){
-        _regTimeUnix['$gte'] = new Date(moment(queryString.yearStart,'YYYY/MM/DD')).getTime();
+    if(queryString.yearStart != undefined && !isNaN(parseInt(queryString.yearStart))){
+        _regTimeUnix['$gte'] = parseInt(queryString.yearStart);
         delete queryString.yearStart;
     }
-    if(queryString.yserEnd != undefined){
-        _regTimeUnix['$lte'] = new Date(moment(queryString.yserEnd,'YYYY/MM/DD')).getTime();
-        delete queryString.yserEnd;
+    if(queryString.yearEnd != undefined && !isNaN(parseInt(queryString.yearEnd))){
+        _regTimeUnix['$lte'] = parseInt(queryString.yearEnd);
+        delete queryString.yearEnd;
     }
     //处理空字段
     for(key in _regTimeUnix){
@@ -114,7 +148,7 @@ router.get('/getFinanceList',checkCompanyLogin,(req,res,next)=>{
     }
     //时间添加到查询语句
     if (!isEmptyObject(_regTimeUnix))
-        queryString.regTimeUnix = _regTimeUnix;
+        queryString.year = _regTimeUnix;
 
     //分页参数
     let numPerPage = parseInt(req.params.numPerPage);
@@ -122,7 +156,15 @@ router.get('/getFinanceList',checkCompanyLogin,(req,res,next)=>{
 
     FinanceModel.getFinanceList(queryString,numPerPage,pageNum)
         .then(function (result) {
-            res.json(new ResData(1,0,result));
+            let responseData={
+                list:result
+            };
+            return FinanceModel.count(queryString)
+                .then((result)=>{
+                    responseData.totalNum=result;
+                    responseData.totalPageNum=Math.ceil(result/numPerPage);
+                    res.json(new ResData(1,0,responseData));
+                });
         })
         .catch(function(e){
             res.json(new ResData(0,709,e.toString()));
@@ -148,21 +190,60 @@ router.get('/getFinanceList',checkCompanyLogin,(req,res,next)=>{
  * @apiParam {String} debtRatio 资产负债率
  * @apiParam {String} inputRatio 资产收益率
  * */
-router.get('/modify',checkCompanyLogin,function (req,res,next) {
-    var urlQuery = url.parse(req.url,true).query;
-
-    //更改财务信息
-    FinanceModel.modify(urlQuery.financeRecordId,urlQuery.year,urlQuery.ratio,urlQuery.input,urlQuery.increase,urlQuery.allCapital,
-        urlQuery.realCapital,urlQuery.allRatio,urlQuery.realRatio,urlQuery.debtRatio,urlQuery.inputRatio)
-        .then(function (result) {
-            res.json(new ResData(1,0,result));
-        })
-        .catch(function (e) {
-            res.json(new ResData(0,710,null));
-        });
+router.get('/modify',checkCompanyLogin,(req,res,next)=>{
+    JF(req,res,next,{
+        token:null,
+        financeRecordId:null,
+        year:null,
+        ratio:'',
+        input:null,
+        increase:'',
+        allCapital:'',
+        realCapital:'',
+        allRatio:'',
+        realRatio:'',
+        debtRatio:'',
+        inputRatio:''
+    },['token','year','input','financeRecordId']);
+},
+    function (req,res,next) {
+        let newFinance = req.query;
+        const token = newFinance.token;
+        delete newFinance.token;
+        let financeRecordId = newFinance.financeRecordId;
+        delete newFinance.financeRecordId;
+        newFinance.year = parseInt(newFinance.year);
+        //更改财务信息
+        TokenModel.findUser(token)
+            .then((result)=>{
+                if(result == null){
+                    res.json(new ResData(0,803));
+                    return;
+                }
+                let user_id = result.linkTo;
+                if (user_id == undefined || user_id == null){
+                    res.json(new ResData(0,804));
+                    return;
+                }
+                return Promise.resolve(user_id);
+            })
+            .catch((e)=>{
+                res.json(new ResData(0,804));
+            })
+            .then((companyId)=>{
+                if(companyId === undefined)
+                    return;
+                FinanceModel.modify(financeRecordId,companyId,newFinance)
+                    .then(function (result) {
+                        res.json(new ResData(1,0));
+                    })
+                    .catch(function (e) {
+                        res.json(new ResData(0,710,e.toString()));
+                    });
+            })
 });
 
-//5.删除财务信息
+//4.删除财务信息
 /**
  * @api {GET} /finance/delete 删除财务信息
  * @apiName finance_delete
@@ -171,16 +252,43 @@ router.get('/modify',checkCompanyLogin,function (req,res,next) {
  * @apiParam {String} token Token
  * @apiParam {String} financeRecordId 财务信息ID
  * */
-router.get('/delete',checkCompanyLogin,function (req,res,next) {
-    var id = url.parse(req.url,true).query.financeRecordId;
-    
-    FinanceModel.deleteRecord(id)
-        .then(function (result) {
-            res.json(new ResData(1,0,result));
-        })
-        .catch(function (e) {
-            res.json(new ResData(0,711,null));
-        });
+router.get('/delete',checkCompanyLogin,(req,res,next)=>{
+    JF(req,res,next,{
+        token:null,
+        financeRecordId:null
+    },['token','financeRecordId']);
+},
+    function (req,res,next) {
+        const financeRecordId = req.query.financeRecordId;
+        const token = req.query.token;
+
+        TokenModel.findUser(token)
+            .then((result)=>{
+                if(result == null){
+                    res.json(new ResData(0,803));
+                    return;
+                }
+                let user_id = result.linkTo;
+                if (user_id == undefined || user_id == null){
+                    res.json(new ResData(0,804));
+                    return;
+                }
+                return Promise.resolve(user_id);
+            })
+            .catch((e)=>{
+                res.json(new ResData(0,804));
+            })
+            .then((companyId)=>{
+                if(companyId === undefined)
+                    return;
+                FinanceModel.deleteRecord(financeRecordId,companyId)
+                    .then(function (result) {
+                        res.json(new ResData(1,0));
+                    })
+                    .catch(function (e) {
+                        res.json(new ResData(0,710,e.toString()));
+                    });
+            });
 });
 
-module.exports = router
+module.exports = router;
