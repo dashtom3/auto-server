@@ -38,8 +38,12 @@ module.exports = {
         return Product.remove({"_id" : id}).exec();
     },
     //设置上线／下线
-    modifyOnline: function modifyOnline(id,online) {
-        return Product.update({"_id" : id},{$set:{isOnline:online}}).exec();
+    modifyOnline: function modifyOnline(id,companyId,isOnline) {
+        return Product.update({"_id" : id,"companyId":companyId},{$set:{state:isOnline}}).exec();
     }
+    //     function modifyOnline(id,companyId,online) {
+    //     console.log(id,companyId,online);
+    //     return Product.update({"_id" : id,"companyId":companyId},{$set:{isOnline:online}}).exec();
+    // }
 
 };

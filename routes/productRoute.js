@@ -282,18 +282,59 @@ router.get('/detail',(req,res,next)=>{
 });
 
 //4.设置上线／下线
-router.get('/modifyOnline',checkCompanyLogin,function (req,res,next) {
-    var id = url.parse(req.url,true).query.id;
-    var isOnline = url.parse(req.url,true).query.isOnline;
+/**
+ * @api {GET} /product/modify/online 更改资讯上下线
+ * @apiName product_modifyOnlineStatus
+ * @apiGroup Product
+ *
+ * @apiParam {String} token Token
+ * @apiParam {String} productId 资讯Id
+ * @apiParam {Boolean} isOnline 是否上线 true上线 false下线
+ * */
+router.get('/modify/online',checkCompanyLogin,(req,res,next)=>{
+    JF(req,res,next,{
+        token:null,
+        productId:null,
+        isOnline:null
+    },['token','productId','isOnline']);
+},
+    function (req,res,next) {
+    const token = req.query.token;
+    const productId = req.query.productId;
+    if(str2bool[req.query.isOnline] === undefined){
+        res.json(new ResData(0,101));
+        return;
+    }
+    const isOnline = str2bool[req.query.isOnline];
 
-    ProductModel.modifyOnline(id,isOnline)
-        .then(function (result) {
-            resData = new ResData();
-            resData.setIsSuccess(1);
-            resData.setData(result);
-            res.send(JSON.stringify(resData));
+    TokenModel.findUser(token)
+        .then((result)=>{
+            if(result == null){
+                res.json(new ResData(0,803));
+                return;
+            }
+            let user_id = result.linkTo;
+            if (user_id == undefined || user_id == null){
+                res.json(new ResData(0,804));
+                return;
+            }
+            return Promise.resolve(user_id);
         })
-        .catch(next);
+        .catch((e)=>{
+            res.json(new ResData(0,804));
+            return;
+        })
+        .then((companyId)=>{
+            if(companyId === undefined)
+                return;
+            ProductModel.modifyOnline(productId,companyId,isOnline)
+                .then(function (result) {
+                    res.json(new ResData(1,0));
+                })
+                .catch(function (e) {
+                    res.json(new ResData(0,713,e.toString()));
+                });
+        });
 });
 
 //5.修改产品

@@ -247,7 +247,7 @@ router.get('/detail',checkCompanyLogin,(req,res,next)=>{
  *
  * @apiParam {String} token Token
  * @apiParam {String} newsId 资讯Id
- * @apiParam {Number} isOnline 是否上线 true上线 false下线
+ * @apiParam {Boolean} isOnline 是否上线 true上线 false下线
  * */
 router.get('/modify/online',checkCompanyLogin,(req,res,next)=>{
     JF(req,res,next,{
