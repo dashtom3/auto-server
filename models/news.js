@@ -1,7 +1,8 @@
 /**
  * Created by joseph on 16/12/12.
  */
-var News = require('../middlewares/mongo').News;
+const News = require('../middlewares/mongo').News;
+News.plugin('POPULATE', require('mongolass-plugin-populate'));
 
 module.exports = {
     //添加
@@ -18,24 +19,27 @@ module.exports = {
     },
     //根据ID查找资讯
     getNewsById: function getNewsById(id) {
-        return News.findOne({"_id" : id}).exec();
+        return News.findOne({"_id" : id}).POPULATE({ path: 'companyId', select:{'longName':1} , model: 'Company' }).exec();
     },
     //设置上线／下线
-    modifyOnline: function modifyOnline(id,NewsType) {
-        return News.update({"_id" : id},{$set:{isOnline:NewsType}}).exec();
+    modifyOnline: function modifyOnline(id,companyId,isOnline) {
+        return News.update({"_id" : id,"companyId":companyId},{$set:{isOnline:isOnline}}).exec();
     },
     //修改:title,author,isFirst,tag,desc,pic,wysiwyg
-    modify: function modify(id,title,author,isFirst,tag,desc,pic,wysiwyg) {
-        return News.update({"_id" : id},{$set:{title:title,author:author,
-            isFirst:isFirst,tag:tag,desc:desc,pic:pic,wysiwyg:wysiwyg}}).exec();
+    modifyNews: function modify(id,companyId,news) {
+        return News.update({"_id" : id,"companyId":companyId},{$set:news}).exec();
     },
     //删除ObjectId
-    deleteRecord: function deleteRecord(id) {
-        return News.remove({"_id" : id}).exec();
+    deleteRecord: function deleteRecord(id,companyId) {
+        return News.remove({"_id" : id,"companyId":companyId}).exec();
     },
-
-    getlist: (query)=>{
-        return News.find(query,{_id:0}).exec();
-    }
+    //获取资讯列表
+    getlist: (query,numPerPage,pageNum)=>{
+        return News.find(query).POPULATE({ path: 'companyId', select:{'longName':1} , model: 'Company' }).select({wysiwyg:0}).skip(numPerPage*(pageNum-1)).limit(numPerPage).exec();
+    },
+    //获取总资讯数
+    count:(query)=>{
+        return News.count(query).exec();
+    },
 
 };
