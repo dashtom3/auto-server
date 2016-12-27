@@ -29,13 +29,12 @@ module.exports = {
         return Product.find({companyName:companyName}).exec();
     },
     //修改://name,tag,argc,desc,images
-    modify: function modify(id,name,tag,argc,desc,images) {
-        return Product.update({"_id" : id},{$set:{name:name,tag:tag,argc:argc,
-            desc:desc,images:images}}).exec();
+    modifyProduct: function modify(id,companyId,product) {
+        return Product.update({"_id" : id,"companyId":companyId},{$set:product}).exec();
     },
     //删除
-    deleteRecord: function deleteRecord(id) {
-        return Product.remove({"_id" : id}).exec();
+    deleteRecord: function deleteRecord(id,companyId) {
+        return Product.remove({"_id" : id,"companyId":companyId}).exec();
     },
     //设置上线／下线
     modifyOnline: function modifyOnline(id,companyId,isOnline) {

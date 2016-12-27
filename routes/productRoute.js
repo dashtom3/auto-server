@@ -338,47 +338,124 @@ router.get('/modify/online',checkCompanyLogin,(req,res,next)=>{
 });
 
 //5.修改产品
-router.post('/modify',checkCompanyLogin,function (req,res,next) {
-    //modify?id=xxx&productId=xxx&productName=xxx&date=xxx&team=xxx&site=xxx
-    //可修改：productId,productName,date,team,site
-    var urlQuery = url.parse(req.url,true).query;
+/**
+ * @api {POST} /product/modify/detail 修改产品
+ * @apiName product_modifyDetail
+ * @apiGroup Product
+ *
+ * @apiParam {String} token Token
+ * @apiParam {String} productId 产品Id
+ * @apiParam {String} name 产品名称 *
+ * @apiParam {String} tag 标签 9大类 * CM汽车制作，CG汽车零部件，CS汽车销售与服务，NEC新能源汽车，NOC车联网，CC车用化工品，CE汽车金融，PT公共交通，MOC汽车媒体
+ * @apiParam {String} argc 参数
+ * @apiParam {String} desc 介绍
+ * @apiParam {Array} images 产品图片URL数组 *
+ * @apiParam {String} releaseDate 预计发布日期
+ * */
+router.post('/modify/detail',checkCompanyLogin,(req,res,next)=>{
+    JF(req,res,next,{
+        token:null,
+        productId:null,
+        name: null,//产品名称 *
+        tag: null,//标签 同企业type *
+        argc: '',//参数
+        desc: '',//介绍
+        images: [],//File[] *
+        releaseDate:''//预计发布日期
+    },['token','productId','name','tag','images']);
+},
+    function (req,res,next) {
+        let _getData = req.fields;
+        //处理未传入的查询字段
+        for(let key in _getData){
+            if(_getData[key] == null){
+                delete _getData[key];
+            }
+        }
+        const token = _getData.token;
+        delete _getData.token;
+        const productId = _getData.productId;
+        delete _getData.productId;
 
-    ProductModel.modify(urlQuery.id,urlQuery.productId,urlQuery.productName,
-        urlQuery.date,urlQuery.team,urlQuery.site)
-        .then(function (result) {
-            resData = new ResData();
-            resData.setData("modify success");
-            resData.setIsSuccess(1);
-            res.send(JSON.stringify(resData));
-        })
-        .catch(function (e) {
-            resData = new ResData();
-            resData.setData("modify error");
-            resData.setIsSuccess(0);
-            res.send(JSON.stringify(resData));
-            next(e);
-        });
+        const product = _getData;
+        TokenModel.findUser(token)
+            .then((result)=>{
+                if(result == null){
+                    res.json(new ResData(0,803));
+                    return;
+                }
+                let user_id = result.linkTo;
+                if (user_id == undefined || user_id == null){
+                    res.json(new ResData(0,804));
+                    return;
+                }
+                return Promise.resolve(user_id);
+            })
+            .catch((e)=>{
+                res.json(new ResData(0,804));
+                return;
+            })
+            .then((companyId)=>{
+                if(companyId === undefined)
+                    return;
+                ProductModel.modifyProduct(productId,companyId,product)
+                    .then(function (result) {
+                        res.json(new ResData(1,0));
+                    })
+                    .catch(function (e) {
+                        res.json(new ResData(0,719,e.toString()));
+                    });
+            });
 });
 
 //6.删除产品
-router.get('/delete',checkCompanyLogin,function (req,res,next) {
-    var id = url.parse(req.url,true).query.id;
+/**
+ * @api {GET} /product/delete 删除产品
+ * @apiName product_delete
+ * @apiGroup Product
+ *
+ * @apiParam {String} token Token
+ * @apiParam {String} productId 产品Id
+ * */
+router.get('/delete',checkCompanyLogin,(req,res,next)=>{
+        JF(req,res,next,{
+            token:null,
+            productId:null,
+        },['token','productId']);
+    },
+    function (req,res,next) {
+        const token = req.query.token;
+        const productId = req.query.productId;
 
-    ProductModel.deleteRecord(id)
-        .then(function (result) {
-            resData = new ResData();
-            resData.setData("delete success");
-            resData.setIsSuccess(1);
-            res.send(JSON.stringify(resData));
-        })
-        .catch(function (e) {
-            resData = new ResData();
-            resData.setData("delete error");
-            resData.setIsSuccess(0);
-            res.send(JSON.stringify(resData));
-            next(e);
-        });
-});
+        TokenModel.findUser(token)
+            .then((result)=>{
+                if(result == null){
+                    res.json(new ResData(0,803));
+                    return;
+                }
+                let user_id = result.linkTo;
+                if (user_id == undefined || user_id == null){
+                    res.json(new ResData(0,804));
+                    return;
+                }
+                return Promise.resolve(user_id);
+            })
+            .catch((e)=>{
+                res.json(new ResData(0,804));
+                return;
+            })
+            .then((companyId)=>{
+                if(companyId === undefined)
+                    return;
+                ProductModel.deleteRecord(productId,companyId)
+                    .then(function (result) {
+                        res.json(new ResData(1,0));
+                    })
+                    .catch(function (e) {
+                        res.json(new ResData(0,720,e.toString()));
+                    });
+            });
+    });
 
 
 module.exports = router;
