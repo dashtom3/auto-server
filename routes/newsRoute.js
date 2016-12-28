@@ -40,6 +40,14 @@ function isEmptyObject(obj){
  * @apiParam {String} desc 简述
  * @apiParam {String} pic 缩略图URL
  * @apiParam {String} wysiwyg 资讯内容DOM
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus": "SUCCEED",
+ *          "errCode": "NO_ERROR",
+ *          "data": null
+ *      }
  * */
 router.post('/add',checkCompanyLogin,(req,res,next)=>{
     JF(req,res,next,{
@@ -114,6 +122,37 @@ router.post('/add',checkCompanyLogin,(req,res,next)=>{
  * @apiParam {String} companyId 企业Id
  * @apiParam {String} startTime 时间搜索起点
  * @apiParam {String} endTime 时间搜索终点
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus":"SUCCEED",
+ *          "errCode":"NO_ERROR",
+ *          "data":
+ *          {
+ *              "list":[
+ *                  {
+ *                      "_id":"5852503776a10dd4c3917e3b",
+ *                      "title":"blog1",
+ *                      "author":"ma",
+ *                      "isFirst":true,
+ *                      "isOnline":true,
+ *                      "tag":"1",
+ *                      "desc":"11",
+ *                      "pic":"111",
+ *                      "companyId":
+ *                      {
+ *                          "_id":"585b7d66b6a493e45ea96060",
+ *                          "longName":"这是企业名称"
+ *                      }
+ *                  }
+ *              ],
+ *              "totalNum":17,
+ *              "totalPageNum":17,
+ *              "currentPage":1,
+ *              "numPerPage":1
+ *          }
+ *      }
  * */
 router.get('/list/:numPerPage/:pageNum',(req,res,next)=>{
     JF(req,res,next,{
@@ -223,6 +262,31 @@ router.get('/list/:numPerPage/:pageNum',(req,res,next)=>{
  * @apiGroup News
  *
  * @apiParam {String} newsId 资讯Id
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus":"SUCCEED",
+ *          "errCode":"NO_ERROR",
+ *          "data":
+ *          {
+ *              "_id":"58639c258f2196d82f6e4e9e",
+ *              "title":"testtitle",
+ *              "author":"",
+ *              "isFirst":true,
+ *              "tag":"",
+ *              "desc":"简述简述简述",
+ *              "pic":"http://123.456.789.123/images/xxx.jpg",
+ *              "wysiwyg":"<div></div>",
+ *              "isOnline":true,
+ *              "timestamp":1482923045753,
+ *              "companyId":
+ *              {
+ *                  "_id":"585b7d66b6a493e45ea96060",
+ *                  "longName":"这是企业名称"
+ *              }
+ *          }
+ *      }
  * */
 router.get('/detail',checkCompanyLogin,(req,res,next)=>{
     JF(req,res,next,{newsId : null},['newsId']);
@@ -248,6 +312,14 @@ router.get('/detail',checkCompanyLogin,(req,res,next)=>{
  * @apiParam {String} token Token
  * @apiParam {String} newsId 资讯Id
  * @apiParam {Boolean} isOnline 是否上线 true上线 false下线
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus": "SUCCEED",
+ *          "errCode": "NO_ERROR",
+ *          "data": null
+ *      }
  * */
 router.get('/modify/online',checkCompanyLogin,(req,res,next)=>{
     JF(req,res,next,{
@@ -310,6 +382,14 @@ router.get('/modify/online',checkCompanyLogin,(req,res,next)=>{
  * @apiParam {String} desc 简述
  * @apiParam {String} pic 缩略图URL
  * @apiParam {String} wysiwyg 资讯内容DOM
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus": "SUCCEED",
+ *          "errCode": "NO_ERROR",
+ *          "data": null
+ *      }
  * */
 router.post('/modify/detail',checkCompanyLogin,(req,res,next)=>{
     JF(req,res,next,{
@@ -377,6 +457,14 @@ router.post('/modify/detail',checkCompanyLogin,(req,res,next)=>{
  *
  * @apiParam {String} token Token
  * @apiParam {String} newsId 资讯Id
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus": "SUCCEED",
+ *          "errCode": "NO_ERROR",
+ *          "data": null
+ *      }
  * */
 router.get('/delete',checkCompanyLogin,(req,res,next)=>{
     JF(req,res,next,{

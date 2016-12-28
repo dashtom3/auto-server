@@ -43,6 +43,14 @@ function isEmptyObject(obj){
  * @apiParam {String} team 测评团队 *
  * @apiParam {String} site 测评地址
  * @apiParam {String} report 报告URL *
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus": "SUCCEED",
+ *          "errCode": "NO_ERROR",
+ *          "data": null
+ *      }
  * */
 router.post('/add',checkCompanyLogin,(req,res,next)=>{
     JF(req,res,next,{
@@ -129,6 +137,41 @@ router.post('/add',checkCompanyLogin,(req,res,next)=>{
  * @apiParam {String} site 测评地点（模糊）
  * @apiParam {Boolean} isOnline 是否上线
  * @apiParam {String} companyId 企业Id（精准）
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus":"SUCCEED",
+ *          "errCode":"NO_ERROR",
+ *          "data":
+ *          {
+ *              "list":[
+ *                  {
+ *                      "_id":"5863766370decc9c448dca75",
+ *                      "productId":
+ *                      {
+ *                          "_id":"58633f9f7a4e508a7fae7802",
+ *                          "name":"4号产品"
+ *                      },
+ *                      "testDesc":"测评简述",
+ *                      "date":0,
+ *                      "team":"专业测评团队1",
+ *                      "site":"上海",
+ *                      "report":"http://127.0.0.1:3300/Files/upload_151924ed0d1939946dbfe61395f69fb2.pdf",
+ *                      "isOnline":true,
+ *                      "companyId":
+ *                      {
+ *                          "_id":"585b7d66b6a493e45ea96060",
+ *                          "longName":"这是企业名称"
+ *                      }
+ *                  }
+ *              ],
+ *              "totalNum":2,
+ *              "totalPageNum":2,
+ *              "currentPage":1,
+ *              "numPerPage":1
+ *          }
+ *      }
  * */
 router.get('/list/:numPerPage/:pageNum',checkCompanyLogin,(req,res,next)=>{
     JF(req,res,next,{
@@ -245,6 +288,14 @@ router.get('/list/:numPerPage/:pageNum',checkCompanyLogin,(req,res,next)=>{
  * @apiParam {String} token Token
  * @apiParam {String} reportId 测评Id
  * @apiParam {Boolean} isOnline 是否上线 true上线 false下线
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus": "SUCCEED",
+ *          "errCode": "NO_ERROR",
+ *          "data": null
+ *      }
  * */
 router.get('/modify/online',checkCompanyLogin,(req,res,next)=>{
         JF(req,res,next,{
@@ -305,6 +356,14 @@ router.get('/modify/online',checkCompanyLogin,(req,res,next)=>{
  * @apiParam {String} team 测评团队 *
  * @apiParam {String} site 测评地址
  * @apiParam {String} report 报告URL *
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus": "SUCCEED",
+ *          "errCode": "NO_ERROR",
+ *          "data": null
+ *      }
  * */
 router.post('/modify/detail',checkCompanyLogin,(req,res,next)=>{
     JF(req,res,next,{
@@ -369,6 +428,14 @@ router.post('/modify/detail',checkCompanyLogin,(req,res,next)=>{
  *
  * @apiParam {String} token Token *
  * @apiParam {String} reportId 测评Id *
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus": "SUCCEED",
+ *          "errCode": "NO_ERROR",
+ *          "data": null
+ *      }
  * */
 router.get('/delete',checkCompanyLogin,(req,res,next)=>{
     JF(req,res,next,{

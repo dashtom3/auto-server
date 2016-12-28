@@ -243,6 +243,34 @@ router.get('/logout',checkUserLogin,function (req,res,next) {
  * @apiParam {String} nikeName 用户昵称（模糊）
  * @apiParam {String} userType 用户类型（精准）
  * @apiParam {String} isPassed 是否通过审核
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus":"SUCCEED",
+ *          "errCode":"NO_ERROR",
+ *          "data":
+ *          {
+ *              "list":[
+ *                  {
+ *                      "_id":"5858f90f6a08676a4ffa018c",
+ *                      "name":"nametest",
+ *                      "nikeName":"thisisnikname",
+ *                      "mail":"123@qq.com",
+ *                      "phone":"12345",
+ *                      "idImg1":"",
+ *                      "idImg2":"",
+ *                      "userType":"normal",
+ *                      "timestamp":"1482225935324",
+ *                      "isPassed":0
+ *                  }
+ *              ],
+ *              "totalNum":16,
+ *              "totalPageNum":16,
+ *              "currentPage":1,
+ *              "numPerPage":1
+ *          }
+ *      }
  * */
 router.get('/list/:numPerPage/:pageNum',checkUserLogin,(req,res,next)=>{
     JF(req,res,next,{
@@ -316,6 +344,14 @@ router.get('/list/:numPerPage/:pageNum',checkUserLogin,(req,res,next)=>{
  * @apiParam {String} token Token
  * @apiParam {String} userId 用户Id
  * @apiParam {String} newType 新的用户类型
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus": "SUCCEED",
+ *          "errCode": "NO_ERROR",
+ *          "data": null
+ *      }
  * */
 router.get('/modify/type',checkUserLogin,(req,res,next)=>{
     JF(req,res,next,{
@@ -375,6 +411,14 @@ router.get('/modify/type',checkUserLogin,(req,res,next)=>{
  * @apiParam {String} token Token
  * @apiParam {String} userId 要修改用户类型的用户ID
  * @apiParam {Number} approvalStatus 审核是否通过 0未审核 1审核通过 -1未通过
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus": "SUCCEED",
+ *          "errCode": "NO_ERROR",
+ *          "data": null
+ *      }
  * */
 router.get('/modify/approval',checkUserLogin,(req,res,next)=>{
         JF(req,res,next,{

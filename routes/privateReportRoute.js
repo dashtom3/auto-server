@@ -1,14 +1,14 @@
 /**
  * Created by joseph on 16/12/14.
  */
-var express = require('express');
-var router = express.Router();
-var url = require('url');
+const express = require('express');
+const router = express.Router();
+const url = require('url');
 
-var PriReportModel = require('../models/privateReport');
-var ResData = require('../models/res');
-var checkCompanyLogin = require('../middlewares/check').checkCompanyLogin;
-var checkAdminLogin = require('../middlewares/check').checkAdminLogin;
+const PriReportModel = require('../models/privateReport');
+const ResData = require('../models/res');
+const checkCompanyLogin = require('../middlewares/check').checkCompanyLogin;
+const checkAdminLogin = require('../middlewares/check').checkAdminLogin;
 
 //1.添加测评
 router.get('/add',checkCompanyLogin,function (req,res,next) {

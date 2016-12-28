@@ -37,6 +37,28 @@ function isEmptyObject(obj){
  * @apiParam {String} debtRatio 资产负债率
  * @apiParam {String} inputRatio 资产收益率
  * @apiParam {String} token Token
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus":"SUCCEED",
+ *          "errCode":"NO_ERROR",
+ *          "data":
+ *          {
+ *              "companyId":"585b7d66b6a493e45ea96060",
+ *              "year":1988,
+ *              "ratio":"",
+ *              "input":"100000",
+ *              "increase":"12%",
+ *              "allCapital":"",
+ *              "realCapital":"",
+ *              "allRatio":"",
+ *              "realRatio":"",
+ *              "debtRatio":"",
+ *              "inputRatio":"30%",
+ *              "_id":"5863951f8f2196d82f6e4e9c"
+ *          }
+ *      }
  * */
 router.post('/add',checkCompanyLogin,(req,res,next)=>{
     JF(req,res,next,{
@@ -109,6 +131,37 @@ router.post('/add',checkCompanyLogin,(req,res,next)=>{
  * @apiParam {String} companyId 公司Id（精准）(必填)
  * @apiParam {String} yearStart 开始年份
  * @apiParam {String} yearEnd 结束年份
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus":"SUCCEED",
+ *          "errCode":"NO_ERROR",
+ *          "data":
+ *          {
+ *              "list":
+ *              [
+ *                  {
+ *                      "_id":"5861d2a659a4d64a50bf2ee9",
+ *                      "companyId":"585b7d66b6a493e45ea96060",
+ *                      "year":2015,
+ *                      "ratio":"45%",
+ *                      "input":"1000000",
+ *                      "increase":"",
+ *                      "allCapital":"",
+ *                      "realCapital":"",
+ *                      "allRatio":"",
+ *                      "realRatio":"",
+ *                      "debtRatio":"",
+ *                      "inputRatio":""
+ *                  }
+ *              ],
+ *              "totalNum":6,
+ *              "totalPageNum":6,
+ *              "currentPage":1,
+ *              "numPerPage":1
+ *          }
+ *      }
  * */
 router.get('/list/:numPerPage/:pageNum',checkCompanyLogin,(req,res,next)=>{
     JF(req,res,next,{
@@ -193,6 +246,14 @@ router.get('/list/:numPerPage/:pageNum',checkCompanyLogin,(req,res,next)=>{
  * @apiParam {String} realRatio 净利率
  * @apiParam {String} debtRatio 资产负债率
  * @apiParam {String} inputRatio 资产收益率
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus": "SUCCEED",
+ *          "errCode": "NO_ERROR",
+ *          "data": null
+ *      }
  * */
 router.get('/modify',checkCompanyLogin,(req,res,next)=>{
     JF(req,res,next,{
@@ -255,6 +316,14 @@ router.get('/modify',checkCompanyLogin,(req,res,next)=>{
  *
  * @apiParam {String} token Token
  * @apiParam {String} financeRecordId 财务信息ID
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus": "SUCCEED",
+ *          "errCode": "NO_ERROR",
+ *          "data": null
+ *      }
  * */
 router.get('/delete',checkCompanyLogin,(req,res,next)=>{
     JF(req,res,next,{

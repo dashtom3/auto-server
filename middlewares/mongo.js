@@ -156,7 +156,6 @@ exports.product = mongolass.model('product',{
     name: {type:'string'},//产品名称 *
     tag: {type:'string'},//标签 同企业type *
     state: {type:'boolean'},//上下线 默认1
-
     argc: {type:'string'},//参数
     desc: {type:'string'},//介绍
     images: [{type:'string'}],//File[] *

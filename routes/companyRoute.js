@@ -293,7 +293,6 @@ router.get('/logout',checkCompanyLogin,function (req,res,next) {
  * @apiName company_getDetail
  * @apiGroup Company
  *
- * @apiParam {String} token Token
  * @apiParam {String} companyId 企业ID
  *
  * @apiSuccessExample {json} Success-Response:
@@ -371,6 +370,41 @@ router.get('/detail',checkCompanyLogin,(req,res)=>{
  * @apiParam {String} legalEntity 法人
  * @apiParam {String} isNeedCapital 是否需要投融资
  * @apiParam {String} isPassed 是否通过审核
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus": "SUCCEED",
+ *          "errCode": "NO_ERROR",
+ *          "data": {
+ *              "list": [
+ *                  {
+ *                      "_id": "5852309d15dbe5d123c05560",
+ *                      "name": "XJ",
+ *                      "position": "C",
+ *                      "info": "upload_46aa608c1a49eebda267774597e35299",
+ *                      "type": "no",
+ *                      "longName": "",
+ *                      "shortName": "",
+ *                      "logo": "",
+ *                      "address": "",
+ *                      "field": "",
+ *                      "regTime": "",
+ *                      "legalEntity": "",
+ *                      "regCapital": "",
+ *                      "regAddress": "",
+ *                      "isNeedCapital": "",
+ *                      "companyDesc": "",
+ *                      "productDesc": "",
+ *                      "userDesc": ""
+ *                  }
+ *              ],
+ *              "totalNum": 10,
+ *              "totalPageNum": 10,
+ *              "currentPage": 1,
+ *              "numPerPage": 1
+ *          }
+ *      }
  * */
 router.get('/list/:numPerPage/:pageNum',checkCompanyLogin,(req,res,next)=>{
     JF(req,res,next,{

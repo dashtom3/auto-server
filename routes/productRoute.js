@@ -39,6 +39,14 @@ function isEmptyObject(obj){
  * @apiParam {String} desc 介绍
  * @apiParam {Array} images 产品图片URL数组 *
  * @apiParam {String} releaseDate 预计发布日期
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus": "SUCCEED",
+ *          "errCode": "NO_ERROR",
+ *          "data": null
+ *      }
  * */
 router.post('/add',checkCompanyLogin,(req,res,next)=>{
     JF(req,res,next,{
@@ -142,6 +150,41 @@ router.post('/add',checkCompanyLogin,(req,res,next)=>{
  * @apiParam {String} endTime 添加产品时间搜索终点
  * @apiParam {String} releaseStartTime 预计发布时间搜索起点
  * @apiParam {String} endTime 预计发布时间搜索终点
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus":"SUCCEED",
+ *          "errCode":"NO_ERROR",
+ *          "data":
+ *          {
+ *              "list":[
+ *                  {
+ *                      "_id":"58622642c12b98681698ff74",
+ *                      "name":"1号产品",
+ *                      "tag":"CC",
+ *                      "argc":"参数参数",
+ *                      "desc":"",
+ *                      "images":[
+ *                          "http://uploadfile.huiyi8.com/2014/0306/20140306103001972.jpg",
+ *                          "http://uploadfile.huiyi8.com/2014/0306/20140306103001972.jpg"
+ *                      ],
+ *                      "releaseDate":1513036800000,
+ *                      "state":true,
+ *                      "timestamp":1482827330452,
+ *                      "companyId":
+ *                      {
+ *                          "_id":"585b7d66b6a493e45ea96060",
+ *                          "longName":"这是企业名称"
+ *                      }
+ *                  }
+ *              ],
+ *              "totalNum":11,
+ *              "totalPageNum":11,
+ *              "currentPage":1,
+ *              "numPerPage":1
+ *          }
+ *      }
  * */
 router.get('/list/:numPerPage/:pageNum',(req,res,next)=>{
     JF(req,res,next,{
@@ -262,11 +305,34 @@ router.get('/list/:numPerPage/:pageNum',(req,res,next)=>{
 
 //3.获取产品详情
 /**
- * @api {GET} /product/detail 获取资讯详情
+ * @api {GET} /product/detail 获取产品详情
  * @apiName product_getDetail
  * @apiGroup Product
  *
  * @apiParam {String} productId 产品Id
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus":"SUCCEED",
+ *          "errCode":"NO_ERROR",
+ *          "data":
+ *          {
+ *              "_id":"58622642c12b98681698ff74",
+ *              "name":"1号产品",
+ *              "tag":"CC",
+ *              "argc":"参数参数",
+ *              "desc":"",
+ *              "images":[
+ *                  "http://uploadfile.huiyi8.com/2014/0306/20140306103001972.jpg",
+ *                  "http://uploadfile.huiyi8.com/2014/0306/20140306103001972.jpg"
+ *              ],
+ *              "releaseDate":1513036800000,
+ *              "state":true,
+ *              "timestamp":1482827330452,
+ *              "companyId":"585b7d66b6a493e45ea96060"
+ *          }
+ *      }
  * */
 router.get('/detail',(req,res,next)=>{
     JF(req,res,next,{productId:null},['productId']);
@@ -285,13 +351,21 @@ router.get('/detail',(req,res,next)=>{
 
 //4.设置上线／下线
 /**
- * @api {GET} /product/modify/online 更改资讯上下线
+ * @api {GET} /product/modify/online 更改产品上下线
  * @apiName product_modifyOnlineStatus
  * @apiGroup Product
  *
  * @apiParam {String} token Token
- * @apiParam {String} productId 资讯Id
+ * @apiParam {String} productId 产品Id
  * @apiParam {Boolean} isOnline 是否上线 true上线 false下线
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus": "SUCCEED",
+ *          "errCode": "NO_ERROR",
+ *          "data": null
+ *      }
  * */
 router.get('/modify/online',checkCompanyLogin,(req,res,next)=>{
     JF(req,res,next,{
@@ -353,6 +427,14 @@ router.get('/modify/online',checkCompanyLogin,(req,res,next)=>{
  * @apiParam {String} desc 介绍
  * @apiParam {Array} images 产品图片URL数组 *
  * @apiParam {String} releaseDate 预计发布日期
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus": "SUCCEED",
+ *          "errCode": "NO_ERROR",
+ *          "data": null
+ *      }
  * */
 router.post('/modify/detail',checkCompanyLogin,(req,res,next)=>{
     JF(req,res,next,{
@@ -418,6 +500,14 @@ router.post('/modify/detail',checkCompanyLogin,(req,res,next)=>{
  *
  * @apiParam {String} token Token
  * @apiParam {String} productId 产品Id
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus": "SUCCEED",
+ *          "errCode": "NO_ERROR",
+ *          "data": null
+ *      }
  * */
 router.get('/delete',checkCompanyLogin,(req,res,next)=>{
         JF(req,res,next,{
