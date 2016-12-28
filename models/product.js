@@ -17,6 +17,7 @@ module.exports = {
     count:(query)=>{
         return Product.count(query).exec();
     },
+    //获取详情
     getDetail:(id)=>{
         return Product.findOne({_id:id}).exec();
     },
@@ -39,10 +40,14 @@ module.exports = {
     //设置上线／下线
     modifyOnline: function modifyOnline(id,companyId,isOnline) {
         return Product.update({"_id" : id,"companyId":companyId},{$set:{state:isOnline}}).exec();
+    },
+    //添加专业测评
+    pushPublicReport:(id,companyId,reportID)=>{
+        return Product.update({"_id" : id,'companyId':companyId},{$push:{publicReport:reportID}}).exec();
+    },
+    //删除专业评测
+    pullPublicReport:(id,companyId,reportID)=>{
+        return Product.update({"_id" : id,'companyId':companyId},{$pull:{publicReport:reportID}}).exec();
     }
-    //     function modifyOnline(id,companyId,online) {
-    //     console.log(id,companyId,online);
-    //     return Product.update({"_id" : id,"companyId":companyId},{$set:{isOnline:online}}).exec();
-    // }
 
 };

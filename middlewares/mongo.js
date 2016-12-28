@@ -138,20 +138,20 @@ exports.privateReport = mongolass.model('privateReport',{
  * */
 //定义专业测评信息的modle
 exports.publicReport = mongolass.model('publicReport',{
-    companyName: {type:'string'},//TODO:ID *
-    productId: {type:'string'},//产品id *
-    // productName: {type:'string'},//产品名称
+    companyId: {type:Mongolass.Types.ObjectId},//
+    productId: {type:Mongolass.Types.ObjectId},//产品id *
     testDesc:{type:'string'},//测评简述
-    date: {type:'string'},//测评时间
+    date: {type:'number'},//测评时间
     team: {type:'string'},//测评团队 *
     site: {type:'string'},//测评地址
-    isOnline: {type:'string'},//测评上下线enum{0,1} def:1 *
+    isOnline: {type:'boolean'},//测评上下线
     report:{type:'string'}//file 报告 *
 });
 // exports.publicReport.index({_id:-1}).exec();//按日期降序
 
 //定义企业产品的modle
 exports.product = mongolass.model('product',{
+    //TODO:产品数量
     companyId: {type:Mongolass.Types.ObjectId},//
     name: {type:'string'},//产品名称 *
     tag: {type:'string'},//标签 同企业type *
@@ -161,7 +161,9 @@ exports.product = mongolass.model('product',{
     desc: {type:'string'},//介绍
     images: [{type:'string'}],//File[] *
     releaseDate:{type:'string'},//预计发布日期
-    timestamp:{type:'number'}//创建时间戳
+    timestamp:{type:'number'},//创建时间戳
+    publicReport:[{type:Mongolass.Types.ObjectId}],//专业评测
+    privateReport:[{type:Mongolass.Types.ObjectId}]//个人评测
 });
 // exports.product.index({_id:-1}).exec();//按日期降序
 

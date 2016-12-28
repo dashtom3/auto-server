@@ -79,6 +79,8 @@ router.post('/add',checkCompanyLogin,(req,res,next)=>{
                 product.state = true;
                 product.timestamp = new Date().getTime();
                 product.companyId = user_id;
+                product.publicReport = [];
+                product.privateReport = [];
                 return Promise.resolve(product);
             })
             .then((product)=>{
@@ -254,7 +256,7 @@ router.get('/list/:numPerPage/:pageNum',(req,res,next)=>{
                     });
             })
             .catch((e)=>{
-                res.json(new ResData(0,706,e.toString()));
+                res.json(new ResData(0,717,e.toString()));
             });
 });
 
