@@ -245,6 +245,7 @@ router.get('/list/:numPerPage/:pageNum',(req,res,next)=>{
                         if(responseData.totalPageNum==0)
                             responseData.totalPageNum=1;
                         res.json(new ResData(1,0,responseData));
+                        return Promise.resolve();
                     })
                     .catch((e)=>{
                         return Promise.reject(e);

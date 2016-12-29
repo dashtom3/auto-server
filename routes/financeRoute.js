@@ -221,6 +221,7 @@ router.get('/list/:numPerPage/:pageNum',checkCompanyLogin,(req,res,next)=>{
                     if(responseData.totalPageNum==0)
                         responseData.totalPageNum=1;
                     res.json(new ResData(1,0,responseData));
+                    return Promise.resolve();
                 });
         })
         .catch(function(e){

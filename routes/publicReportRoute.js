@@ -9,8 +9,6 @@ const PubReportModel = require('../models/publicReport');
 const ResData = require('../models/res');
 const checkCompanyLogin = require('../middlewares/check').checkCompanyLogin;
 
-const path = require('path');
-const config = require('config-lite');
 const TokenModel = require('../models/token');
 const JF = require('../middlewares/JsonFilter');
 const ProductModel = require('../models/product');
@@ -99,19 +97,22 @@ router.post('/add',checkCompanyLogin,(req,res,next)=>{
                 })
                 .catch((e)=>{
                     res.json(new ResData(0,722,e.toString()));
+                    return Promise.resolve(undefined);
                 });
         })
         .then((data)=>{
+            if(data === undefined) return;
             return ProductModel.pushPublicReport(report.productId,data.companyId,data.reportId)
                 .then((result)=>{
                     res.json(new ResData(1,0));
+                    return Promise.resolve();
                 })
                 .catch((e)=>{
-                    return Promise.reject({msg:e.toString(),reportId:data.reportId});
+                    return Promise.reject({msg:e.toString(),reportId:data.reportId,companyd:data.companyId});
                 });
         })
         .catch((e)=>{
-            PubReportModel.delete(e.reportId)
+            PubReportModel.delete(e.reportId,e.companyId)
                 .then((result)=>{
                     res.json(new ResData(0,722,e.msg));
                 })
@@ -255,6 +256,7 @@ router.get('/list/:numPerPage/:pageNum',checkCompanyLogin,(req,res,next)=>{
                     if(responseData.totalPageNum==0)
                         responseData.totalPageNum=1;
                     res.json(new ResData(1,0,responseData));
+                    return Promise.resolve();
                 })
                 .catch((e)=>{
                     return Promise.reject(e);
@@ -473,6 +475,7 @@ router.get('/delete',checkCompanyLogin,(req,res,next)=>{
                     })
                     .catch((e)=>{
                         res.json(new ResData(0,728,e.toString()));
+                        return Promise.resolve(undefined);
                     });
             })
             .then((data)=>{
@@ -483,6 +486,7 @@ router.get('/delete',checkCompanyLogin,(req,res,next)=>{
                     })
                     .catch((e)=>{
                         res.json(new ResData(0,727,e.toString()));
+                        return Promise.resolve(undefined);
                     });
             })
             .then((companyId)=>{

@@ -611,7 +611,7 @@ router.get('/modify/password',checkCompanyLogin,function (req,res,next) {
                 })
                 .catch((e)=>{
                     res.json(new ResData(0,703));
-                    return;
+                    return Promise.resolve(undefined);
                 });
         })
         .then((result)=>{
