@@ -685,8 +685,7 @@ router.post('/modify/info',checkCompanyLogin,function (req,res,next) {
     let regCapital=req.fields.regCapital;
     let regAddress=req.fields.regAddress;
     let isNeedCapital = req.fields.isNeedCapital;
-    let logo=(req.files.logo == undefined)
-        ?"":req.files.logo.path.split('/').pop();
+    let logo=req.fields.logo;
     let companyDesc=req.fields.companyDesc;
     let productDesc=req.fields.productDesc;
     let userDesc = req.fields.userDesc;
@@ -706,7 +705,7 @@ router.post('/modify/info',checkCompanyLogin,function (req,res,next) {
     let newCompanyInfo = {
         longName: longName,
         shortName: shortName,
-        logo: logo,//file
+        logo: logo,
         address: address,
         field: field,
         regTime: regTime,
