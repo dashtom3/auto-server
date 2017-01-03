@@ -42,6 +42,99 @@ function getTimeStamp(){
     return new Date().getTime();
 }
 
+function dealWithRegQuery(obj,keyArray){
+    for(let key of keyArray){
+        if(obj[key] != undefined)
+        {
+            obj[key] = new RegExp(obj[key]);
+        }
+    }
+}
+
+function dealWithBoolQuery(obj,keyArray){
+    for(let key of keyArray){
+        if(obj[key] != undefined && str2bool[obj[key]] !== undefined)
+        {
+            obj[key] = str2bool[obj[key]];
+        }
+    }
+}
+
+function dealWithTimeQuery(obj,keyArray,keyArrayPair){
+    for(let n in keyArray){
+        obj[keyArray[n]]={
+            "$gte":null,
+            "$lte":null
+        }
+        if(obj[keyArrayPair[n*2]] != undefined){
+            obj[keyArray[n]]['$gte'] = new Date(moment(obj[keyArrayPair[n*2]],'YYYY/MM/DD')).getTime();
+            delete obj[keyArrayPair[n*2]];
+        }
+        if(obj[keyArrayPair[n*2+1]] != undefined){
+            obj[keyArray[n]]['$lte'] = new Date(moment(obj[keyArrayPair[n*2+1]],'YYYY/MM/DD')).getTime();
+            delete obj[keyArrayPair[n*2+1]];
+        }
+        for(let k in obj[keyArray[n]]){
+            if(obj[keyArray[n]][k] == null){
+                delete obj[keyArray[n]][k];
+            }
+        }
+        if (isEmptyObject(obj[keyArray[n]]))
+            delete obj[keyArray[n]];
+    }
+};
+
+function dealWithNumCompQuery(obj,keyArray,keyArrayPair){
+    for(let n in keyArray){
+        obj[keyArray[n]]={
+            "$gte":null,
+            "$lte":null
+        }
+        if(obj[keyArrayPair[n*2]] != undefined){
+            obj[keyArray[n]]['$gte'] = Number.parseFloat(obj[keyArrayPair[n*2]]);
+            delete obj[keyArrayPair[n*2]];
+        }
+        if(obj[keyArrayPair[n*2+1]] != undefined){
+            obj[keyArray[n]]['$lte'] = Number.parseFloat(obj[keyArrayPair[n*2+1]]);
+            delete obj[keyArrayPair[n*2+1]];
+        }
+        for(let k in obj[keyArray[n]]){
+            if(obj[keyArray[n]][k] == null){
+                delete obj[keyArray[n]][k];
+            }
+        }
+        if (isEmptyObject(obj[keyArray[n]]))
+            delete obj[keyArray[n]];
+    }
+}
+
+function dealWithIntQuery(obj,keyArray){
+    for(let key of keyArray){
+        if(obj[key] != undefined)
+        {
+            obj[key] = Number.parseInt(obj[key]);
+        }
+    }
+}
+
+function dealWithFloatQuery(obj,keyArray){
+    for(let key of keyArray){
+        if(obj[key] != undefined)
+        {
+            obj[key] = Number.parseFloat(obj[key]);
+        }
+    }
+}
+
+function dealWithArrayQuery(obj,keyArray){
+    for(let key of keyArray){
+        if(obj[key] != undefined)
+        {   
+            obj[key] = {'$in':obj[key].split(',')};
+        }
+    }
+}
+
 //1.添加测评
 /**
  * @api {POST} /report/private/add 添加个人测评
@@ -158,48 +251,127 @@ router.post('/add',checkCompanyLogin,(req,res,next)=>{
         });
 });
 
-//2.按分类取出所有用户测评
-router.get('/getPriReportByField',checkCompanyLogin,function (req,res,next) {
-    var type = url.parse(req.url,true).query.type;
+//2.按条件取出测评列表
+router.get('/list/:numPerPage/:pageNum',checkCompanyLogin,(req,res,next)=>{
+    JF(req,res,next,{
+        productId:null,
+        title:null,
+        //dateStart
+        startDateStart:null,
+        endDateStart:null,
+        //--dateStart
+        //dateEnd
+        startDateEnd:null,
+        endDateEnd:null,
+        //--dateEnd
+        type:null,
+        address:null,
+        //maxUserNum
+        maxUserNum_Min:null,
+        maxUserNum_Max:null,
+        //--maxUserNum
+        argc:null,
+        state:null,
+        signUser:null,
+        passUser:null,
+        //timestamp
+        startTime:null,
+        endTime:null,
+        //--timestamp
+        isOnline:null,
+        companyId:null,
+    },[]);
+},function (req,res,next) {
+    const _getData = req.query;
 
-    PriReportModel.getPriReportByField(type)
-        .then(function (result) {
-            resData = new ResData();
-            resData.setIsSuccess(1);
-            resData.setData(result);
-            res.send(JSON.stringify(resData));
-        })
-        .catch(next);
+    //处理未传入的查询字段
+    for(let key in _getData){
+        if(_getData[key] == null){
+            delete _getData[key];
+        }
+    }
+
+    let queryString = _getData;
+
+    //处理模糊查询字段
+    dealWithRegQuery(queryString,['title','address',]);
+
+    //处理boolean类型
+    dealWithBoolQuery(queryString,['isOnline']);
+
+    //处理数字字段
+    dealWithIntQuery(queryString,['state']);
+
+    //处理数字比较类型
+    dealWithNumCompQuery(queryString,['maxUserNum'],['maxUserNum_Min','maxUserNum_Max']);
+
+    //处理时间字段
+    dealWithTimeQuery(queryString,['dateStart','dateEnd','timestamp'],['startDateStart','endDateStart','startDateEnd','endDateEnd','startTime','endTime']);
+
+    //处理数组字段
+    dealWithArrayQuery(queryString,['argc']);
+
+    //处理userSign userPass
+    if(queryString.signUser !== undefined){
+        queryString['signUser.userId'] = queryString.signUser;
+        delete queryString.signUser;
+    }
+    if(queryString.passUser !== undefined){
+        queryString['passUser.userId'] = queryString.passUser;
+        delete queryString.passUser;
+    }
+        
+    let numPerPage = parseInt(req.params.numPerPage);
+    let pageNum = parseInt(req.params.pageNum);
+
+    co(function *(){
+        let list = yield PriReportModel.getList(queryString,numPerPage,pageNum);
+        let responseData={
+            list:list
+        };
+        let count = yield PriReportModel.count(queryString);
+        responseData.totalNum=count;
+        responseData.totalPageNum=Math.ceil(count/numPerPage);
+        responseData.currentPage=pageNum;
+        responseData.numPerPage=numPerPage;
+        if(responseData.totalPageNum==0)
+            responseData.totalPageNum=1;
+        res.json(new ResData(1,0,responseData));
+    })
+    .catch(e=>{
+        res.json(new ResData(0,736,toString()));
+    })
 });
 
-//3.按公司取出所有用户测评
-router.get('/getPriReportByCompany',checkCompanyLogin,function (req,res,next) {
-    var companyName = url.parse(req.url,true).query.companyName;
+/*
+    //3.按公司取出所有用户测评
+    router.get('/getPriReportByCompany',checkCompanyLogin,function (req,res,next) {
+        var companyName = url.parse(req.url,true).query.companyName;
 
-    PriReportModel.getPriReportByCompany(companyName)
-        .then(function (result) {
-            resData = new ResData();
-            resData.setIsSuccess(1);
-            resData.setData(result);
-            res.send(JSON.stringify(resData));
-        })
-        .catch(next);
-});
+        PriReportModel.getPriReportByCompany(companyName)
+            .then(function (result) {
+                resData = new ResData();
+                resData.setIsSuccess(1);
+                resData.setData(result);
+                res.send(JSON.stringify(resData));
+            })
+            .catch(next);
+    });
 
-//4.按状态取出所有用户测评
-router.get('/getPriReportByState',checkCompanyLogin,function (req,res,next) {
-    var state = url.parse(req.url,true).query.state;
+    //4.按状态取出所有用户测评
+    router.get('/getPriReportByState',checkCompanyLogin,function (req,res,next) {
+        var state = url.parse(req.url,true).query.state;
 
-    PriReportModel.getPriReportByState(state)
-        .then(function (result) {
-            resData = new ResData();
-            resData.setIsSuccess(1);
-            resData.setData(result);
-            res.send(JSON.stringify(resData));
-        })
-        .catch(next);
-});
-
+        PriReportModel.getPriReportByState(state)
+            .then(function (result) {
+                resData = new ResData();
+                resData.setIsSuccess(1);
+                resData.setData(result);
+                res.send(JSON.stringify(resData));
+            })
+            .catch(next);
+    });
+*/
 //5.修改测评
 router.post('/modify/detail',checkCompanyLogin,(req,res,next)=>{
     JF(req,res,next,{
@@ -240,7 +412,7 @@ router.post('/modify/detail',checkCompanyLogin,(req,res,next)=>{
         return;
     }
     if(_postData.argc !== undefined){
-        if(_postData.argc.constructor !== Array || _postData.images.constructor !== Array){
+        if(_postData.argc.constructor !== Array){
             res.json(new ResData(0,101));
             return;
         }

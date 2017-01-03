@@ -10,17 +10,13 @@ module.exports = {
     create: function create(report) {
         return PriReport.create(report).exec();
     },
-    //按分类取出所有用户测评
-    getPriReportByField: function getPriReportByField(field) {
-        return PriReport.find({type:field}).exec();
+    //按条件取列表
+    getList:(query,numPerPage,pageNum)=>{
+        return PriReport.find(query,{'passUser.comment':0}).exec();
     },
-    //按公司取出所有用户测评
-    getPriReportByCompany: function getPriReportByCompany(companyName) {
-        return PriReport.find({companyName:companyName}).exec();
-    },
-    //按状态取出所有用户测评
-    getPriReportByState: function getPriReportByState(state) {
-        return PriReport.find({state:state}).exec();
+    //计数
+    count:(query)=>{
+        return PriReport.count(query).exec();
     },
     //修改产品信息
     modify: function modify(id,companyId,report) {
