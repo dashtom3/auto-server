@@ -201,45 +201,101 @@ router.get('/getPriReportByState',checkCompanyLogin,function (req,res,next) {
 });
 
 //5.修改测评
-router.get('/modify/detail',checkCompanyLogin,function (req,res,next) {
-    //modify?id=xxx&title=xxx&product=xxx&date=xxx
-    //可修改：title,product,type
-    var urlQuery = url.parse(req.url,true).query;
+router.post('/modify/detail',checkCompanyLogin,(req,res,next)=>{
+    JF(req,res,next,{
+        token:null,
+        reportId:null,
+        title:null,
+        dateStart:null,
+        dateEnd:null,
+        type:null,
+        address:null,
+        maxUserNum:null,
+        argc:null,
+        images:null
+    },['token','reportId']);
+},function (req,res,next) {
+    let _postData = req.fields;
+    //处理未传入的查询字段
+    for(let key in _postData){
+        if(_postData[key] == null){
+            delete _postData[key];
+        }
+    }
+    const token = _postData.token;
+    delete _postData.token;
+    const reportId = _postData.reportId;
+    delete _postData.reportId;
 
-    PriReportModel.modify(urlQuery.id,urlQuery.title,urlQuery.product,urlQuery.date)
-        .then(function (result) {
-            resData = new ResData();
-            resData.setData("modify success");
-            resData.setIsSuccess(1);
-            res.send(JSON.stringify(resData));
-        })
-        .catch(function (e) {
-            resData = new ResData();
-            resData.setData("modify error");
-            resData.setIsSuccess(0);
-            res.send(JSON.stringify(resData));
-            next(e);
-        });
+    if(_postData.type !== undefined && _postData.type !== 'local' && _postData.type !== 'mail'){
+        res.json(new ResData(0,101));
+        return;
+    }
+    if(_postData.type !== undefined && typeof _postData.address !== 'string'){
+        res.json(new ResData(0,101));
+        return;
+    }
+    if(_postData.type === 'local' && _postData.address.trim() === ''){
+        res.json(new ResData(0,101));
+        return;
+    }
+    if(_postData.argc !== undefined){
+        if(_postData.argc.constructor !== Array || _postData.images.constructor !== Array){
+            res.json(new ResData(0,101));
+            return;
+        }
+    }
+
+    let report = _postData;
+    report.dateStart = new Date(moment(report.dateStart,'YYYY/MM/DD')).getTime();
+    report.dateEnd = new Date(moment(report.dateEnd,'YYYY/MM/DD')).getTime();
+
+    // const report = _postData;
+    co(function *(){
+        const user = yield TokenModel.findUser(token);
+        if(user === null){
+            res.json(new ResData(0,803));
+            return;
+        }
+        if(isEmptyObject(report)){
+            res.json(new ResData(1,0));
+            return;
+        }else{
+            return PriReportModel.modify(reportId,user.linkTo,report)
+                                 .then(r=>{
+                                     res.json(new ResData(1,0));
+                                 })
+        }
+    })
+    .catch(e=>{
+        res.json(new ResData(0,735,e.toString()));
+    });
 });
 
 //6.删除测评信息
-router.get('/delete',checkCompanyLogin,function (req,res,next) {
-    var id = url.parse(req.url,true).query.id;
+router.get('/delete',checkCompanyLogin,(req,res,next)=>{
+    JF(req,res,next,{
+        token:null,
+        reportId:null
+    },['token','reportId']);
+},function (req,res,next) {
+    const token = req.query.token;
+    const reportId = req.query.reportId;
 
-    PriReportModel.deleteRecord(id)
-        .then(function (result) {
-            resData = new ResData();
-            resData.setData("delete success");
-            resData.setIsSuccess(1);
-            res.send(JSON.stringify(resData));
-        })
-        .catch(function (e) {
-            resData = new ResData();
-            resData.setData("delete error");
-            resData.setIsSuccess(0);
-            res.send(JSON.stringify(resData));
-            next(e);
-        });
+    co(function *(){
+        const user = yield TokenModel.findUser(token);
+        if(user === null){
+            res.json(new ResData(0,803));
+            return;
+        }
+        return PriReportModel.delete(reportId,user.linkTo)
+                             .then(r=>{
+                                 res.json(new ResData(1,0));
+                             });
+    })
+    .catch(e=>{
+        res.json(new ResData(0,803,e.toString()));
+    })
 });
 
 //7.获取单个测评详情
@@ -459,10 +515,10 @@ router.post('/comment',checkUserLogin,(req,res,next)=>{
             score:_getData.score,
             timestamp:getTimeStamp(),
             passed:0
+        })
+        .then(r=>{
+            res.json(new ResData(1,0));
         });
-    })
-    .then(_=>{
-        res.json(new ResData(1,0));
     })
     .catch(e =>{
         res.json(new ResData(0,733,e.toString()));
@@ -500,6 +556,7 @@ router.get('/modify/commentpass',checkAdminLogin,(req,res,next)=>{
 
 //12获取所有待审核的报名申请
 
+//13获取所有待审核的评论
 
 
 module.exports = router;

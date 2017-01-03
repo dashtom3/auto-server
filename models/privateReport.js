@@ -22,9 +22,15 @@ module.exports = {
     getPriReportByState: function getPriReportByState(state) {
         return PriReport.find({state:state}).exec();
     },
-    //修改:title,product,type
-    modify: function modify(id,title,product,type) {
-        return PriReport.update({"_id" : id},{$set:{title:title,product:product,type:type}}).exec();
+    //修改产品信息
+    modify: function modify(id,companyId,report) {
+        return PriReport.update({
+                            "_id" : id,
+                            "companyId": companyId
+                        },{
+                            $set:report
+                        })
+                        .exec();
     },
     //检查用户是否已经参加了测评
     checkSign: (id,userId)=>{
