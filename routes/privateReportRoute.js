@@ -372,7 +372,7 @@ router.get('/list/:numPerPage/:pageNum',checkCompanyLogin,(req,res,next)=>{
             .catch(next);
     });
 */
-//5.修改测评
+//3.修改测评
 router.post('/modify/detail',checkCompanyLogin,(req,res,next)=>{
     JF(req,res,next,{
         token:null,
@@ -444,7 +444,7 @@ router.post('/modify/detail',checkCompanyLogin,(req,res,next)=>{
     });
 });
 
-//6.删除测评信息
+//4.删除测评信息
 router.get('/delete',checkCompanyLogin,(req,res,next)=>{
     JF(req,res,next,{
         token:null,
@@ -470,21 +470,24 @@ router.get('/delete',checkCompanyLogin,(req,res,next)=>{
     })
 });
 
-//7.获取单个测评详情
-router.get('/getPriReportById',checkCompanyLogin,function (req,res,next) {
-    var id = url.parse(req.url,true).query.id;
+//5.获取单个测评详情
+router.get('/detail',checkCompanyLogin,(req,res,next)=>{
+    JF(req,res,next,{
+        reportId:null
+    },['reportId']);
+},function (req,res,next) {
+    var id = req.query.reportId;
 
-    PriReportModel.getPriReportById(id)
-        .then(function (result) {
-            resData = new ResData();
-            resData.setIsSuccess(1);
-            resData.setData(result);
-            res.send(JSON.stringify(resData));
+    PriReportModel.getDetail(id)
+        .then(r=>{
+            res.json(new ResData(1,0,r));
         })
-        .catch(next);
+        .catch(e=>{
+            res.json(new ResData(0,737,e.toString()));
+        });
 });
 
-//8.用户报名
+//6.用户报名
 /**
  * @api {GET} /report/private/sign 用户报名
  * @apiName privateReport_sign
@@ -578,7 +581,7 @@ router.get('/sign',checkCompanyLogin,(req,res,next)=>{
         });
 });
 
-//9.审核通过用户的报名(admin权限)
+//7.审核通过用户的报名(admin权限)
 /**
  * @api {GET} /report/private/pass 审核用户报名
  * @apiName privateReport_pass
@@ -656,7 +659,7 @@ router.get('/pass',checkAdminLogin,(req,res,next)=>{
         });
 });
 
-//10用户发表评论
+//8用户发表评论
 router.post('/comment',checkUserLogin,(req,res,next)=>{
     JF(req,res,next,{
         token:null,
@@ -697,7 +700,7 @@ router.post('/comment',checkUserLogin,(req,res,next)=>{
     });
 });
 
-//11审核用户评论
+//9审核用户评论
 router.get('/modify/commentpass',checkAdminLogin,(req,res,next)=>{
     JF(req,res,next,{
         token:null,

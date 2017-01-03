@@ -67,8 +67,8 @@ module.exports = {
     },
     //通过用户报名
     pass:native.privateReport.pass,
-    //根据id查找信息测评
-    getPriReportById: function getPriReportById(id) {
+    //获取评测详情
+    getDetail: (id)=>{
         return PriReport.findOne({"_id" : id}).exec();
     },
     //删除
