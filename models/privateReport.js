@@ -2,7 +2,7 @@
  * Created by joseph on 16/12/14.
  */
 const PriReport = require('../middlewares/mongo').privateReport;
-
+const Mongolass = require('Mongolass');
 const native = require('./nativeMongodb');
 
 module.exports = {
@@ -78,6 +78,26 @@ module.exports = {
     //用户发表评论
     makeComment: native.privateReport.makeComment,
     //审核用户评论
-    passComment: native.privateReport.passComment
+    passComment: native.privateReport.passComment,
+    //获取某评测中所有待审核用户
+    getSignUserList: (id)=>{
+        console.log(id);
+        return PriReport.aggregate({$match:{'_id':Mongolass.Types.ObjectId(id)}},
+                                   {$project:{'signUser':1,'_id':0}},
+                                   {'$unwind':'$signUser'},
+                                   {$match:{'signUser.passed':0}},
+                                   {$match:{'signUser.passed':0}})
+                        .exec()
+    },
+    //获取某评测中所有待审核用户
+    getCommentToPassList: (id)=>{
+        console.log(id);
+        return PriReport.aggregate({$match:{'_id':Mongolass.Types.ObjectId(id)}},
+                                   {$project:{'passUser':1,'_id':0}},
+                                   {'$unwind':'$passUser'},
+                                   {$match:{'passUser.comment.passed':0}},
+                                   {$match:{'passUser.comment.passed':0}})
+                        .exec()
+    }
 
 };

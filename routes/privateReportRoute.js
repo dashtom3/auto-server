@@ -730,8 +730,35 @@ router.get('/modify/commentpass',checkAdminLogin,(req,res,next)=>{
 });
 
 //12获取所有待审核的报名申请
+router.get('/signlist',checkAdminLogin,(req,res,next)=>{
+    JF(req,res,next,{
+        reportId:null
+    },['reportId']);
+},(req,res,next)=>{
+    const reportId = req.query.reportId;
+    PriReportModel.getSignUserList(reportId)
+    .then(r=>{
+        res.json(new ResData(1,0,r));
+    })
+    .catch(e=>{
+        res.json(new ResData(0,738,e.toString()));
+    })
+});
 
 //13获取所有待审核的评论
-
+router.get('/comment/topasslist',checkAdminLogin,(req,res,next)=>{
+    JF(req,res,next,{
+        reportId:null
+    },['reportId']);
+},(req,res,next)=>{
+    const reportId = req.query.reportId;
+    PriReportModel.getCommentToPassList(reportId)
+    .then(r=>{
+        res.json(new ResData(1,0,r));
+    })
+    .catch(e=>{
+        res.json(new ResData(0,738,e.toString()));
+    })
+})
 
 module.exports = router;
