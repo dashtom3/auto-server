@@ -1,29 +1,20 @@
 {
   "ecmaVersion": 6,
   "libs": [],
+  "loadEagerly": [
+    "routes/*.js",
+    "models/*.js",
+    "middlewares/*.js"
+  ],
   "plugins": {
     "complete_strings": {
       "maxLength": 15
-    },
-    "doc_comment": {
-      "fullDocs": true,
-      "strong": false
     },
     "node": {
       "dontLoad": "",
       "load": "",
       "modules": ""
     },
-    "node_resolve": {},
-    "modules": {
-      "dontLoad": "",
-      "load": "",
-      "modules": ""
-    },
-    "requirejs": {
-      "baseURL": "",
-      "paths": "",
-      "override": ""
-    }
+    "node_resolve": {}
   }
 }

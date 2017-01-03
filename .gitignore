@@ -4,8 +4,14 @@ logs/*
 
 public/image/*
 
+public/ueditor
+
+public/files
+
 npm-debug.log
 
 node_modules/
 
 .idea/
+
+typings

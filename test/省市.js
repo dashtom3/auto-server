@@ -10,8 +10,10 @@ function record(sheng,shi){
 }
 let recordArray={};
 let i=0;
-var MongoClient = require('mongodb').MongoClient;
-var url = 'mongodb://localhost:27017/autobiz';
+const Mongodb = require('mongodb');
+const MongoClient = Mongodb.MongoClient;
+const url = 'mongodb://localhost:27017/autobiz';
+const ObjectId = require('bson').ObjectId;
 // a.forEach((sheng)=>{
 //     // console.log(sheng.name);
 //     if(sheng.sub != undefined)
@@ -44,21 +46,24 @@ var url = 'mongodb://localhost:27017/autobiz';
 //     fs.writeFile('./新省市.json',JSON.stringify(newJson));
 // });
 
-fs.readFile(('./新省市.json'),'utf-8',(err,data)=>{
-    MongoClient.connect(url, function(err, db) {
-        if(err != null){
-            console.log('ERROR');
-            return;
-        }
-        console.log("Connected correctly to server");
-        var collection = db.collection('sheng');
-        let D = JSON.parse(data);
-        for(let key in D){
-            // console.log(key);
-            collection.insertOne({name:key});
-        }
-        // db.close();
-    });
+// fs.readFile(('./新省市.json'),'utf-8',(err,data)=>{
+//     MongoClient.connect(url, function(err, db) {
+//         if(err != null){
+//             console.log('ERROR');
+//             return;
+//         }
+//         console.log("Connected correctly to server");
+//         let collection = db.collection('privatereports');
+//         collection.updateOne(
+//             {_id : new ObjectId('58649f4622037b07da80db48'),'signUser.userId':new ObjectId('585a51272a4c3bc1bcef57c8')},
+//             {$set:{'signUser.$.passed':-1}});
+//         db.close();
+//     });
 
+// });
+
+
+MongoClient.connect(url)
+    .then((db)=>{
+    console.log(result);
 });
-

@@ -96,22 +96,33 @@ exports.Finances.index({year:-1}).exec();//按日期降序
 
 //定义个人测评信息的modle
 exports.privateReport = mongolass.model('privateReport',{
-    companyName: {type:'string'},//ID *
+    companyId: {type:Mongolass.Types.ObjectId},//ID *
     title: {type:'string'},// 测评名称 *
-    product: {type:'string'},// ID *
-    dateStart: {type:'string'},//起止日期*
-    dateEnd:{type:'string'},//起止日期*
-    type: {type:'string'},//测评类型enum{'实地'，'邮寄'}
-    address:{type:'string'},//如果是实地 *
-    state: {type:'string'},//0:待审核  1:已发布  2:已结束  －1:已被拒 默认0 *
-    maxUserNum: {type:'string'},//报名人数上限 *
-    signUserNum: {type:'string'},//实际报名人数 def 0
-    signUserName: {type:'string'},//userId[] def [] 人里面包含：是否通过、评论——评论包裹是否通过、时间戳
-    passUserNum: {type:'string'},//
-    passUserName: {type:'string'},
-    argc:{type:'string'},//评分参数[]结束之后有个平均分、打分人数
-    images:{type:'string'},//File[] def []
-    timestamp:{type:'string'},//发布评测时间
+    productId: {type:Mongolass.Types.ObjectId},// ID *
+    dateStart: {type:'number'},//起止日期*
+    dateEnd:{type:'number'},//起止日期*
+    type: {type:'string',enum:['local','mail']},//测评类型enum{'实地'，'邮寄'} *
+    address:{type:'string',default:''},//如果是实地 *
+    state: {type:'number',enum:[-1,0,1,2]},//0:待审核  1:已发布  2:已结束  －1:已被拒 默认0 *
+    maxUserNum: {type:'number'},//报名人数上限 *
+    signUser: [{
+        userId:{type:Mongolass.Types.ObjectId},
+        passed:{type:'number',enum:[-1,0,1]},
+        phoneNumber:{type:'string'},
+        address:{type:'string'}
+    }],//实际报名人数 def 0
+    passUser: [{
+        userId:{type:Mongolass.Types.ObjectId},
+        comment:{
+            content:{type:'string'},
+            timestamp:{type:'number'},
+            passed:{type:'number',enum:[-1,0,1]},
+            score:[{type:'number'}]
+        }
+    }],
+    argc:[{type:'string'}],//评分参数[]结束之后有个平均分、打分人数 *
+    images:[{type:'string'}],//File[] def [] *
+    timestamp:{type:'number'},//发布评测时间
     isOnline:{type:'boolean'}//上下线
 
 });

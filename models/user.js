@@ -36,6 +36,9 @@ module.exports={
     //更改用户信息：nickName,mail,phone
     modifyInfo: function modifyInfo(_id,newInfo) {
         return User.update({_id:_id},{$set:newInfo}).exec();
+    },
+    //检查用户是否通过审核
+    checkPassed:(_id)=>{
+        return User.count({_id:_id,isPassed:1}).exec();
     }
-
 };

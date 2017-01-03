@@ -48,6 +48,14 @@ module.exports = {
     //删除专业评测
     pullPublicReport:(id,companyId,reportID)=>{
         return Product.update({"_id" : id,'companyId':companyId},{$pull:{publicReport:reportID}}).exec();
+    },
+    //添加个人测评
+    pushPrivateReport:(id,companyId,reportID)=>{
+        return Product.update({"_id" : id,'companyId':companyId},{$push:{privateReport:reportID}}).exec();
+    },
+    //删除个人评测
+    pullPrivateReport:(id,companyId,reportID)=>{
+        return Product.update({"_id" : id,'companyId':companyId},{$pull:{privateReport:reportID}}).exec();
     }
 
 };
