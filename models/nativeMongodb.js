@@ -110,5 +110,30 @@ module.exports={
                          }
                      });
         }
+    },
+    province:{
+        getProvList:()=>{
+            return new Promise(function (fulfill, reject) {
+                db.collection('sheng')
+                  .find({},{'_id':0})
+                  .toArray((err,docs)=>{
+                      if(err)   fulfill(null);
+                      else      fulfill(docs);
+                  })
+            })
+        }
+    },
+    city:{
+        getCityList:(sheng)=>{
+            return new Promise(function (fulfill, reject) {
+                db.collection('shi')
+                  .find({sheng:sheng},{'_id':0,'sheng':0})
+                  .toArray((err,docs)=>{
+                      if(err)   fulfill(null);
+                      else      fulfill(docs);
+                  })
+            })
+        }
     }
+
 };

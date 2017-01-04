@@ -6,7 +6,7 @@ const ImageModel = require('../models/image');
 const ResData = require('../models/res');
 const crypto = require('crypto');
 const config = require('config-lite');
-
+const native = require('../models/nativeMongodb');
 const JF = require('../middlewares/JsonFilter');
 
 //test
@@ -22,6 +22,26 @@ module.exports=function (app) {
     app.get('/', function (req, res) {
         res.send('Hello World');
     });
+
+    app.get('/list/prov',(req,res)=>{
+        native.province.getProvList()
+        .then(r=>{
+            res.json(new ResData(1,0,r));
+        })
+        .catch(e=>{
+            res.json(new ResData(0,999));
+        });
+    });
+
+    app.get('/list/cityof/:prov',(req,res)=>{
+        native.city.getCityList(req.params.prov)
+        .then(r=>{
+            res.json(new ResData(1,0,r));
+        })
+        .catch(e=>{
+            res.json(new ResData(0,999));
+        });
+    })
 
 
     //上传单张图片到本地，返回url
