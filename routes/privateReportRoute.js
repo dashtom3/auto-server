@@ -581,7 +581,7 @@ router.get('/sign',checkCompanyLogin,(req,res,next)=>{
         });
 });
 
-//7.审核通过用户的报名(admin权限)
+//7.审核用户的报名(admin权限)
 /**
  * @api {GET} /report/private/pass 审核用户报名
  * @apiName privateReport_pass

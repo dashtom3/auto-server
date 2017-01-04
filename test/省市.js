@@ -46,24 +46,33 @@ const ObjectId = require('bson').ObjectId;
 //     fs.writeFile('./新省市.json',JSON.stringify(newJson));
 // });
 
-// fs.readFile(('./新省市.json'),'utf-8',(err,data)=>{
-//     MongoClient.connect(url, function(err, db) {
-//         if(err != null){
-//             console.log('ERROR');
-//             return;
-//         }
-//         console.log("Connected correctly to server");
-//         let collection = db.collection('privatereports');
-//         collection.updateOne(
-//             {_id : new ObjectId('58649f4622037b07da80db48'),'signUser.userId':new ObjectId('585a51272a4c3bc1bcef57c8')},
-//             {$set:{'signUser.$.passed':-1}});
-//         db.close();
-//     });
+fs.readFile(('./新省市.json'),'utf-8',(err,data)=>{
+    MongoClient.connect(url, function(err, db) {
+        if(err != null){
+            console.log('ERROR');
+            return;
+        }
+        console.log("Connected correctly to server");
+        let collection = db.collection('shi');
+        let newJson = JSON.parse(data);
+        for(let key in newJson){
+            let sheng = newJson[key];
+            for(let subkey in sheng){
+                console.log(key,subkey,sheng[subkey]);
+                collection.insert({
+                    sheng:key,
+                    shi:subkey,
+                    no:sheng[subkey]
+                });
+            }
+        }
+        // db.close();
+    });
 
-// });
-
-
-MongoClient.connect(url)
-    .then((db)=>{
-    console.log(result);
 });
+
+
+// MongoClient.connect(url)
+//     .then((db)=>{
+//     console.log(result);
+// });

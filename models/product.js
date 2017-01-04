@@ -19,7 +19,7 @@ module.exports = {
     },
     //获取详情
     getDetail:(id)=>{
-        return Product.findOne({_id:id}).exec();
+        return Product.findOne({_id:id}).POPULATE({ path: 'companyId', select:{'longName':1} , model: 'Company' }).select().exec();
     },
     //按分类取出所有产品
     getProductByType: function getProductByType(type) {

@@ -168,12 +168,15 @@ exports.product = mongolass.model('product',{
     tag: {type:'string'},//标签 同企业type *
     state: {type:'boolean'},//上下线 默认1
     argc: {type:'string'},//参数
+    scoreArgc: [{type:'string'}],//评分参数
     desc: {type:'string'},//介绍
     images: [{type:'string'}],//File[] *
     releaseDate:{type:'string'},//预计发布日期
     timestamp:{type:'number'},//创建时间戳
     publicReport:[{type:Mongolass.Types.ObjectId}],//专业评测
-    privateReport:[{type:Mongolass.Types.ObjectId}]//个人评测
+    privateReport:[{type:Mongolass.Types.ObjectId}],//个人评测
+    model:{type:'string',default:'赞无'},//型号
+    version:{type:'string',default:'暂无'}//版本号
 });
 // exports.product.index({_id:-1}).exec();//按日期降序
 

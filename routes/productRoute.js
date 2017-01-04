@@ -53,15 +53,22 @@ router.post('/add',checkCompanyLogin,(req,res,next)=>{
         token:null,
         name: null,//产品名称 *
         tag: null,//标签 同企业type *
+        scoreArgc:[],
         argc: '',//参数
         desc: '',//介绍
         images: [],//File[] *
-        releaseDate:''//预计发布日期
-    },['token','name','tag','images']);
+        releaseDate:'',//预计发布日期
+        model:null,//型号
+        version:null//版本
+    },['token','name','tag','images','scoreArgc']);
 },
     function (req,res,next) {
 
         const _postData = req.fields;
+        if(_postData.scoreArgc.constructor !== Array )
+            res.json(new ResData(0,101));
+        if(_postData.images.constructor !== Array)
+            res.json(new ResData(0,101));
 
         TokenModel.findUser(_postData.token)
             .then((result)=>{
@@ -446,7 +453,9 @@ router.post('/modify/detail',checkCompanyLogin,(req,res,next)=>{
         argc: '',//参数
         desc: '',//介绍
         images: [],//File[] *
-        releaseDate:''//预计发布日期
+        releaseDate:'',//预计发布日期
+        model:null,//型号
+        version:null//版本号
     },['token','productId','name','tag','images']);
 },
     function (req,res,next) {
