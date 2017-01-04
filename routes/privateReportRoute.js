@@ -252,7 +252,7 @@ router.post('/add',checkCompanyLogin,(req,res,next)=>{
 });
 
 //2.按条件取出测评列表
-router.get('/list/:numPerPage/:pageNum',checkCompanyLogin,(req,res,next)=>{
+router.get('/list/:numPerPage/:pageNum',(req,res,next)=>{
     JF(req,res,next,{
         productId:null,
         title:null,
@@ -471,7 +471,7 @@ router.get('/delete',checkCompanyLogin,(req,res,next)=>{
 });
 
 //5.获取单个测评详情
-router.get('/detail',checkCompanyLogin,(req,res,next)=>{
+router.get('/detail',(req,res,next)=>{
     JF(req,res,next,{
         reportId:null
     },['reportId']);
@@ -506,7 +506,7 @@ router.get('/detail',checkCompanyLogin,(req,res,next)=>{
  *          "data":null
  *      }
  * */
-router.get('/sign',checkCompanyLogin,(req,res,next)=>{
+router.get('/sign',checkUserLogin,(req,res,next)=>{
     JF(req,res,next,{
         reportId:null,
         token:null,

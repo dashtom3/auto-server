@@ -82,14 +82,18 @@ const errorCodeEnum = {
     803 : 'INVALID_TOKEN',
     804 : 'FIND_USER_FAILED',
     901 : 'LOGIN_FAILED',
+    902 : 'AUTH_EXCEPTION',
     999 : 'UNKNOWN_ERROR'
 };
 
 class resData {
-    constructor(_callStatus,_errorCode,_data=null) {
+    constructor(_callStatus,_errorCode,_data=null,_userID=null) {
         this.callStatus = callStatusEnum[_callStatus];
         this.errCode = errorCodeEnum[_errorCode];
         this.data = _data;
+        if(_userID !== null){
+            // this.token = newToken;
+        }
     }
 }
 

@@ -8,6 +8,7 @@ const url = require('url');
 const NewsModel = require('../models/news');
 const ResData = require('../models/res');
 const checkCompanyLogin = require('../middlewares/check').checkCompanyLogin;
+const checkAdminLogin = require('../middlewares/check').checkAdminLogin;
 
 const TokenModel = require('../models/token');
 const JF = require('../middlewares/JsonFilter');
@@ -289,7 +290,7 @@ router.get('/list/:numPerPage/:pageNum',(req,res,next)=>{
  *          }
  *      }
  * */
-router.get('/detail',checkCompanyLogin,(req,res,next)=>{
+router.get('/detail',(req,res,next)=>{
     JF(req,res,next,{newsId : null},['newsId']);
 },
     function (req,res,next) {
@@ -366,6 +367,23 @@ router.get('/modify/online',checkCompanyLogin,(req,res,next)=>{
                         res.json(new ResData(0,713,e.toString()));
                     });
             });
+});
+
+//4.b 管理员设置资讯上下线
+router.get('/modify/online/admin',checkAdminLogin,(req,res,next)=>{
+    JF(req,res,next,{
+        token:null,
+        newsId:null,
+        isOnline:null
+    },['token','newsId','isOnline']);
+},(req,res,next)=>{
+    NewsModel.modifyOnlineAdmin(newsId,isOnline)
+        .then(function (result) {
+            res.json(new ResData(1,0));
+        })
+        .catch(function (e) {
+            res.json(new ResData(0,713,e.toString()));
+        });
 });
 
 //5.修改资讯

@@ -8,17 +8,13 @@ module.exports = {
     create: function create(company) {
         return Company.create(company).exec();
     },
-    //按分类取出所有公司信息
-    // getCompanyByField: function getCompanyList(field) {
-    //     return Company.find({field:field}).exec();
-    // },
     //根据name查找公司
     getCompanyByName: function getCompanyByName(name) {
         return Company.findOne({name:name}).exec();
     },
     //根据id查详情
     getDetail: (_id)=>{
-        return Company.findOne({_id:_id},{password:0}).exec();
+        return Company.findOne({_id:_id},{password:0,name:0}).exec();
     },
     //查询旧密码
     getOldPassword: (_id)=>{
@@ -28,10 +24,6 @@ module.exports = {
     modifyPassword: function modifyPassword(companyId,newPassword) {
         return Company.update({_id:companyId},{$set:{password:newPassword}}).exec();
     },
-    //修改权限
-    // modifyType: function modifyType(name,newType) {
-    //     return Company.update({name:name},{$set:{type:newType}}).exec();
-    // },
     //修改信息：longName,shortName,logo,address,field,regTime,legalEntity,regCapital,regAddress,
     // isNeedCapital,companyDesc,productDesc,userDesc
     modifyInfo: function modify(companyId,newInfo) {
@@ -43,7 +35,7 @@ module.exports = {
     },
     //按需查询
     getList : (query,numPerPage,pageNum)=>{
-        return Company.find(query).select({password:0}).skip(numPerPage*(pageNum-1)).limit(numPerPage).exec();
+        return Company.find(query).select({password:0,name:0,position:0,info:0}).skip(numPerPage*(pageNum-1)).limit(numPerPage).exec();
     },
     //获取用户数量（query）
     count:(query)=>{

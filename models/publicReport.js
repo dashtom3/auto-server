@@ -47,6 +47,10 @@ module.exports = {
     //设置上线／下线
     modifyOnline: function modifyOnline(id,companyId,online) {
         return PubReport.update({"_id" : id,"companyId":companyId},{$set:{isOnline:online}}).exec();
+    },
+    //管理员设置上线／下线
+    modifyOnlineAdmin: function modifyOnline(id,online) {
+        return PubReport.update({"_id" : id},{$set:{isOnline:online}}).exec();
     }
 
 };

@@ -8,6 +8,7 @@ const url = require('url');
 const PubReportModel = require('../models/publicReport');
 const ResData = require('../models/res');
 const checkCompanyLogin = require('../middlewares/check').checkCompanyLogin;
+const checkAdminLogin = require('../middlewares/check').checkAdminLogin;
 
 const TokenModel = require('../models/token');
 const JF = require('../middlewares/JsonFilter');
@@ -174,7 +175,7 @@ router.post('/add',checkCompanyLogin,(req,res,next)=>{
  *          }
  *      }
  * */
-router.get('/list/:numPerPage/:pageNum',checkCompanyLogin,(req,res,next)=>{
+router.get('/list/:numPerPage/:pageNum',(req,res,next)=>{
     JF(req,res,next,{
         productId:null,
         testDesc:null,
@@ -267,20 +268,6 @@ router.get('/list/:numPerPage/:pageNum',checkCompanyLogin,(req,res,next)=>{
         });
 });
 
-// //3.取出专业测评详情
-// router.get('/getPubReportByCompany',checkCompanyLogin,function (req,res,next) {
-//     var companyName = url.parse(req.url,true).query.companyName;
-//
-//     PubReportModel.getPubReportByCompany(companyName)
-//         .then(function (result) {
-//             resData = new ResData();
-//             resData.setIsSuccess(1);
-//             resData.setData(result);
-//             res.send(JSON.stringify(resData));
-//         })
-//         .catch(next);
-// });
-
 //4.设置上线／下线 #
 /**
  * @api {GET} /report/public/modify/online 设置测评上下线
@@ -344,6 +331,23 @@ router.get('/modify/online',checkCompanyLogin,(req,res,next)=>{
                     });
             });
     });
+
+//4.b 管理员设置上下线
+router.get('/modify/online/admin',checkAdminLogin,(req,res,next)=>{
+    JF(req,res,next,{
+            token:null,
+            reportId:null,
+            isOnline:null
+        },['token','reportId','isOnline']);
+},(req,res,next)=>{
+    PubReportModel.modifyOnlineAdmin(reportId,isOnline)
+                    .then(function (result) {
+                        res.json(new ResData(1,0));
+                    })
+                    .catch(function (e) {
+                        res.json(new ResData(0,725,e.toString()));
+                    });
+});
 
 //5.修改测评
 /**

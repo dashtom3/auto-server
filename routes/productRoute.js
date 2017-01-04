@@ -8,6 +8,7 @@ const url = require('url');
 const ProductModel = require('../models/product');
 const ResData = require('../models/res');
 const checkCompanyLogin = require('../middlewares/check').checkCompanyLogin;
+const checkAdminLogin = require('../middlewares/check').checkAdminLogin;
 
 const TokenModel = require('../models/token');
 const JF = require('../middlewares/JsonFilter');
@@ -111,33 +112,7 @@ router.post('/add',checkCompanyLogin,(req,res,next)=>{
             });
 });
 
-//2.按分类取出所有产品
-// router.get('/getProductByType',checkCompanyLogin,function (req,res,next) {
-//     var type = url.parse(req.url,true).query.type;
-//
-//     ProductModel.getProductByType(type)
-//         .then(function (result) {
-//             resData = new ResData();
-//             resData.setIsSuccess(1);
-//             resData.setData(result);
-//             res.send(JSON.stringify(resData));
-//         })
-//         .catch(next);
-// });
-//
-// //3.按公司取出所有产品
-// router.get('/getProductByCompany',checkCompanyLogin,function (req,res,next) {
-//     var companyName = url.parse(req.url,true).query.companyName;
-//
-//     ProductModel.getProductByCompany(companyName)
-//         .then(function (result) {
-//             resData = new ResData();
-//             resData.setIsSuccess(1);
-//             resData.setData(result);
-//             res.send(JSON.stringify(resData));
-//         })
-//         .catch(next);
-// });
+
 
 //2.条件获取产品列表
 /**
@@ -420,6 +395,23 @@ router.get('/modify/online',checkCompanyLogin,(req,res,next)=>{
                 });
         });
 });
+
+//4.b 管理员设置上下线
+router.get('/modify/online/admin',checkAdminLogin,(req,res,next)=>{
+    JF(req,res,next,{
+        token:null,
+        productId:null,
+        isOnline:null
+    },['token','productId','isOnline']);
+},(req,res,next)=>{
+    ProductModel.modifyOnlineAdmin(productId,isOnline)
+        .then(function (result) {
+            res.json(new ResData(1,0));
+        })
+        .catch(function (e) {
+            res.json(new ResData(0,713,e.toString()));
+        });
+})
 
 //5.修改产品
 /**

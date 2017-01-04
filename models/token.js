@@ -1,6 +1,8 @@
+/// <reference path="../typings/index.d.ts" />
 const Token=require('../middlewares/mongo').Token;
 const crypto = require('crypto');
 const config = require('config-lite');
+Token.plugin('POPULATE', require('mongolass-plugin-populate'));
 
 module.exports={
     //PUT token
@@ -78,5 +80,14 @@ module.exports={
     //反查用户账户
     findUser : (_token)=>{
         return Token.findOne({token : _token},{linkTo:1}).exec();
+    },
+
+    //反查用户账户详情
+    findUserPopulate : (_token)=>{
+        return Token.findOne({token : _token}).POPULATE({ path: 'linkTo' , model: 'User' }).select({_id:0}).exec();
+    },
+    //反查公司账户详情
+    findCompanyPopulate : (_token)=>{
+        return Token.findOne({token : _token}).POPULATE({ path: 'linkTo' , model: 'Company' }).select({_id:0}).exec();
     }
 };

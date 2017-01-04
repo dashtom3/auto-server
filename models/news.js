@@ -25,6 +25,10 @@ module.exports = {
     modifyOnline: function modifyOnline(id,companyId,isOnline) {
         return News.update({"_id" : id,"companyId":companyId},{$set:{isOnline:isOnline}}).exec();
     },
+    //管理员设置上下线
+    modifyOnlineAdmin: function modifyOnline(id,isOnline) {
+        return News.update({"_id" : id},{$set:{isOnline:isOnline}}).exec();
+    },
     //修改:title,author,isFirst,tag,desc,pic,wysiwyg
     modifyNews: function modify(id,companyId,news) {
         return News.update({"_id" : id,"companyId":companyId},{$set:news}).exec();

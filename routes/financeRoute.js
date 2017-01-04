@@ -163,7 +163,7 @@ router.post('/add',checkCompanyLogin,(req,res,next)=>{
  *          }
  *      }
  * */
-router.get('/list/:numPerPage/:pageNum',checkCompanyLogin,(req,res,next)=>{
+router.get('/list/:numPerPage/:pageNum',(req,res,next)=>{
     JF(req,res,next,{
         companyId:null,
         yearStart:null,
