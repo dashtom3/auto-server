@@ -2,7 +2,7 @@
  * Created by joseph on 16/12/14.
  */
 const PriReport = require('../middlewares/mongo').privateReport;
-const Mongolass = require('Mongolass');
+const Mongolass = require('mongolass');
 const native = require('./nativeMongodb');
 
 module.exports = {
