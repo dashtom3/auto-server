@@ -103,7 +103,7 @@ exports.privateReport = mongolass.model('privateReport',{
     dateEnd:{type:'number'},//起止日期*
     type: {type:'string',enum:['local','mail']},//测评类型enum{'实地'，'邮寄'} *
     address:{type:'string',default:''},//如果是实地 *
-    state: {type:'number',enum:[-1,0,1,2]},//0:待审核  1:已发布  2:已结束  －1:已被拒 默认0 *
+    state: {type:'number',enum:[-1,0,1,2]},//0:待审核  1:已通过  2:已结束  －1:已被拒 默认0 *
     maxUserNum: {type:'number'},//报名人数上限 *
     signUser: [{
         userId:{type:Mongolass.Types.ObjectId},

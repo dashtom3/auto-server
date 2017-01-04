@@ -309,7 +309,7 @@ router.get('/list/:numPerPage/:pageNum',(req,res,next)=>{
     dealWithTimeQuery(queryString,['dateStart','dateEnd','timestamp'],['startDateStart','endDateStart','startDateEnd','endDateEnd','startTime','endTime']);
 
     //处理数组字段
-    dealWithArrayQuery(queryString,['argc']);
+    // dealWithArrayQuery(queryString,['argc']);
 
     //处理userSign userPass
     if(queryString.signUser !== undefined){
@@ -726,6 +726,39 @@ router.get('/modify/commentpass',checkAdminLogin,(req,res,next)=>{
     })
     .catch(e=>{
         console.log(e.toString());
+    })
+});
+
+//审核用户测评上下线
+router.get('/modify/approval',checkAdminLogin,(req,res,next)=>{
+    JF(req,res,next,{
+        token:null,
+        reportId:null,
+        state:null
+    },['token','reportId','state'])
+},(req,res,next)=>{
+    let reportId = req.query.reportId;
+    let approvalStatus = req.query.state;
+    const approvalStatusEnum = {
+        '-1' : -1,//未通过
+        '0' : 0,//未审核
+        '1' : 1//已通过
+    };
+    if(reportId == null
+    || approvalStatus == null){
+        res.json(new  ResData(0,101,null));
+        return;
+    }
+    if(approvalStatusEnum[approvalStatus] == undefined){
+        res.json(new ResData(0,107));
+        return;
+    }
+    PriReportModel.modifyApproval(reportId,approvalStatus)
+    .then(r=>{
+        res.json(new ResData(1,0));
+    })
+    .catch(e=>{
+        res.json(new ResData(0,739));
     })
 });
 

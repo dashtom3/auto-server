@@ -81,7 +81,7 @@ module.exports = {
     passComment: native.privateReport.passComment,
     //获取某评测中所有待审核用户
     getSignUserList: (id)=>{
-        console.log(id);
+        // console.log(id);
         return PriReport.aggregate({$match:{'_id':Mongolass.Types.ObjectId(id)}},
                                    {$project:{'signUser':1,'_id':0}},
                                    {'$unwind':'$signUser'},
@@ -91,13 +91,17 @@ module.exports = {
     },
     //获取某评测中所有待审核用户
     getCommentToPassList: (id)=>{
-        console.log(id);
+        // console.log(id);
         return PriReport.aggregate({$match:{'_id':Mongolass.Types.ObjectId(id)}},
                                    {$project:{'passUser':1,'_id':0}},
                                    {'$unwind':'$passUser'},
                                    {$match:{'passUser.comment.passed':0}},
                                    {$match:{'passUser.comment.passed':0}})
                         .exec()
+    },
+    //审核测评通过
+    modifyApproval:(id,approvalState)=>{
+        return PriReport.update({'_id':id},{$set:{'state':approvalState}}).exec()
     }
 
 };
