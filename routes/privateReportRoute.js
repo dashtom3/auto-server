@@ -22,7 +22,6 @@ const co = require('co');
 const Promise = require('bluebird');
 
 const passedEnum={
-    '0':0,
     '-1':-1,
     '1':1
 }
@@ -202,7 +201,12 @@ router.post('/add',checkCompanyLogin,(req,res,next)=>{
     report.passUser = [];
     report.timestamp = new Date().getTime();
     report.isOnline = true;
-
+    report.scores=[];
+    report.scoredUserNum=0;
+    for(let n in report.argc)
+    {
+        report.scores.push(0);
+    }
     TokenModel.findUser(token)
         .then((result)=>{
             if(result == null){
@@ -309,7 +313,7 @@ router.get('/list/:numPerPage/:pageNum',(req,res,next)=>{
     dealWithTimeQuery(queryString,['dateStart','dateEnd','timestamp'],['startDateStart','endDateStart','startDateEnd','endDateEnd','startTime','endTime']);
 
     //处理数组字段
-    // dealWithArrayQuery(queryString,['argc']);
+    dealWithArrayQuery(queryString,['argc']);
 
     //处理userSign userPass
     if(queryString.signUser !== undefined){
@@ -706,27 +710,42 @@ router.get('/modify/commentpass',checkAdminLogin,(req,res,next)=>{
         token:null,
         userId:null,
         reportId:null,
+        scores:null,
         passed:null
-    },['token','userId','reportId','passed']);
+    },['token','userId','reportId','passed','scores']);
 },(req,res,next)=>{
     const _getData = req.query;
     if(passedEnum[_getData.passed] === undefined){
         res.json(new ResData(0,101));
         return;
     }
-    PriReportModel
-    .passComment(_getData.reportId,_getData.userId,passedEnum[_getData.passed])
-    .then(r=>{
-        if(r.result.n === 0){
-            res.json(new ResData(0,112));
+    co(function *(){
+        let passed = yield PriReportModel.checkCommentPass(_getData.reportId,_getData.userId);
+        if(passed){
+            res.json(new ResData(0,110));
             return;
         }else{
-            res.json(new ResData(1,0));
+             PriReportModel
+                .passComment(_getData.reportId,_getData.userId,passedEnum[_getData.passed],_getData.scores.split(','))
+                .then(r=>{
+                    if(r.result.n === 0){
+                        res.json(new ResData(0,112));
+                        return;
+                    }else{
+                        res.json(new ResData(1,0));
+                    }
+                })
+                .catch(e=>{
+                    console.log(e.toString());
+                    res.json(new ResData(0,740,e.toString()));
+                })
         }
     })
     .catch(e=>{
-        console.log(e.toString());
-    })
+        console.log(e);
+        res.json(new ResData(0,740,e.toString()));
+    });
+    
 });
 
 //审核用户测评上下线
