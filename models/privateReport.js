@@ -74,7 +74,7 @@ module.exports = {
                             if (r.passUser[0].comment.passed !== 0)
                                 return Promise.resolve(true);
                             else {
-                                return Promise.resolve(false);
+                                return Promise.resolve(r.passUser[0].comment.score);
                             }
                         })
     },

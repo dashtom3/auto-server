@@ -710,9 +710,8 @@ router.get('/modify/commentpass',checkAdminLogin,(req,res,next)=>{
         token:null,
         userId:null,
         reportId:null,
-        scores:null,
         passed:null
-    },['token','userId','reportId','passed','scores']);
+    },['token','userId','reportId','passed']);
 },(req,res,next)=>{
     const _getData = req.query;
     if(passedEnum[_getData.passed] === undefined){
@@ -721,25 +720,24 @@ router.get('/modify/commentpass',checkAdminLogin,(req,res,next)=>{
     }
     co(function *(){
         let passed = yield PriReportModel.checkCommentPass(_getData.reportId,_getData.userId);
-        if(passed){
+        if(passed === true){
             res.json(new ResData(0,110));
             return;
-        }else{
-             PriReportModel
-                .passComment(_getData.reportId,_getData.userId,passedEnum[_getData.passed],_getData.scores.split(','))
-                .then(r=>{
-                    if(r.result.n === 0){
-                        res.json(new ResData(0,112));
-                        return;
-                    }else{
-                        res.json(new ResData(1,0));
-                    }
-                })
-                .catch(e=>{
-                    console.log(e.toString());
-                    res.json(new ResData(0,740,e.toString()));
-                })
         }
+        PriReportModel
+        .passComment(_getData.reportId,_getData.userId,passedEnum[_getData.passed],passed)
+        .then(r=>{
+            if(r.result.n === 0){
+                res.json(new ResData(0,112));
+                return;
+            }else{
+                res.json(new ResData(1,0));
+            }
+        })
+        .catch(e=>{
+            console.log(e.toString());
+            res.json(new ResData(0,740,e.toString()));
+        })
     })
     .catch(e=>{
         console.log(e);

@@ -14,7 +14,7 @@ module.exports = {
     getList: (query,numPerPage,pageNum)=>{
         return Product.find(query)
                       .POPULATE({ path: 'companyId', select:{'longName':1,'logo':1} , model: 'Company' })
-                      .POPULATE({ path: 'privateReport', select:{'title':1,} , model: 'privateReport' })
+                      .POPULATE({ path: 'privateReport', select:{'scores':1,'scoredUserNum':1,'argc':1} , model: 'privateReport' })
                       .POPULATE({ path: 'publicReport', select:{'report':1,} , model: 'publicReport' })
                       .select()
                       .skip(numPerPage*(pageNum-1))
