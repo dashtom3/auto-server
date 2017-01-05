@@ -92,8 +92,8 @@ router.post('/add',checkCompanyLogin,(req,res,next)=>{
                 product.state = true;
                 product.timestamp = new Date().getTime();
                 product.companyId = user_id;
-                product.publicReport = null;
-                product.privateReport = null;
+                // product.publicReport = null;
+                // product.privateReport = null;
                 console.log(product);
                 return Promise.resolve(product);
             })
@@ -338,7 +338,7 @@ router.get('/detail',(req,res,next)=>{
  *
  * @apiParam {String} token Token
  * @apiParam {String} productId 产品Id
- * @apiParam {Boolean} isOnline 是否上线 true上线 false下线
+ * @apiParam {Boolean} state 是否上线 true上线 false下线
  *
  * @apiSuccessExample {json} Success-Response:
  *      HTTP/1.1 200 OK
@@ -362,7 +362,7 @@ router.get('/modify/online',checkCompanyLogin,(req,res,next)=>{
         res.json(new ResData(0,101));
         return;
     }
-    const isOnline = str2bool[req.query.isOnline];
+    const isOnline = str2bool[req.query.state];
 
     TokenModel.findUser(token)
         .then((result)=>{
