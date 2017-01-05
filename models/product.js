@@ -47,19 +47,19 @@ module.exports = {
     },
     //添加专业测评
     pushPublicReport:(id,companyId,reportID)=>{
-        return Product.update({"_id" : id,'companyId':companyId},{$push:{publicReport:reportID}}).exec();
+        return Product.update({"_id" : id,'companyId':companyId},{$set:{publicReport:reportID}}).exec();
     },
     //删除专业评测
     pullPublicReport:(id,companyId,reportID)=>{
-        return Product.update({"_id" : id,'companyId':companyId},{$pull:{publicReport:reportID}}).exec();
+        return Product.update({"_id" : id,'companyId':companyId},{$set:{publicReport:null}}).exec();
     },
     //添加个人测评
     pushPrivateReport:(id,companyId,reportID)=>{
-        return Product.update({"_id" : id,'companyId':companyId},{$push:{privateReport:reportID}}).exec();
+        return Product.update({"_id" : id,'companyId':companyId},{$set:{privateReport:reportID}}).exec();
     },
     //删除个人评测
     pullPrivateReport:(id,companyId,reportID)=>{
-        return Product.update({"_id" : id,'companyId':companyId},{$pull:{privateReport:reportID}}).exec();
+        return Product.update({"_id" : id,'companyId':companyId},{$set:{privateReport:null}}).exec();
     }
 
 };

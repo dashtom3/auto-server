@@ -173,8 +173,8 @@ exports.product = mongolass.model('product',{
     images: [{type:'string'}],//File[] *
     releaseDate:{type:'string'},//预计发布日期
     timestamp:{type:'number'},//创建时间戳
-    publicReport:[{type:Mongolass.Types.ObjectId}],//专业评测
-    privateReport:[{type:Mongolass.Types.ObjectId}],//个人评测
+    publicReport:{},//专业评测
+    privateReport:{},//个人评测
     model:{type:'string',default:'赞无'},//型号
     version:{type:'string',default:'暂无'}//版本号
 });

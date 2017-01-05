@@ -54,20 +54,17 @@ router.post('/add',checkCompanyLogin,(req,res,next)=>{
         token:null,
         name: null,//产品名称 *
         tag: null,//标签 同企业type *
-        scoreArgc:[],
         argc: '',//参数
         desc: '',//介绍
         images: [],//File[] *
         releaseDate:'',//预计发布日期
-        model:null,//型号
-        version:null//版本
-    },['token','name','tag','images','scoreArgc']);
+        model:'暂无',//型号
+        version:'暂无'//版本
+    },['token','name','tag','images']);
 },
     function (req,res,next) {
 
         const _postData = req.fields;
-        if(_postData.scoreArgc.constructor !== Array )
-            res.json(new ResData(0,101));
         if(_postData.images.constructor !== Array)
             res.json(new ResData(0,101));
 
@@ -95,8 +92,9 @@ router.post('/add',checkCompanyLogin,(req,res,next)=>{
                 product.state = true;
                 product.timestamp = new Date().getTime();
                 product.companyId = user_id;
-                product.publicReport = [];
-                product.privateReport = [];
+                product.publicReport = null;
+                product.privateReport = null;
+                console.log(product);
                 return Promise.resolve(product);
             })
             .then((product)=>{
