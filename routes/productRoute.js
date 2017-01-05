@@ -358,7 +358,7 @@ router.get('/modify/online',checkCompanyLogin,(req,res,next)=>{
     function (req,res,next) {
     const token = req.query.token;
     const productId = req.query.productId;
-    if(str2bool[req.query.isOnline] === undefined){
+    if(str2bool[req.query.state] === undefined){
         res.json(new ResData(0,101));
         return;
     }
