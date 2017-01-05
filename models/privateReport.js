@@ -61,6 +61,23 @@ module.exports = {
                             }
                         })
     },
+    //检查用户评论是否已经通过了审核
+    checkCommentPass: (id,userId)=>{
+        return PriReport.findOne({
+                                    '_id':id,
+                                    'passUser.userId':userId
+                                },{
+                                    'passUser.$':1
+                                })
+                        .exec()
+                        .then( r => {
+                            if (r.passUser[0].comment.passed !== 0)
+                                return Promise.resolve(true);
+                            else {
+                                return Promise.resolve(false);
+                            }
+                        })
+    },
     //用户报名参加测评
     sign: function sign(id,userObj) {
         return PriReport.update({"_id" : id},{$push:{signUser:userObj}}).exec();

@@ -6,7 +6,7 @@ module.exports={
         maxAge:86400000//24小时
     },
     token:{
-        maxAge:86400000//24小时
+        maxAge:7200000//2小时过期
     },
     mongodb:'mongodb://localhost:27017/autobiz',
     protocol:'http',
