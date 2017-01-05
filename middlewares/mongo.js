@@ -121,8 +121,6 @@ exports.privateReport = mongolass.model('privateReport',{
         }
     }],
     argc:[{type:'string'}],//评分参数[]结束之后有个平均分、打分人数 *
-    scores:[{type:'number'}],//各参数评分数组
-    scoredUserNum:{type:'number'},//参与评分人数
     images:[{type:'string'}],//File[] def [] *
     timestamp:{type:'number'},//发布评测时间
     isOnline:{type:'boolean'}//上下线
@@ -170,13 +168,13 @@ exports.product = mongolass.model('product',{
     tag: {type:'string'},//标签 同企业type *
     state: {type:'boolean'},//上下线 默认1
     argc: {type:'string'},//参数
-    // scoreArgc: [{type:'string'}],//评分参数
+    scoreArgc: [{type:'string'}],//评分参数
     desc: {type:'string'},//介绍
     images: [{type:'string'}],//File[] *
     releaseDate:{type:'string'},//预计发布日期
     timestamp:{type:'number'},//创建时间戳
-    publicReport:{type:Mongolass.Types.ObjectId},//专业评测
-    privateReport:{type:Mongolass.Types.ObjectId},//个人评测
+    publicReport:{},//专业评测
+    privateReport:{},//个人评测
     model:{type:'string',default:'赞无'},//型号
     version:{type:'string',default:'暂无'}//版本号
 });

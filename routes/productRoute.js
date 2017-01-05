@@ -352,8 +352,8 @@ router.get('/modify/online',checkCompanyLogin,(req,res,next)=>{
     JF(req,res,next,{
         token:null,
         productId:null,
-        state:null
-    },['token','productId','state']);
+        isOnline:null
+    },['token','productId','isOnline']);
 },
     function (req,res,next) {
     const token = req.query.token;

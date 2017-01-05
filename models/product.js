@@ -3,7 +3,6 @@
  */
 const Product = require('../middlewares/mongo').product;
 Product.plugin('POPULATE', require('mongolass-plugin-populate'));
-const Mongolass = require('mongolass');
 
 module.exports = {
     //添加
@@ -12,14 +11,7 @@ module.exports = {
     },
     //条件查询产品列表
     getList: (query,numPerPage,pageNum)=>{
-        return Product.find(query)
-                      .POPULATE({ path: 'companyId', select:{'longName':1,'logo':1} , model: 'Company' })
-                      .POPULATE({ path: 'privateReport', select:{'title':1,} , model: 'privateReport' })
-                      .POPULATE({ path: 'publicReport', select:{'report':1,} , model: 'publicReport' })
-                      .select()
-                      .skip(numPerPage*(pageNum-1))
-                      .limit(numPerPage)
-                      .exec();
+        return Product.find(query).POPULATE({ path: 'companyId', select:{'longName':1,'logo':1} , model: 'Company' }).select().skip(numPerPage*(pageNum-1)).limit(numPerPage).exec();
     },
     //获取总产品数
     count:(query)=>{
@@ -59,7 +51,7 @@ module.exports = {
     },
     //删除专业评测
     pullPublicReport:(id,companyId,reportID)=>{
-        return Product.update({"_id" : id,'companyId':companyId},{$unset:{publicReport:''}}).exec();
+        return Product.update({"_id" : id,'companyId':companyId},{$set:{publicReport:null}}).exec();
     },
     //添加个人测评
     pushPrivateReport:(id,companyId,reportID)=>{
@@ -67,7 +59,7 @@ module.exports = {
     },
     //删除个人评测
     pullPrivateReport:(id,companyId,reportID)=>{
-        return Product.update({"_id" : id,'companyId':companyId},{$unset:{privateReport:''}}).exec();
+        return Product.update({"_id" : id,'companyId':companyId},{$set:{privateReport:null}}).exec();
     }
 
 };

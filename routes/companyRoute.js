@@ -11,10 +11,6 @@ const CompanyModel = require('../models/company');
 const ResData = require('../models/res');
 const Response = require('../models/response');
 const checkCompanyLogin = require('../middlewares/check').checkCompanyLogin;
-const checkUserLogin = require('../middlewares/check').checkUserLogin;
-const checkAdminLogin = require('../middlewares/check').checkAdminLogin;
-const checkValidToken = require('../middlewares/check').checkValidToken;
-
 
 const TokenModel = require('../models/token');
 const JF = require('../middlewares/JsonFilter');
@@ -336,10 +332,9 @@ router.get('/logout',checkCompanyLogin,function (req,res,next) {
  *          "data": null
  *      }
  * */
-router.get('/detail',checkValidToken,(req,res)=>{
+router.get('/detail',checkCompanyLogin,(req,res)=>{
     let companyId = req.query.companyId;
-    const _type = req.fields._type;
-    const _userID = req.fields._userID;
+
     if(companyId == null){
         res.json(new ResData(0,101));
         return;
@@ -349,13 +344,6 @@ router.get('/detail',checkValidToken,(req,res)=>{
             if(result == null){
                 res.json(new ResData(0,105));
             }else{
-                if(_type == 'user'){
-                    delete result.info;
-                    delete result.position;
-                }else if(_type == 'company' && _userID !== companyId){
-                    delete result.info;
-                    delete result.position;
-                }
                 res.json(new ResData(1,0,result));
             }
         })
@@ -418,7 +406,7 @@ router.get('/detail',checkValidToken,(req,res)=>{
  *          }
  *      }
  * */
-router.get('/list/:numPerPage/:pageNum',(req,res,next)=>{
+router.get('/list/:numPerPage/:pageNum',checkCompanyLogin,(req,res,next)=>{
     JF(req,res,next,{
         longName:null,
         type:null,
@@ -538,7 +526,7 @@ router.get('/list/:numPerPage/:pageNum',(req,res,next)=>{
  *          "data": null
  *      }
  * */
-router.get('/modify/approval',checkAdminLogin,(req,res)=>{
+router.get('/modify/approval',checkCompanyLogin,(req,res)=>{
     let companyId = req.query.companyId;
     let approvalStatus = req.query.approvalStatus;
     const approvalStatusEnum = {

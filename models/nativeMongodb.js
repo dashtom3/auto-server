@@ -99,9 +99,8 @@ module.exports={
                          }
                      });
         },
-        passComment:(id,userId,passed,scores)=>{
-            if(passed === -1){
-                return db.collection('privatereports')
+        passComment:(id,userId,passed)=>{
+            return db.collection('privatereports')
                      .updateOne({
                          '_id': OBJ(id),
                          'passUser.userId': OBJ(userId)
@@ -110,23 +109,6 @@ module.exports={
                              'passUser.$.comment.passed':passed
                          }
                      });
-            }else{
-                let obj = {'scoredUserNum':1};
-                for(let k in scores){
-                    let str = 'scores.'+k;
-                    obj[str]= Number.parseInt(scores[k]);
-                }
-                return db.collection('privatereports')
-                     .updateOne({
-                         '_id': OBJ(id),
-                         'passUser.userId': OBJ(userId)
-                     },{
-                         $set:{
-                             'passUser.$.comment.passed':passed
-                         },
-                         $inc:obj
-                     });
-            }
         }
     },
     province:{
