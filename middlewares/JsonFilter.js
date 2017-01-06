@@ -39,7 +39,7 @@ function filter(req, res, next,defaultJson={},requiredParam=[]) {
             if(_postData[_key] === undefined
             || _postData[_key] === null
             || (typeof _postData[_key] == 'string' && _postData[_key].trim() === '')){
-                res.json(new ResData(0,101,_postData));
+                res.json(new ResData(0,101,{yourdata:_postData,errorkey:requiredParam[key]}));
                 return;
             }
         }
