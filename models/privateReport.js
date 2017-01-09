@@ -160,6 +160,42 @@ module.exports = {
     //审核测评通过
     modifyApproval:(id,approvalState)=>{
         return PriReport.update({'_id':id},{$set:{'state':approvalState}}).exec()
+    },
+    //获取某评测中所有报名被拒绝的用户
+    getSignRefusedList: (id)=>{
+        // console.log(id);
+        return PriReport.aggregate({$match:{'_id':Mongolass.Types.ObjectId(id)}},
+                                   {'$unwind':'$signUser'},
+                                   {$match:{'signUser.passed':-1}},
+                                   {$lookup:
+                                        {
+                                            from:'users',
+                                            localField: 'signUser.userId',
+                                            foreignField: '_id',
+                                            as: 'signUser.userId'
+                                        }
+                                    },
+                                   {$project:{'signUser.address':1,'signUser.phoneNumber':1,'signUser.passed':1,'signUser.userId.name':1,'_id':0}},
+                                   {$match:{'passUser.comment.passed':-1}})
+                        .exec()
+    },
+    //获取某评测中所有评论被拒绝的用户
+    getCommentRefusedList: (id)=>{
+        // console.log(id);
+        return PriReport.aggregate({$match:{'_id':Mongolass.Types.ObjectId(id)}},
+                                   {'$unwind':'$passUser'},
+                                   {$match:{'passUser.comment.passed':-1}},
+                                   {$lookup:
+                                        {
+                                            from:'users',
+                                            localField: 'passUser.userId',
+                                            foreignField: '_id',
+                                            as: 'passUser.userId'
+                                        }
+                                    },
+                                   {$project:{'passUser.comment':1,'passUser.userId.name':1,'_id':0}},
+                                   {$project:{'passUser.comment':1,'passUser.userId.name':1,'_id':0}})
+                        .exec()
     }
 
 };

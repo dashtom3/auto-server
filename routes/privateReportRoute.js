@@ -811,7 +811,7 @@ router.get('/signlist',checkAdminLogin,(req,res,next)=>{
     })
 });
 
-//13获取所有待审核的评论
+//13获取所有测评中用户
 router.get('/comment/topasslist',checkAdminLogin,(req,res,next)=>{
     JF(req,res,next,{
         reportId:null
@@ -825,7 +825,29 @@ router.get('/comment/topasslist',checkAdminLogin,(req,res,next)=>{
     .catch(e=>{
         res.json(new ResData(0,738,e.toString()));
     })
-})
+});
+
+//14获取所有被拒绝的评论
+router.get('/refused',checkAdminLogin,(req,res,next)=>{
+    JF(req,res,next,{
+        reportId:null
+    },['reportId']);
+},(req,res,next)=>{
+    const reportId = req.query.reportId;
+    co(function *(){
+        let signRefusedList = yield PriReportModel.getSignRefusedList(reportId);
+        console.log(signRefusedList);
+        let commentRefusedList = yield PriReportModel.getCommentRefusedList(reportId);
+        console.log(commentRefusedList);
+        return signRefusedList.concat(commentRefusedList);
+    })
+    .then(r=>{
+        res.json(new ResData(1,0,r));
+    })
+    .catch(e=>{
+        res.json(new ResData(0,999,e))
+    })
+});
 
 
 
