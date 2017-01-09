@@ -9,10 +9,12 @@ const UserModel = require('../models/user');
 const ResData = require('../models/res');
 const Response = require('../models/response');
 const checkUserLogin = require('../middlewares/check').checkUserLogin;
+const checkAdminLogin = require('../middlewares/check').checkAdminLogin;
 
 const TokenModel = require('../models/token');
 const JF = require('../middlewares/JsonFilter');
 
+const withoutAdmin = ['normal','vc','forbid','wr'];
 
 //用户注册
 /**
@@ -220,7 +222,7 @@ router.get('/login',function (req, res , next) {
  *          "data": null
  *      }
  * */
-router.get('/logout',checkUserLogin,function (req,res,next) {
+router.get('/logout',checkUserLogin(),function (req,res,next) {
     let token = req.query.token;
 
     TokenModel.del(token)
@@ -272,7 +274,7 @@ router.get('/logout',checkUserLogin,function (req,res,next) {
  *          }
  *      }
  * */
-router.get('/list/:numPerPage/:pageNum',checkUserLogin,(req,res,next)=>{
+router.get('/list/:numPerPage/:pageNum',checkAdminLogin,(req,res,next)=>{
     JF(req,res,next,{
         nikeName:null,
         // mail:null,
@@ -353,7 +355,7 @@ router.get('/list/:numPerPage/:pageNum',checkUserLogin,(req,res,next)=>{
  *          "data": null
  *      }
  * */
-router.get('/modify/type',checkUserLogin,(req,res,next)=>{
+router.get('/modify/type',checkUserLogin(withoutAdmin),(req,res,next)=>{
     JF(req,res,next,{
         token:null,
         newType:null,
@@ -365,6 +367,10 @@ router.get('/modify/type',checkUserLogin,(req,res,next)=>{
         const token = _getData.token;
         const newType = _getData.newType;
         const userId = _getData.userId;
+        if(!['normal','vc','forbid','wr'].includes(newType)){
+            res.json(new ResData(0,112));
+            return;
+        }
 
         UserModel.modifyUserType(userId,newType)
             .then((result)=>{
@@ -420,13 +426,13 @@ router.get('/modify/type',checkUserLogin,(req,res,next)=>{
  *          "data": null
  *      }
  * */
-router.get('/modify/approval',checkUserLogin,(req,res,next)=>{
-        JF(req,res,next,{
-            token:null,
-            userId:null,
-            approvalStatus:null
-        },['token','userId','approvalStatus']);
-    },
+router.get('/modify/approval',checkAdminLogin,(req,res,next)=>{
+    JF(req,res,next,{
+        token:null,
+        userId:null,
+        approvalStatus:null
+    },['token','userId','approvalStatus']);
+},
     (req,res,next)=>{
         const _getData = req.query;
         const token = _getData.token;
@@ -467,14 +473,13 @@ router.get('/modify/approval',checkUserLogin,(req,res,next)=>{
  *          "data": null
  *      }
  * */
-router.get('/modify/password',checkUserLogin,(req,res,next)=>{
+router.get('/modify/password',checkUserLogin(withoutAdmin),(req,res,next)=>{
     JF(req,res,next,{
         token:null,
         oldPassword:null,
         newPassword:null,
     },['token','oldPassword','newPassword']);
-},
-    (req,res,next)=>{
+},(req,res,next)=>{
     const _getData = req.query;
     const token = _getData.token;
     const oldPassword = _getData.oldPassword;
@@ -554,7 +559,7 @@ router.get('/modify/password',checkUserLogin,(req,res,next)=>{
  *          "data": null
  *      }
  * */
-router.get('/modify/info',checkUserLogin,(req,res,next)=>{
+router.get('/modify/info',checkUserLogin(withoutAdmin),(req,res,next)=>{
     JF(req,res,next,{
         token:null,
         nikeName:null,
