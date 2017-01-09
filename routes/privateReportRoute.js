@@ -836,9 +836,9 @@ router.get('/refused',checkAdminLogin,(req,res,next)=>{
     const reportId = req.query.reportId;
     co(function *(){
         let signRefusedList = yield PriReportModel.getSignRefusedList(reportId);
-        console.log(signRefusedList);
+        // console.log(signRefusedList);
         let commentRefusedList = yield PriReportModel.getCommentRefusedList(reportId);
-        console.log(commentRefusedList);
+        // console.log(commentRefusedList);
         return signRefusedList.concat(commentRefusedList);
     })
     .then(r=>{
