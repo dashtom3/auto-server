@@ -106,19 +106,36 @@ module.exports = {
     getSignUserList: (id)=>{
         // console.log(id);
         return PriReport.aggregate({$match:{'_id':Mongolass.Types.ObjectId(id)}},
-                                   {$project:{'signUser':1,'_id':0}},
+                                //    {$project:{'signUser':1,'_id':0}},
                                    {'$unwind':'$signUser'},
                                    {$match:{'signUser.passed':0}},
+                                   {$lookup:
+                                        {
+                                            from:'users',
+                                            localField: 'signUser.userId',
+                                            foreignField: '_id',
+                                            as: 'signUser.userId'
+                                        }
+                                   },
+                                   {$project:{'signUser.address':1,'signUser.phoneNumber':1,'signUser.passed':1,'signUser.userId.name':1,'_id':0}},
                                    {$match:{'signUser.passed':0}})
                         .exec()
     },
-    //获取某评测中所有待审核用户
+    //获取某评测中所有待审核评论和未评论的用户
     getCommentToPassList: (id)=>{
         // console.log(id);
         return PriReport.aggregate({$match:{'_id':Mongolass.Types.ObjectId(id)}},
-                                   {$project:{'passUser':1,'_id':0}},
                                    {'$unwind':'$passUser'},
-                                   {$match:{'passUser.comment.passed':0}},
+                                   {$lookup:
+                                        {
+                                            from:'users',
+                                            localField: 'passUser.userId',
+                                            foreignField: '_id',
+                                            as: 'passUser.userId'
+                                        }
+                                    },
+                                   {$match:{$or:[{'passUser.comment.passed':0},{'passUser.comment':{}}]}},
+                                   {$project:{'passUser.comment':1,'passUser.userId.name':1,'_id':0}},
                                    {$match:{'passUser.comment.passed':0}})
                         .exec()
     },
