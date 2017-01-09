@@ -4,6 +4,7 @@
 const PriReport = require('../middlewares/mongo').privateReport;
 const Mongolass = require('mongolass');
 const native = require('./nativeMongodb');
+PriReport.plugin('POPULATE', require('mongolass-plugin-populate'));
 
 module.exports = {
     //添加
@@ -12,7 +13,12 @@ module.exports = {
     },
     //按条件取列表
     getList:(query,numPerPage,pageNum)=>{
-        return PriReport.find(query,{'passUser.comment':0}).exec();
+        return PriReport
+            .find(query,{'passUser.comment':0})
+            .skip(numPerPage*(pageNum-1))
+            .limit(numPerPage)
+            .sort({timestamp:-1})
+            .exec();
     },
     //计数
     count:(query)=>{
@@ -114,6 +120,18 @@ module.exports = {
                                    {'$unwind':'$passUser'},
                                    {$match:{'passUser.comment.passed':0}},
                                    {$match:{'passUser.comment.passed':0}})
+                        .exec()
+    },
+    //获取某评测中所有通过的评论
+    getCommentList: (id)=>{
+        // console.log(id);
+        return PriReport.aggregate({$match:{'_id':Mongolass.Types.ObjectId(id)}},
+                                   {$project:{'passUser':1,'_id':0}},
+                                   {'$unwind':'$passUser'},
+                                   {$match:{'passUser.comment.passed':1}},
+                                   {$group:{_id:'$passUser.userId'}},
+                                   {$match:{'passUser.comment.passed':1}})
+                        .populate({ path: 'passUser.userId', select:{'name':1} , model: 'User' })
                         .exec()
     },
     //审核测评通过

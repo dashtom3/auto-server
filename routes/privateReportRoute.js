@@ -746,7 +746,7 @@ router.get('/modify/commentpass',checkAdminLogin,(req,res,next)=>{
     
 });
 
-//审核用户测评上下线
+//10审核用户测评上下线
 router.get('/modify/approval',checkAdminLogin,(req,res,next)=>{
     JF(req,res,next,{
         token:null,
@@ -776,6 +776,22 @@ router.get('/modify/approval',checkAdminLogin,(req,res,next)=>{
     })
     .catch(e=>{
         res.json(new ResData(0,739));
+    })
+});
+
+//11获取通过的评论
+router.get('/comment/list',(req,res,next)=>{
+    JF(req,res,next,{
+        reportId:null
+    },['reportId']);
+},(req,res,next)=>{
+    const reportId = req.query.reportId;
+    PriReportModel.getCommentList(reportId)
+    .then(r=>{
+        res.json(new ResData(1,0,r));
+    })
+    .catch(e=>{
+        res.json(new ResData(0,741,e.toString()));
     })
 });
 
@@ -810,5 +826,7 @@ router.get('/comment/topasslist',checkAdminLogin,(req,res,next)=>{
         res.json(new ResData(0,738,e.toString()));
     })
 })
+
+
 
 module.exports = router;

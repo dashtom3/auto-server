@@ -39,7 +39,14 @@ module.exports = {
     },
     //获取资讯列表
     getlist: (query,numPerPage,pageNum)=>{
-        return News.find(query).POPULATE({ path: 'companyId', select:{'longName':1} , model: 'Company' }).select({wysiwyg:0}).skip(numPerPage*(pageNum-1)).limit(numPerPage).exec();
+        return News
+            .find(query)
+            .POPULATE({ path: 'companyId', select:{'longName':1} , model: 'Company' })
+            .select({wysiwyg:0})
+            .skip(numPerPage*(pageNum-1))
+            .limit(numPerPage)
+            .sort({timestamp:-1})
+            .exec();
     },
     //获取总资讯数
     count:(query)=>{

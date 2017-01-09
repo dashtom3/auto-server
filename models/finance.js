@@ -10,7 +10,12 @@ module.exports = {
     },
     //根据companyName获取该公司所有财务列表
     getFinanceList: function getFinanceList(queryString,numPerPage,pageNum) {
-        return Finance.find(queryString).skip(numPerPage*(pageNum-1)).limit(numPerPage).exec();
+        return Finance
+            .find(queryString)
+            .skip(numPerPage*(pageNum-1))
+            .limit(numPerPage)
+            .sort({timestamp:-1})
+            .exec();
     },
     //根据companyName、year获取该公司该年财务列表
     getFinance: function getFinance(name,year) {

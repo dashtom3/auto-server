@@ -19,6 +19,7 @@ module.exports = {
                       .select()
                       .skip(numPerPage*(pageNum-1))
                       .limit(numPerPage)
+                      .sort({timestamp:-1})
                       .exec();
     },
     //获取总产品数
