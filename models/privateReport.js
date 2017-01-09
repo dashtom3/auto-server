@@ -4,7 +4,6 @@
 const PriReport = require('../middlewares/mongo').privateReport;
 const Mongolass = require('mongolass');
 const native = require('./nativeMongodb');
-const mongooseAggregate = require('./mongooseAggregate');
 PriReport.plugin('POPULATE', require('mongolass-plugin-populate'));
 
 module.exports = {
@@ -124,7 +123,23 @@ module.exports = {
                         .exec()
     },
     //获取某评测中所有通过的评论
-    getCommentList: mongooseAggregate.getCommentList,
+    getCommentList: (id)=>{
+        // console.log(id);
+        return PriReport.aggregate({$match:{'_id':Mongolass.Types.ObjectId(id)}},
+                                   {'$unwind':'$passUser'},
+                                   {$match:{'passUser.comment.passed':1}},
+                                   {$lookup:
+                                        {
+                                            from:'users',
+                                            localField: 'passUser.userId',
+                                            foreignField: '_id',
+                                            as: 'passUser.userId'
+                                        }
+                                    },
+                                   {$project:{'passUser.comment':1,'passUser.userId.name':1,'_id':0}},
+                                   {$project:{'passUser.comment':1,'passUser.userId.name':1,'_id':0}})
+                        .exec()
+    },
     //审核测评通过
     modifyApproval:(id,approvalState)=>{
         return PriReport.update({'_id':id},{$set:{'state':approvalState}}).exec()

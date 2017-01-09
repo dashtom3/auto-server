@@ -67,9 +67,9 @@ router.post('/signup', function(req, res, next) {
     let mail=req.fields.mail || "";
     let phone=req.fields.phone || "";
     let idImg1=(req.fields.idImg1 == undefined)
-        ?"":req.files.idImg1.path.split('/').pop();
+        ?"":req.fields.idImg1;
     let idImg2=(req.fields.idImg2 == undefined)
-        ?"":req.files.idImg2.path.split('/').pop();
+        ?"":req.fields.idImg2;
 
     if((name == null)
     || (nikeName == null)
