@@ -93,7 +93,7 @@ module.exports={
             }else{
                 if(typeof user.linkTo.toHexString === 'function'){
                     req.fields._type = 'company';
-                    req.fields._userID = user.linkTo;
+                    req.fields._userID = user.linkTo.toHexString();
                 }else{
                     if(user.linkTo.userType !== 'admin'){
                         req.fields._type = 'user';
