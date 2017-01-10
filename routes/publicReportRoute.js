@@ -268,6 +268,31 @@ router.get('/list/:numPerPage/:pageNum',(req,res,next)=>{
         });
 });
 
+//3.获取单个测评详情
+/**
+ * @api {GET} /report/public/detail 获取单个测评详情
+ * @apiName publicReport_getDetail
+ * @apiGroup Public Report
+ *
+ * @apiParam {String} reportId 测评id *
+ *
+ * */
+router.get('/detail',(req,res,next)=>{
+    JF(req,res,next,{
+        reportId:null
+    },['reportId']);
+},function (req,res,next) {
+    var id = req.query.reportId;
+
+    PubReportModel.getDetail(id)
+        .then(r=>{
+            res.json(new ResData(1,0,r));
+        })
+        .catch(e=>{
+            res.json(new ResData(0,737,e.toString()));
+        });
+});
+
 //4.设置上线／下线 #
 /**
  * @api {GET} /report/public/modify/online 设置测评上下线

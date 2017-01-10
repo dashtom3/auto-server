@@ -27,7 +27,10 @@ module.exports = {
     },
     //获取详情
     getDetail:(id)=>{
-        return PubReport.findOne({_id:id}).exec();
+        return PubReport.findOne({_id:id})
+        .POPULATE({ path: 'companyId', select:{'longName':1} , model: 'Company' })
+        .POPULATE({ path: 'productId', select:{'name':1} , model: 'Product' })
+        .exec();
     },
     //按是否上线取出所有专业测评
     getPubReportByOnline: function getPubReportByOnline(online) {
