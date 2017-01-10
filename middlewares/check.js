@@ -21,7 +21,7 @@ function checkUserLogin(authArray=['normal','vc','admin','forbid','wr']) {
         }
         co(function *(){
             const user = yield TokenModel.findUserPopulate(token);
-            if(user == null || user.linkTo.userType == undefined){
+            if(user == null || user.linkTo['_id'] == undefined || user.linkTo.userType == undefined){
                 forbiden(res);
                 return;
             }
@@ -65,7 +65,7 @@ module.exports={
         }
         co(function *(){
             const user = yield TokenModel.findCompanyPopulate(token);
-            if(user == null || !checkExpired(user)){
+            if(user == null || user.linkTo['_id'] == undefined || !checkExpired(user)){
                 forbiden(res);
                 return;
             }

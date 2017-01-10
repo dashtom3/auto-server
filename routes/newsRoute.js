@@ -370,6 +370,23 @@ router.get('/modify/online',checkCompanyLogin,(req,res,next)=>{
 });
 
 //4.b 管理员设置资讯上下线
+/**
+ * @api {GET} /news/modify/online/admin 更改资讯上下线(管理员用)
+ * @apiName news_modifyOnlineStatusAdmin
+ * @apiGroup News
+ *
+ * @apiParam {String} token Token
+ * @apiParam {String} newsId 资讯Id
+ * @apiParam {Boolean} isOnline 是否上线 true上线 false下线
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus": "SUCCEED",
+ *          "errCode": "NO_ERROR",
+ *          "data": null
+ *      }
+ * */
 router.get('/modify/online/admin',checkAdminLogin,(req,res,next)=>{
     JF(req,res,next,{
         token:null,
@@ -377,6 +394,13 @@ router.get('/modify/online/admin',checkAdminLogin,(req,res,next)=>{
         isOnline:null
     },['token','newsId','isOnline']);
 },(req,res,next)=>{
+    const token = req.query.token;
+        const newsId = req.query.newsId;
+        if(str2bool[req.query.isOnline] === undefined){
+            res.json(new ResData(0,101));
+            return;
+        }
+        const isOnline = str2bool[req.query.isOnline];
     NewsModel.modifyOnlineAdmin(newsId,isOnline)
         .then(function (result) {
             res.json(new ResData(1,0));

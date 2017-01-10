@@ -395,6 +395,23 @@ router.get('/modify/online',checkCompanyLogin,(req,res,next)=>{
 });
 
 //4.b 管理员设置上下线
+/**
+ * @api {GET} /product/modify/online/admin 更改产品上下线(管理员用)
+ * @apiName product_modifyOnlineStatusAdmin
+ * @apiGroup Product
+ *
+ * @apiParam {String} token Token
+ * @apiParam {String} productId 产品Id
+ * @apiParam {Boolean} state 是否上线 true上线 false下线
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus": "SUCCEED",
+ *          "errCode": "NO_ERROR",
+ *          "data": null
+ *      }
+ * */
 router.get('/modify/online/admin',checkAdminLogin,(req,res,next)=>{
     JF(req,res,next,{
         token:null,
@@ -402,6 +419,13 @@ router.get('/modify/online/admin',checkAdminLogin,(req,res,next)=>{
         isOnline:null
     },['token','productId','isOnline']);
 },(req,res,next)=>{
+     const token = req.query.token;
+    const productId = req.query.productId;
+    if(str2bool[req.query.state] === undefined){
+        res.json(new ResData(0,101));
+        return;
+    }
+    const isOnline = str2bool[req.query.state];
     ProductModel.modifyOnlineAdmin(productId,isOnline)
         .then(function (result) {
             res.json(new ResData(1,0));

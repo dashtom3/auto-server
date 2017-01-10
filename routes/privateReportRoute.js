@@ -256,6 +256,109 @@ router.post('/add',checkCompanyLogin,(req,res,next)=>{
 });
 
 //2.按条件取出测评列表
+/**
+ * @api {GET} /report/private/list/:numPerPage/:pageNum 按条件取出测评列表
+ * @apiName privateReport_getList
+ * @apiGroup Private Report
+ *
+ * @apiParam {String} productId 产品Id
+ * @apiParam {String} title 测评名称
+ * @apiParam {String} startDateStart 测评开始日期的开始搜索范围 YYYY-MM-DD
+ * @apiParam {String} endDateStart 测评开始日期的结束搜索范围 YYYY-MM-DD
+ * @apiParam {String} startDateEnd 测评结束日期的开始搜索范围 YYYY-MM-DD
+ * @apiParam {String} endDateEnd 测评结束日期的结束搜索返回 YYYY-MM-DD
+ * @apiParam {String} type 测评类型  实地：'local'，邮寄：'mail'
+ * @apiParam {String} address 测评地点
+ * @apiParam {Number} maxUserNum_Min 报名人数上限的开始搜索范围
+ * @apiParam {Number} maxUserNum_Max 报名人数上限的结束搜索范围
+ * @apiParam {String[]} argc 测评参数数组 至少一项，逗号隔开
+ * @apiParam {Number} state 审核状态 //0:待审核  1:已通过 －1:已被拒 默认0
+ * @apiParam {String} signUser 用户Id,可以查这个用户报名的所有测评
+ * @apiParam {String} passUser 用户Id,可以查这个用户通过报名的所有测评
+ * @apiParam {String} startTime 测评发布日期开始搜索范围 YYYY-MM-DD
+ * @apiParam {String} endTime 测评发布日期结束搜索范围 YYYY-MM-DD
+ * @apiParam {Boolean} isOnline 上下线状态 ‘true’ or ‘false’
+ * @apiParam {String} companyId 公司Id
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus":"SUCCEED",
+ *          "errCode":"NO_ERROR",
+ *          "data":{
+ *              "list":[
+ *                  {
+ *                      "_id":"5870c8bd02479e568e61d529",
+ *                      "productId":"58622642c12b98681698ff74",
+ *                      "title":"11111111111111111111",
+ *                      "dateStart":1482768000000,
+ *                      "dateEnd":1484841600000,
+ *                      "type":"local","address":"1111",
+ *                      "maxUserNum":111,"argc":["11111"],
+ *                      "images":[
+ *                          "http://123.56.220.72:3300/files/upload_0a36b779fe95b885ba5d8d1984a7b748.png",
+ *                          "http://123.56.220.72:3300/files/upload_514737112ad7173aed503c6c2c259e87.png",
+ *                          "http://123.56.220.72:3300/files/upload_1f977e84cb6f3629ff7086a051f68d41.png"
+ *                      ],
+ *                      "state":0,
+ *                      "signUser":[],
+ *                      "passUser":[],
+ *                      "timestamp":1483786429007,
+ *                      "isOnline":true,"scores":[0],
+ *                      "scoredUserNum":0,
+ *                      "companyId":"585b7d66b6a493e45ea96060"
+ *                  },
+ *                  {
+ *                      "_id":"5870ad1102479e568e61d523",
+ *                      "productId":"586db978c29f014d6df8e74a",
+ *                      "title":"111",
+ *                      "dateStart":1484064000000,
+ *                      "dateEnd":1484668800000,
+ *                      "type":"local",
+ *                      "address":"11",
+ *                      "maxUserNum":111,
+ *                      "argc":["111"],
+ *                      "images":[
+ *                          "http://123.56.220.72:3300/files/upload_fe26ebc9811b99a580d0e8e146b081ab.jpg"
+ *                      ],
+ *                      "state":0,
+ *                      "signUser":[],
+ *                      "passUser":[],
+ *                      "timestamp":1483779345093,
+ *                      "isOnline":true,
+ *                      "scores":[0],
+ *                      "scoredUserNum":0,
+ *                      "companyId":"585b7d66b6a493e45ea96060"
+ *                  },{
+ *                      "_id":"5870acf802479e568e61d521",
+ *                      "productId":"58622642c12b98681698ff74",
+ *                      "title":"111",
+ *                      "dateStart":1484064000000,
+ *                      "dateEnd":1484668800000,
+ *                      "type":"local",
+ *                      "address":"111",
+ *                      "maxUserNum":11,
+ *                      "argc":["1111"],
+ *                      "images":[
+ *                          "http://123.56.220.72:3300/files/upload_49b1ab79b0f7a624c4680f81acad4a0e.jpg"
+ *                      ],
+ *                      "state":0,
+ *                      "signUser":[],
+ *                      "passUser":[],
+ *                      "timestamp":1483779320454,
+ *                      "isOnline":true,
+ *                      "scores":[0],
+ *                      "scoredUserNum":0,
+ *                      "companyId":"585b7d66b6a493e45ea96060"
+ *                  }
+ *              ],
+ *              "totalNum":8,
+ *              "totalPageNum":3,
+ *              "currentPage":1,
+ *              "numPerPage":3
+ *          }
+ *      }
+ * */
 router.get('/list/:numPerPage/:pageNum',(req,res,next)=>{
     JF(req,res,next,{
         productId:null,
@@ -347,36 +450,32 @@ router.get('/list/:numPerPage/:pageNum',(req,res,next)=>{
     })
 });
 
-/*
-    //3.按公司取出所有用户测评
-    router.get('/getPriReportByCompany',checkCompanyLogin,function (req,res,next) {
-        var companyName = url.parse(req.url,true).query.companyName;
-
-        PriReportModel.getPriReportByCompany(companyName)
-            .then(function (result) {
-                resData = new ResData();
-                resData.setIsSuccess(1);
-                resData.setData(result);
-                res.send(JSON.stringify(resData));
-            })
-            .catch(next);
-    });
-
-    //4.按状态取出所有用户测评
-    router.get('/getPriReportByState',checkCompanyLogin,function (req,res,next) {
-        var state = url.parse(req.url,true).query.state;
-
-        PriReportModel.getPriReportByState(state)
-            .then(function (result) {
-                resData = new ResData();
-                resData.setIsSuccess(1);
-                resData.setData(result);
-                res.send(JSON.stringify(resData));
-            })
-            .catch(next);
-    });
-*/
 //3.修改测评
+/**
+ * @api {POST} /report/private/modify/detail 修改测评
+ * @apiName privateReport_modifyDetail
+ * @apiGroup Private Report
+ *
+ * @apiParam {String} token Token *
+ * @apiParam {String} reportId 测评id *
+ * @apiParam {String} productId 产品Id 
+ * @apiParam {String} title 测评名称 
+ * @apiParam {String} dateStart 测评开始日期  YYYY-MM-DD
+ * @apiParam {String} dateEnd 测评结束日期  YYYY-MM-DD
+ * @apiParam {String} type 测评类型  实地：'local'，邮寄：'mail'
+ * @apiParam {String} address 测评地点 type='local'时必填
+ * @apiParam {Number} maxUserNum 报名人数上限 
+ * @apiParam {String[]} argc 测评参数数组 至少一项 
+ * @apiParam {String[]} images 测评图片URL 至少一张 
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus":"SUCCEED",
+ *          "errCode":"NO_ERROR",
+ *          "data":null
+ *      }
+ * */
 router.post('/modify/detail',checkCompanyLogin,(req,res,next)=>{
     JF(req,res,next,{
         token:null,
@@ -449,6 +548,22 @@ router.post('/modify/detail',checkCompanyLogin,(req,res,next)=>{
 });
 
 //4.删除测评信息
+/**
+ * @api {GET} /report/private/delete 删除测评信息
+ * @apiName privateReport_delete
+ * @apiGroup Private Report
+ *
+ * @apiParam {String} token Token *
+ * @apiParam {String} reportId 测评id *
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus":"SUCCEED",
+ *          "errCode":"NO_ERROR",
+ *          "data":null
+ *      }
+ * */
 router.get('/delete',checkCompanyLogin,(req,res,next)=>{
     JF(req,res,next,{
         token:null,
@@ -475,6 +590,14 @@ router.get('/delete',checkCompanyLogin,(req,res,next)=>{
 });
 
 //5.获取单个测评详情
+/**
+ * @api {GET} /report/private/detail 获取单个测评详情
+ * @apiName privateReport_getDetail
+ * @apiGroup Private Report
+ *
+ * @apiParam {String} reportId 测评id *
+ *
+ * */
 router.get('/detail',(req,res,next)=>{
     JF(req,res,next,{
         reportId:null
@@ -664,6 +787,24 @@ router.get('/pass',checkAdminLogin,(req,res,next)=>{
 });
 
 //8用户发表评论
+/**
+ * @api {POST} /report/private/comment 用户发表评论
+ * @apiName privateReport_comment
+ * @apiGroup Private Report
+ *
+ * @apiParam {String} token Token *
+ * @apiParam {String} reportId 测评id *
+ * @apiParam {String} content 评论内容 *
+ * @apiParam {[Number]} score 打分 *
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus":"SUCCEED",
+ *          "errCode":"NO_ERROR",
+ *          "data":null
+ *      }
+ * */
 router.post('/comment',checkUserLogin,(req,res,next)=>{
     JF(req,res,next,{
         token:null,
@@ -705,6 +846,24 @@ router.post('/comment',checkUserLogin,(req,res,next)=>{
 });
 
 //9审核用户评论
+/**
+ * @api {GET} /report/private/modify/commentpass 审核用户评论
+ * @apiName privateReport_commentPass
+ * @apiGroup Private Report
+ *
+ * @apiParam {String} token Token *
+ * @apiParam {String} reportId 测评id *
+ * @apiParam {String} userId 用户Id *
+ * @apiParam {Number} passed 是否通过 1,0,-1
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus":"SUCCEED",
+ *          "errCode":"NO_ERROR",
+ *          "data":null
+ *      }
+ * */
 router.get('/modify/commentpass',checkAdminLogin,(req,res,next)=>{
     JF(req,res,next,{
         token:null,
@@ -747,6 +906,23 @@ router.get('/modify/commentpass',checkAdminLogin,(req,res,next)=>{
 });
 
 //10审核用户测评上下线
+/**
+ * @api {GET} /report/private/modify/approval 审核用户测评上下线
+ * @apiName privateReport_modifyApproval
+ * @apiGroup Private Report
+ *
+ * @apiParam {String} token Token *
+ * @apiParam {String} reportId 测评id *
+ * @apiParam {Boolean} state 上下线 'true' or 'false'
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus":"SUCCEED",
+ *          "errCode":"NO_ERROR",
+ *          "data":null
+ *      }
+ * */
 router.get('/modify/approval',checkAdminLogin,(req,res,next)=>{
     JF(req,res,next,{
         token:null,
@@ -780,6 +956,14 @@ router.get('/modify/approval',checkAdminLogin,(req,res,next)=>{
 });
 
 //11获取通过的评论
+/**
+ * @api {GET} /report/private/comment/list 获取通过的评论
+ * @apiName privateReport_commentList
+ * @apiGroup Private Report
+ *
+ * @apiParam {String} reportId 测评id *
+ *
+ * */
 router.get('/comment/list',(req,res,next)=>{
     JF(req,res,next,{
         reportId:null
@@ -796,6 +980,14 @@ router.get('/comment/list',(req,res,next)=>{
 });
 
 //12获取所有待审核的报名申请
+/**
+ * @api {GET} /report/private/signlist 获取所有待审核的报名申请
+ * @apiName privateReport_signlist
+ * @apiGroup Private Report
+ *
+ * @apiParam {String} reportId 测评id *
+ *
+ * */
 router.get('/signlist',checkAdminLogin,(req,res,next)=>{
     JF(req,res,next,{
         reportId:null
@@ -812,6 +1004,14 @@ router.get('/signlist',checkAdminLogin,(req,res,next)=>{
 });
 
 //13获取所有测评中用户
+/**
+ * @api {GET} /report/private/topasslist 获取所有测评中用户
+ * @apiName privateReport_topasslist
+ * @apiGroup Private Report
+ *
+ * @apiParam {String} reportId 测评id *
+ *
+ * */
 router.get('/comment/topasslist',checkAdminLogin,(req,res,next)=>{
     JF(req,res,next,{
         reportId:null
@@ -828,6 +1028,14 @@ router.get('/comment/topasslist',checkAdminLogin,(req,res,next)=>{
 });
 
 //14获取所有被拒绝的评论
+/**
+ * @api {GET} /report/private/refused 获取所有被拒绝的评论
+ * @apiName privateReport_refused
+ * @apiGroup Private Report
+ *
+ * @apiParam {String} reportId 测评id *
+ *
+ * */
 router.get('/refused',checkAdminLogin,(req,res,next)=>{
     JF(req,res,next,{
         reportId:null
