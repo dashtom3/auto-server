@@ -355,7 +355,7 @@ router.get('/list/:numPerPage/:pageNum',checkAdminLogin,(req,res,next)=>{
  *          "data": null
  *      }
  * */
-router.get('/modify/type',checkUserLogin(withoutAdmin),(req,res,next)=>{
+router.get('/modify/type',checkUserLogin(),(req,res,next)=>{
     JF(req,res,next,{
         token:null,
         newType:null,

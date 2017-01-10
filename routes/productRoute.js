@@ -402,7 +402,7 @@ router.get('/modify/online',checkCompanyLogin,(req,res,next)=>{
  *
  * @apiParam {String} token Token
  * @apiParam {String} productId 产品Id
- * @apiParam {Boolean} state 是否上线 true上线 false下线
+ * @apiParam {Boolean} isOnline 是否上线 true上线 false下线
  *
  * @apiSuccessExample {json} Success-Response:
  *      HTTP/1.1 200 OK

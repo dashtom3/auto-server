@@ -907,13 +907,13 @@ router.get('/modify/commentpass',checkAdminLogin,(req,res,next)=>{
 
 //10审核用户测评上下线
 /**
- * @api {GET} /report/private/modify/approval 审核用户测评上下线
+ * @api {GET} /report/private/modify/approval 审核用户测评通过
  * @apiName privateReport_modifyApproval
  * @apiGroup Private Report
  *
  * @apiParam {String} token Token *
  * @apiParam {String} reportId 测评id *
- * @apiParam {Boolean} state 上下线 'true' or 'false'
+ * @apiParam {Number} state 是否通过 1,0,-1
  *
  * @apiSuccessExample {json} Success-Response:
  *      HTTP/1.1 200 OK
@@ -1056,6 +1056,26 @@ router.get('/refused',checkAdminLogin,(req,res,next)=>{
         res.json(new ResData(0,999,e))
     })
 });
+
+//15.a设置个人测评上下线
+/**
+ * @api {GET} /report/private/modify/isonline 更改个人测评上下线
+ * @apiName privateReport_modifyisOnline
+ * @apiGroup Private Report
+ *
+ * @apiParam {String} token Token *
+ * @apiParam {String} reportId 测评id *
+ * @apiParam {Boolean} isOnline 上下线 'true' or 'false'
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus":"SUCCEED",
+ *          "errCode":"NO_ERROR",
+ *          "data":null
+ *      }
+ * */
+
 
 
 
