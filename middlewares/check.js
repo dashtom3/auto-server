@@ -91,7 +91,7 @@ module.exports={
                 forbiden(res);
                 return;
             }else{
-                if(typeof user.linkTo === 'string'){
+                if(typeof user.linkTo.toHexString === 'function'){
                     req.fields._type = 'company';
                     req.fields._userID = user.linkTo;
                 }else{
@@ -108,6 +108,7 @@ module.exports={
         })
         .catch(e=>{
             console.log('***AUTH_EXCEPTION***',e.toString);
+            console.dir(e);
             EXCEPTION(res);
             return;
         });
