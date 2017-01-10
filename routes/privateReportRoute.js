@@ -1075,6 +1075,72 @@ router.get('/refused',checkAdminLogin,(req,res,next)=>{
  *          "data":null
  *      }
  * */
+router.get('/modify/isonline',checkCompanyLogin,(req,res,next)=>{
+    JF(req,res,next,{
+        token:null,
+        reportId:null,
+        isOnline:null
+    },['token','reportId','isOnline']);
+},(req,res,next)=>{
+    const companyId = req.fields._userID;
+    const isOnline = req.query.isOnline;
+    const reportId = req.query.reportId;
+    if(str2bool[isOnline] === undefined)
+    {
+        res.json(new ResData(0,101));
+        return;
+    }
+    PriReportModel.modifyOnline(reportId,companyId,str2bool[isOnline])
+    .then(r=>{
+        res.json(new ResData(1,0));
+    })
+    .catch(e=>{
+        res.json(new ResData(0,742,e.toString()));
+    });
+});
+
+//15.b设置个人测评上下线(admin)
+/**
+ * @api {GET} /report/private/modify/isonline/admin 更改个人测评上下线(管理员用)
+ * @apiName privateReport_modifyisOnline
+ * @apiGroup Private Report
+ *
+ * @apiParam {String} token Token *
+ * @apiParam {String} reportId 测评id *
+ * @apiParam {Boolean} isOnline 上下线 'true' or 'false'
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus":"SUCCEED",
+ *          "errCode":"NO_ERROR",
+ *          "data":null
+ *      }
+ * */
+router.get('/modify/isonline/admin',checkAdminLogin,(req,res,next)=>{
+    JF(req,res,next,{
+        token:null,
+        reportId:null,
+        isOnline:null
+    },['token','reportId','isOnline']);
+},(req,res,next)=>{
+    const isOnline = req.query.isOnline;
+    const reportId = req.query.reportId;
+
+    if(str2bool[isOnline] === undefined)
+    {
+        res.json(new ResData(0,101));
+        return;
+    }
+
+    PriReportModel.modifyOnlineAdmin(reportId,str2bool[isOnline])
+    .then(r=>{
+        res.json(new ResData(1,0));
+    })
+    .catch(e=>{
+        res.json(new ResData(0,742,e.toString()));
+    });
+});
 
 
 

@@ -196,6 +196,15 @@ module.exports = {
                                    {$project:{'passUser.comment':1,'passUser.userId.name':1,'_id':0}},
                                    {$project:{'passUser.comment':1,'passUser.userId.name':1,'_id':0}})
                         .exec()
+    },
+
+    //上下线
+    modifyOnline:(id,companyId,isOnline)=>{
+        return PriReport.update({'_id':id,'companyId':companyId},{$set:{'isOnline':isOnline}}).exec();
+    },
+    //上下线Admin
+    modifyOnlineAdmin:(id,isOnline)=>{
+        return PriReport.update({'_id':id},{$set:{'isOnline':isOnline}}).exec();
     }
 
 };
