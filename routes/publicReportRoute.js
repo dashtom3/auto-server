@@ -333,6 +333,23 @@ router.get('/modify/online',checkCompanyLogin,(req,res,next)=>{
     });
 
 //4.b 管理员设置上下线
+/**
+ * @api {GET} /report/public/modify/online/admin 设置测评上下线(管理员用)
+ * @apiName publicReport_modifyOnlineAdmin
+ * @apiGroup Public Report
+ *
+ * @apiParam {String} token Token
+ * @apiParam {String} reportId 测评Id
+ * @apiParam {Boolean} isOnline 是否上线 true上线 false下线
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "callStatus": "SUCCEED",
+ *          "errCode": "NO_ERROR",
+ *          "data": null
+ *      }
+ * */
 router.get('/modify/online/admin',checkAdminLogin,(req,res,next)=>{
     JF(req,res,next,{
             token:null,
@@ -340,6 +357,14 @@ router.get('/modify/online/admin',checkAdminLogin,(req,res,next)=>{
             isOnline:null
         },['token','reportId','isOnline']);
 },(req,res,next)=>{
+    const token = req.query.token;
+        const reportId = req.query.reportId;
+        if(str2bool[req.query.isOnline] === undefined){
+            res.json(new ResData(0,101));
+            return;
+        }
+        const isOnline = str2bool[req.query.isOnline];
+
     PubReportModel.modifyOnlineAdmin(reportId,isOnline)
                     .then(function (result) {
                         res.json(new ResData(1,0));

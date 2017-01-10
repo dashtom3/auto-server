@@ -349,7 +349,7 @@ router.get('/detail',checkValidToken,(req,res)=>{
             if(result == null){
                 res.json(new ResData(0,105));
             }else{
-                if(_type == 'user'){
+                if(_type == 'user' || _type == 'guest'){
                     delete result.info;
                     delete result.position;
                 }else if(_type == 'company' && _userID !== companyId){

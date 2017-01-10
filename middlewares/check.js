@@ -88,7 +88,13 @@ module.exports={
         co(function *(){
             const user = yield TokenModel.findUserPopulate(token);
             if(user == null || !checkExpired(user)){
-                forbiden(res);
+                if(token === 'guest'){
+                    req.fields._type = 'guest';
+                    req.fields._userID = 'guest';
+                    next()
+                }
+                else
+                    forbiden(res);
                 return;
             }else{
                 if(typeof user.linkTo.toHexString === 'function'){
