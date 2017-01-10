@@ -37,7 +37,7 @@ module.exports = {
     getList : (query,numPerPage,pageNum)=>{
         return Company
             .find(query)
-            .select({password:0,name:0,position:0,info:0})
+            .select({password:0,name:0})
             .skip(numPerPage*(pageNum-1))
             .limit(numPerPage)
             .sort({timestamp:-1})

@@ -418,7 +418,7 @@ router.get('/detail',checkValidToken,(req,res)=>{
  *          }
  *      }
  * */
-router.get('/list/:numPerPage/:pageNum',(req,res,next)=>{
+router.get('/list/:numPerPage/:pageNum',checkValidToken,(req,res,next)=>{
     JF(req,res,next,{
         longName:null,
         type:null,
@@ -485,9 +485,15 @@ router.get('/list/:numPerPage/:pageNum',(req,res,next)=>{
 
     let numPerPage = parseInt(req.params.numPerPage);
     let pageNum = parseInt(req.params.pageNum);
-
+    let _type = req.fields._type;
     CompanyModel.getList(queryString,numPerPage,pageNum)
         .then((result)=>{
+            if(_type !== 'admin'){
+                for(let k in result){
+                    delete result[k].info;
+                    delete result[k].position;
+                }
+            }
             let responseData={
                 list:result
             };
