@@ -47,7 +47,10 @@ module.exports={
 
     //检查token是否过期，过期则删除并返回false，未过期则返回true,未找到也返回false
     check : (_token)=>{
-        return Token.findOne({token:_token}).exec()
+        if(_token === 'guest') 
+            return Promise.resolve(false);
+        else
+            return Token.findOne({token:_token}).exec()
             .then((result)=>{
                 if(result==null || result.expiredAt < new Date().getTime()){
                     return Token.remove({_id:result._id}).exec()

@@ -94,7 +94,8 @@ module.exports={
                 if(token === 'guest'){
                     req.fields._type = 'guest';
                     req.fields._userID = 'guest';
-                    next()
+                    next();
+                    return;
                 }
                 else
                     forbiden(res);

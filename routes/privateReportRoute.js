@@ -11,6 +11,7 @@ const ResData = require('../models/res');
 const checkCompanyLogin = require('../middlewares/check').checkCompanyLogin;
 const checkAdminLogin = require('../middlewares/check').checkAdminLogin;
 const checkUserLogin = require('../middlewares/check').checkUserLogin;
+const checkValidToken = require('../middlewares/check').checkValidToken;
 
 const TokenModel = require('../models/token');
 const UserModle = require('../models/user');
@@ -23,6 +24,7 @@ const Promise = require('bluebird');
 
 const passedEnum={
     '-1':-1,
+    '0':0,
     '1':1
 }
 const str2bool={
@@ -860,11 +862,11 @@ router.get('/modify/commentpass',checkAdminLogin,(req,res,next)=>{
         return;
     }
     co(function *(){
-        let passed = yield PriReportModel.checkCommentPass(_getData.reportId,_getData.userId);
-        if(passed === true){
-            res.json(new ResData(0,110));
-            return;
-        }
+        // let passed = yield PriReportModel.checkCommentPass(_getData.reportId,_getData.userId);
+        // if(passed === true){
+        //     res.json(new ResData(0,110));
+        //     return;
+        // }
         PriReportModel
         .passComment(_getData.reportId,_getData.userId,passedEnum[_getData.passed],passed)
         .then(r=>{
@@ -1124,6 +1126,51 @@ router.get('/modify/online/admin',checkAdminLogin,(req,res,next)=>{
     });
 });
 
+//16按条件获取signUser列表
+router.get('/signuser/list',checkValidToken,(req,res,next)=>{
+    JF(req,res,next,{
+        passed:null,
+        reportId:null
+    },['reportId']);
+},(req,res,next)=>{
+    const _getData = req.query;
+    if(_getData.passed !== null && passedEnum[_getData.passed] === undefined){
+        res.json(new ResData(0,101));
+        return;
+    }
+    let passed = (_getData.passed === null) ? null : passedEnum[_getData.passed];
+    PriReportModel.getSignUserListV2(_getData.reportId,passedEnum[_getData.passed])
+    .then(r=>{
+        res.json(new ResData(1,0,r));
+        return;
+    })
+    .catch(e=>{
+        res.json(new ResData(0,738,e.toString()));
+    });
+})
+
+//17按条件获取passUser列表
+router.get('/passuser/list',checkValidToken,(req,res,next)=>{
+    JF(req,res,next,{
+        passed:null,
+        reportId:null
+    },['reportId']);
+},(req,res,next)=>{
+    const _getData = req.query;
+    if(_getData.passed !== null && passedEnum[_getData.passed] === undefined){
+        res.json(new ResData(0,101));
+        return;
+    }
+    let passed = (_getData.passed === null) ? null : passedEnum[_getData.passed];
+    PriReportModel.getCommentListV2(_getData.reportId,passed)
+    .then(r=>{
+        res.json(new ResData(1,0,r));
+        return;
+    })
+    .catch(e=>{
+        res.json(new ResData(0,741,e.toString()));
+    });
+})
 
 
 

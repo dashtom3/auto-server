@@ -13,6 +13,7 @@ exports.Token = mongolass.model('Token',{
 //定义用户的modle
 exports.User = mongolass.model('User',{
     //id,name,nikeName,password,mail,phone,idImg1,idImg2,userType(no,normal,vc,admin,forbid)
+    avatar: {type:'string'},//头像
     name: {type:'string'}, //*
     nikeName: {type:'string'},// *
     password: {type:'string'},// *

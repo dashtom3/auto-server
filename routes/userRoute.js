@@ -30,6 +30,7 @@ const withoutAdmin = ['normal','vc','forbid','wr'];
  * @apiParam {File} idImg1 ?
  * @apiParam {File} idImg2 ?
  * @apiParam {String} userType 用户类型
+ * @apiParam {String} avatar 用户头像url
  * @apiSuccessExample {json} Success-Response:
  *      HTTP/1.1 200 OK
  *      {
@@ -70,6 +71,8 @@ router.post('/signup', function(req, res, next) {
         ?"":req.fields.idImg1;
     let idImg2=(req.fields.idImg2 == undefined)
         ?"":req.fields.idImg2;
+    let avatar=(req.fields.avatar == undefined)
+        ?"":req.fields.avatar;
 
     if((name == null)
     || (nikeName == null)
@@ -96,7 +99,8 @@ router.post('/signup', function(req, res, next) {
         idImg2: idImg2,
         userType: userType,
         timestamp: new Date().getTime().toString(),
-        isPassed: 0
+        isPassed: 0,
+        avatar: avatar
     };
     // 用户信息写入数据库
     UserModel.create(user)
@@ -543,6 +547,7 @@ router.get('/modify/password',checkUserLogin(withoutAdmin),(req,res,next)=>{
  * @apiParam {String} nikeName 昵称
  * @apiParam {String} mail 邮箱
  * @apiParam {String} phone 手机号
+ * @apiParam {String} avatar 头像url
  *
  * @apiSuccessExample {json} Success-Response:
  *      HTTP/1.1 200 OK
@@ -564,7 +569,8 @@ router.get('/modify/info',checkUserLogin(withoutAdmin),(req,res,next)=>{
         token:null,
         nikeName:null,
         mail:null,
-        phone:null
+        phone:null,
+        avatar:null
     },['token']);
 },
     (req,res,next)=>{

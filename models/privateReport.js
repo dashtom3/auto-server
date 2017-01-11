@@ -137,7 +137,7 @@ module.exports = {
                                         }
                                     },
                                    {$match:{$or:[{'passUser.comment.passed':0},{'passUser.comment':{}}]}},
-                                   {$project:{'passUser.comment':1,'passUser.userId.name':1,'_id':0}},
+                                   {$project:{'passUser.comment':1,'passUser.userId.name':1,'signUser.userId.logo':1,'_id':0}},
                                    {$match:{'passUser.comment.passed':0}})
                         .exec()
     },
@@ -207,6 +207,76 @@ module.exports = {
     //上下线Admin
     modifyOnlineAdmin:(id,isOnline)=>{
         return PriReport.update({'_id':id},{$set:{'isOnline':isOnline}}).exec();
-    }
+    },
+    //按条件获取signUserList
+    getSignUserListV2: (id,passed)=>{
+        console.log(passed);
+        if(passed !== null)
+        return PriReport.aggregate({$match:{'_id':Mongolass.Types.ObjectId(id)}},
+                                //    {$project:{'signUser':1,'_id':0}},
+                                   {'$unwind':'$signUser'},
+                                   {$match:{'signUser.passed':passed}},
+                                   {$lookup:
+                                        {
+                                            from:'users',
+                                            localField: 'signUser.userId',
+                                            foreignField: '_id',
+                                            as: 'signUser.userId'
+                                        }
+                                   },
+                                   {$project:{'signUser.address':1,'signUser.phoneNumber':1,'signUser.passed':1,'signUser.userId.name':1,'signUser.userId.logo':1,'_id':0}},
+                                   {$match:{'signUser.passed':passed}})
+                        .exec();
+        else
+            return PriReport.aggregate(
+                                {$match:{'_id':Mongolass.Types.ObjectId(id)}},
+                                {'$unwind':'$signUser'},
+                                {
+                                    $lookup:{
+                                        from:'users',
+                                        localField: 'signUser.userId',
+                                        foreignField: '_id',
+                                        as: 'signUser.userId'
+                                    }
+                                },
+                                {$project:{'signUser.address':1,'signUser.phoneNumber':1,'signUser.passed':1,'signUser.userId.name':1,'signUser.userId.logo':1,'_id':0}},
+                                {$project:{'signUser.address':1,'signUser.phoneNumber':1,'signUser.passed':1,'signUser.userId.name':1,'signUser.userId.logo':1,'_id':0}}
+                            )
+                            .exec();
+    },
+    //条件获取passUserList
+    getCommentListV2: (id,passed)=>{
+        // console.log(id);
+        if(passed !== null)
+        return PriReport.aggregate({$match:{'_id':Mongolass.Types.ObjectId(id)}},
+                                   {'$unwind':'$passUser'},
+                                   {$match:{'passUser.comment.passed':passed}},
+                                   {$lookup:
+                                        {
+                                            from:'users',
+                                            localField: 'passUser.userId',
+                                            foreignField: '_id',
+                                            as: 'passUser.userId'
+                                        }
+                                    },
+                                   {$project:{'passUser.comment':1,'passUser.userId.name':1,'passUser.userId.logo':1,'_id':0}},
+                                   {$project:{'passUser.comment':1,'passUser.userId.name':1,'passUser.userId.logo':1,'_id':0}})
+                        .exec();
+        else
+            return PriReport.aggregate(
+                                {$match:{'_id':Mongolass.Types.ObjectId(id)}},
+                                {'$unwind':'$passUser'},
+                                {
+                                    $lookup:{
+                                        from:'users',
+                                        localField:'passUser.userId',
+                                        foreignField: '_id',
+                                        as: 'passUser.userId'
+                                    }
+                                },
+                                {$project:{'passUser.comment':1,'passUser.userId.name':1,'passUser.userId.logo':1,'_id':0}},
+                                {$project:{'passUser.comment':1,'passUser.userId.name':1,'passUser.userId.logo':1,'_id':0}}
+                            )
+    },
 
 };

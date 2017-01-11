@@ -46,6 +46,8 @@ module.exports=function (app) {
         });
     })
 
+    //TODO:用省市no获取省名字市名字
+
 
     //上传单张图片到本地，返回url
     app.post('/picupload',(req,res,next)=>{
