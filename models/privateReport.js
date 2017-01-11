@@ -15,7 +15,7 @@ module.exports = {
     getList:(query,numPerPage,pageNum)=>{
         return PriReport
             .find(query,{'passUser.comment':0})
-            .POPULATE({ path: 'companyId', select:{'longName':1} , model: 'Company' })
+            .POPULATE({ path: 'companyId', select:{'longName':1,'logo':1} , model: 'Company' })
             .POPULATE({ path: 'productId', select:{'name':1} , model: 'Product' })
             .skip(numPerPage*(pageNum-1))
             .limit(numPerPage)

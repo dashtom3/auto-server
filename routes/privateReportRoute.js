@@ -804,7 +804,7 @@ router.get('/pass',checkAdminLogin,(req,res,next)=>{
  *          "data":null
  *      }
  * */
-router.post('/comment',checkUserLogin,(req,res,next)=>{
+router.post('/comment',checkUserLogin(),(req,res,next)=>{
     JF(req,res,next,{
         token:null,
         reportId:null,
