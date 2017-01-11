@@ -946,12 +946,12 @@ router.get('/modify/approval',checkAdminLogin,(req,res,next)=>{
         res.json(new ResData(0,107));
         return;
     }
-    PriReportModel.modifyApproval(reportId,approvalStatus)
+    PriReportModel.modifyApproval(reportId,approvalStatusEnum[approvalStatus])
     .then(r=>{
         res.json(new ResData(1,0));
     })
     .catch(e=>{
-        res.json(new ResData(0,739));
+        res.json(new ResData(0,739,e.toString()));
     })
 });
 
