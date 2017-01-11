@@ -1134,12 +1134,16 @@ router.get('/signuser/list',checkValidToken,(req,res,next)=>{
     },['reportId']);
 },(req,res,next)=>{
     const _getData = req.query;
+    if(req.fields._type === 'user' || req.fields._type === 'guest'){
+        res.sendStatus(403);
+        return;
+    }
     if(_getData.passed !== null && passedEnum[_getData.passed] === undefined){
         res.json(new ResData(0,101));
         return;
     }
     let passed = (_getData.passed === null) ? null : passedEnum[_getData.passed];
-    PriReportModel.getSignUserListV2(_getData.reportId,passedEnum[_getData.passed])
+    PriReportModel.getSignUserListV2(_getData.reportId,passed)
     .then(r=>{
         res.json(new ResData(1,0,r));
         return;
@@ -1157,6 +1161,10 @@ router.get('/passuser/list',checkValidToken,(req,res,next)=>{
     },['reportId']);
 },(req,res,next)=>{
     const _getData = req.query;
+    if(req.fields._type === 'user' || req.fields._type === 'guest'){
+        res.sendStatus(403);
+        return;
+    }
     if(_getData.passed !== null && passedEnum[_getData.passed] === undefined){
         res.json(new ResData(0,101));
         return;

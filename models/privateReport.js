@@ -210,7 +210,7 @@ module.exports = {
     },
     //按条件获取signUserList
     getSignUserListV2: (id,passed)=>{
-        console.log(passed);
+        // console.log(passed);
         if(passed !== null)
         return PriReport.aggregate({$match:{'_id':Mongolass.Types.ObjectId(id)}},
                                 //    {$project:{'signUser':1,'_id':0}},
