@@ -26,7 +26,8 @@ function checkUserLogin(authArray=['normal','vc','admin','forbid','wr']) {
                 return;
             }
             const type = user.linkTo.userType;
-            if(authArray.includes(type) && checkExpired(user)){
+            const isExpired = yield TokenModel.check(token);
+            if(authArray.includes(type) && isExpired){
                 req.fields._userID=user.linkTo._id;
                 next();
             }
@@ -64,8 +65,9 @@ module.exports={
             return;
         }
         co(function *(){
+            const isExpired = yield TokenModel.check(token);
             const user = yield TokenModel.findCompanyPopulate(token);
-            if(user == null || user.linkTo['_id'] == undefined || !checkExpired(user)){
+            if(user == null || user.linkTo['_id'] == undefined || !isExpired){
                 forbiden(res);
                 return;
             }
@@ -86,8 +88,9 @@ module.exports={
             return;
         }
         co(function *(){
+            const isExpired = yield TokenModel.check(token);
             const user = yield TokenModel.findUserPopulate(token);
-            if(user == null || !checkExpired(user)){
+            if(user == null || !isExpired){
                 if(token === 'guest'){
                     req.fields._type = 'guest';
                     req.fields._userID = 'guest';
