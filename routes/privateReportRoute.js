@@ -150,7 +150,8 @@ function dealWithArrayQuery(obj,keyArray){
  * @apiParam {Number} maxUserNum 报名人数上限 *
  * @apiParam {String[]} argc 测评参数数组 至少一项 *
  * @apiParam {String[]} images 测评图片URL 至少一张 *
- *
+ * @apiParam {String} testDesc 测评描述
+ * 
  * @apiSuccessExample {json} Success-Response:
  *      HTTP/1.1 200 OK
  *      {
@@ -170,7 +171,8 @@ router.post('/add',checkCompanyLogin,(req,res,next)=>{
         address:'',
         maxUserNum:null,
         argc:null,
-        images:null
+        images:null,
+        testDesc:null
     },['token','productId','title','dateStart','dateEnd','type','address','maxUserNum','argc','images'])
 },function (req,res,next) {
     const _postData = req.fields;
@@ -467,7 +469,8 @@ router.get('/list/:numPerPage/:pageNum',(req,res,next)=>{
  * @apiParam {Number} maxUserNum 报名人数上限 
  * @apiParam {String[]} argc 测评参数数组 至少一项 
  * @apiParam {String[]} images 测评图片URL 至少一张 
- *
+ * @apiParam {String} testDesc 测评描述
+ * 
  * @apiSuccessExample {json} Success-Response:
  *      HTTP/1.1 200 OK
  *      {
@@ -487,7 +490,8 @@ router.post('/modify/detail',checkCompanyLogin,(req,res,next)=>{
         address:null,
         maxUserNum:null,
         argc:null,
-        images:null
+        images:null,
+        testDesc:null
     },['token','reportId']);
 },function (req,res,next) {
     let _postData = req.fields;

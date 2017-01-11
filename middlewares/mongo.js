@@ -125,7 +125,8 @@ exports.privateReport = mongolass.model('privateReport',{
     scoredUserNum:{type:'number'},//参与评分人数
     images:[{type:'string'}],//File[] def [] *
     timestamp:{type:'number'},//发布评测时间
-    isOnline:{type:'boolean'}//上下线
+    isOnline:{type:'boolean'},//上下线
+    testDesc:{type:'string',default:'暂无'},//测评简述
 
 });
 // exports.privateReport.index({_id:-1}).exec();//按日期降序
