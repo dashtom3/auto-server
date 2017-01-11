@@ -633,7 +633,7 @@ router.get('/detail',(req,res,next)=>{
  *          "data":null
  *      }
  * */
-router.get('/sign',checkUserLogin,(req,res,next)=>{
+router.get('/sign',checkUserLogin(),(req,res,next)=>{
     JF(req,res,next,{
         reportId:null,
         token:null,
@@ -642,7 +642,6 @@ router.get('/sign',checkUserLogin,(req,res,next)=>{
     },['reportId','token','phone','address']);
 },function (req,res,next) {
     const _getData = req.query;
-
     TokenModel.findUser(_getData.token)
         .then((result)=>{
             if(result == null){
