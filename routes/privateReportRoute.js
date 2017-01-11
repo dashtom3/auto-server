@@ -618,7 +618,7 @@ router.get('/detail',(req,res,next)=>{
 /**
  * @api {GET} /report/private/sign 用户报名
  * @apiName privateReport_sign
- * @apiGroup Provate Report
+ * @apiGroup Private Report
  *
  * @apiParam {String} token Token *
  * @apiParam {String} reportId 测评Id *
@@ -1059,7 +1059,7 @@ router.get('/refused',checkAdminLogin,(req,res,next)=>{
 
 //15.a设置个人测评上下线
 /**
- * @api {GET} /report/private/modify/isonline 更改个人测评上下线
+ * @api {GET} /report/private/modify/online 更改个人测评上下线
  * @apiName privateReport_modifyisOnline
  * @apiGroup Private Report
  *
@@ -1075,7 +1075,7 @@ router.get('/refused',checkAdminLogin,(req,res,next)=>{
  *          "data":null
  *      }
  * */
-router.get('/modify/isonline',checkCompanyLogin,(req,res,next)=>{
+router.get('/modify/online',checkCompanyLogin,(req,res,next)=>{
     JF(req,res,next,{
         token:null,
         reportId:null,
@@ -1101,8 +1101,8 @@ router.get('/modify/isonline',checkCompanyLogin,(req,res,next)=>{
 
 //15.b设置个人测评上下线(admin)
 /**
- * @api {GET} /report/private/modify/isonline/admin 更改个人测评上下线(管理员用)
- * @apiName privateReport_modifyisOnline
+ * @api {GET} /report/private/modify/online/admin 更改个人测评上下线(管理员用)
+ * @apiName privateReport_modifyisOnlineAdmin
  * @apiGroup Private Report
  *
  * @apiParam {String} token Token *
@@ -1117,7 +1117,7 @@ router.get('/modify/isonline',checkCompanyLogin,(req,res,next)=>{
  *          "data":null
  *      }
  * */
-router.get('/modify/isonline/admin',checkAdminLogin,(req,res,next)=>{
+router.get('/modify/online/admin',checkAdminLogin,(req,res,next)=>{
     JF(req,res,next,{
         token:null,
         reportId:null,
