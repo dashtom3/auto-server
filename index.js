@@ -59,11 +59,19 @@ app.use("/ueditor/ue",bodyParser.urlencoded({extended: true}),bodyParser.json(),
     }}));
 
 //处理表单及文件上传的中间件
-app.use(require('express-formidable')({
-    uploadDir: path.join(__dirname, 'public/files'),// 上传文件目录
-    keepExtensions: true// 保留后缀
-}));
-
+// app.use(require('express-formidable')({
+//     uploadDir: path.join(__dirname, 'public/files'),// 上传文件目录
+//     keepExtensions: true// 保留后缀
+// }));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use('*',(req,res,next)=>{
+    // console.log(req.body);
+    // console.log(req.query);
+    req.fields = req.body;
+    // console.log(req.fields);
+    next();
+})
 //4.设置路由和日志
 // 正常请求的日志
 app.use(expressWinston.logger({

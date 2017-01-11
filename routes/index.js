@@ -1,6 +1,7 @@
+/// <reference path="../typings/index.d.ts" />
 const path = require('path');
-const multiparty = require('connect-multiparty');
-const multipartyMiddleware = multiparty();
+// const multiparty = require('connect-multiparty');
+// const multipartyMiddleware = multiparty();
 const fs = require('fs');
 const ImageModel = require('../models/image');
 const ResData = require('../models/res');
@@ -8,6 +9,8 @@ const crypto = require('crypto');
 const config = require('config-lite');
 const native = require('../models/nativeMongodb');
 const JF = require('../middlewares/JsonFilter');
+const formidable = require('formidable');
+const util = require('util');
 
 //test
 // var TokenModel = require('../models/token');
@@ -92,10 +95,30 @@ module.exports=function (app) {
 
 
     //测试
-    app.post('/upload', function(req, res, next) {
+    app.post('/upload',(req,res,next)=>{
+        var form = new formidable.IncomingForm();
+        form.uploadDir = path.join(__dirname, '../public/files');
+        form.keepExtensions = true;
+        form.maxFieldsSize = 5 * 1024 * 1024;
+        form.hash = 'md5';
+        form.parse(req, function(err, fields, files) {
+            if(err)
+                res.json(new ResData(0,701,err.toString));
+            req.files = files;
+            // console.log(files);
+            next();
+            // console.log(fields);
+            // console.log(files);
+            // res.writeHead(200, {'content-type': 'text/plain'});
+            // res.write('received upload:\n\n');
+            // res.end(util.inspect({fields: fields, files: files}));
+            // console.log(req.files);
+            // console.log(req.fields);
+        });
+    }, function(req, res, next) {
         let images=[];
         let item;
-
+        
         let arr_promise = [];
         let urlList = [];
         for (item in req.files) {
