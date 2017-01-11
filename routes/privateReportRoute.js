@@ -172,7 +172,8 @@ router.post('/add',checkCompanyLogin,(req,res,next)=>{
         maxUserNum:null,
         argc:null,
         images:null,
-        testDesc:null
+        testDesc:'暂无',
+        _userID:null
     },['token','productId','title','dateStart','dateEnd','type','address','maxUserNum','argc','images'])
 },function (req,res,next) {
     const _postData = req.fields;
@@ -209,52 +210,23 @@ router.post('/add',checkCompanyLogin,(req,res,next)=>{
     {
         report.scores.push(0);
     }
-    TokenModel.findUser(token)
-        .then((result)=>{
-            if(result == null){
-                res.json(new ResData(0,803));
-                return;
-            }
-            let user_id = result.linkTo;
-            if (user_id == undefined || user_id == null){
-                res.json(new ResData(0,804));
-                return;
-            }
-            return Promise.resolve(user_id);
-        })
-        .catch((e)=>{
-            res.json(new ResData(0,804,e.toString()));
-        })
-        .then((companyId)=>{
-            if(companyId === undefined) return;
-            report.companyId = companyId;
-            return PriReportModel.create(report)
-                .then((result)=>{
-                    return Promise.resolve({'reportId':result.ops[0]._id,'companyId':companyId});
-                })
-                .catch((e)=>{
-                    res.json(new ResData(0,729,e.toString()));
-                });
-        })
-        .then((data)=>{
-            return ProductModel.pushPrivateReport(report.productId,data.companyId,data.reportId)
-                .then((result)=>{
-                    res.json(new ResData(1,0));
-                })
-                .catch((e)=>{
-                    return Promise.reject({msg:e.toString(),reportId:data.reportId,companyId:data.companyId});
-                });
-        })
-        .catch((e)=>{
-            PriReportModel.delete(e.reportId,e.companyId)
-                .then((result)=>{
-                    res.json(new ResData(0,729,e.msg));
-                    return;
-                })
-                .catch((e)=>{
-                    res.json(new ResData(0,723,e.toString()));
-                });
-        });
+
+    co(function*(){
+        report.companyId = req.fields._userID;
+        let detail = yield ProductModel.getDetail(report.productId);
+        if(detail.privateReport !== undefined){
+            res.json(new ResData(0,113));
+            return;
+        }
+        let priRep = yield PriReportModel.create(report);
+        const reportId = priRep.ops[0]._id;
+        let result = yield ProductModel.pushPrivateReport(report.productId,report.companyId,reportId);
+        res.json(new ResData(1,0));
+        return;
+    })
+    .catch(e=>{
+        res.json(new ResData(0,729,e.toString()));
+    })
 });
 
 //2.按条件取出测评列表
@@ -435,6 +407,13 @@ router.get('/list/:numPerPage/:pageNum',(req,res,next)=>{
 
     co(function *(){
         let list = yield PriReportModel.getList(queryString,numPerPage,pageNum);
+        for(let k in list){
+            // console.log(list[k].signUser.length);
+            list[k].signUserNum = list[k].signUser.length;
+            list[k].passUserNum = list[k].passUser.length;
+            delete list[k].signUser;
+            delete list[k].passUser;
+        }
         let responseData={
             list:list
         };
@@ -448,7 +427,7 @@ router.get('/list/:numPerPage/:pageNum',(req,res,next)=>{
         res.json(new ResData(1,0,responseData));
     })
     .catch(e=>{
-        res.json(new ResData(0,736,toString()));
+        res.json(new ResData(0,736,e.toString()));
     })
 });
 
