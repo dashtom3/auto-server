@@ -63,9 +63,9 @@ module.exports = {
                         .exec()
                         .then( r => {
                             if (r.signUser[0].passed !== 0)
-                                return Promise.resolve(true);
+                                return Promise.resolve(false);
                             else {
-                                return Promise.resolve(true);
+                                return Promise.resolve(false);
                             }
                         })
     },
