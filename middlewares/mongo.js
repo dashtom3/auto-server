@@ -110,7 +110,8 @@ exports.privateReport = mongolass.model('privateReport',{
         userId:{type:Mongolass.Types.ObjectId},
         passed:{type:'number',enum:[-1,0,1]},
         phoneNumber:{type:'string'},
-        address:{type:'string'}
+        address:{type:'string'},
+        timestamp:{type:'number'}
     }],//实际报名人数 def 0
     passUser: [{
         userId:{type:Mongolass.Types.ObjectId},

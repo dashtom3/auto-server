@@ -681,7 +681,8 @@ router.get('/sign',checkUserLogin(),(req,res,next)=>{
                 userId:userId,
                 passed:0,
                 phoneNumber:_getData.phone,
-                address:_getData.address
+                address:_getData.address,
+                timestamp:new Date().getTime()
             })
                 .then((result)=>{
                     res.json(new ResData(1,0));

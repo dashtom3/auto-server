@@ -117,7 +117,7 @@ module.exports={
             }
         })
         .catch(e=>{
-            console.log('***AUTH_EXCEPTION***',e.toString);
+            console.log('***AUTH_EXCEPTION***',e.toString());
             console.dir(e);
             EXCEPTION(res);
             return;

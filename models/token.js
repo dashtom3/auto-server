@@ -53,6 +53,8 @@ module.exports={
             return Token.findOne({token:_token}).exec()
             .then((result)=>{
                 if(result==null || result.expiredAt < new Date().getTime()){
+                    if(result == null) return Promise.resolve(false);
+                    else
                     return Token.remove({_id:result._id}).exec()
                         .then((result)=>{
                             return Promise.resolve(false);

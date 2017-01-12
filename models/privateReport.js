@@ -224,7 +224,7 @@ module.exports = {
                                             as: 'signUser.userId'
                                         }
                                    },
-                                   {$project:{'signUser.address':1,'signUser.phoneNumber':1,'signUser.passed':1,'signUser.userId.name':1,'signUser.userId.logo':1,'_id':0}},
+                                   {$project:{'signUser.timestamp':1,'signUser.address':1,'signUser.phoneNumber':1,'signUser.passed':1,'signUser.userId._id':1,'signUser.userId.name':1,'signUser.userId.logo':1,'_id':0}},
                                    {$match:{'signUser.passed':passed}})
                         .exec();
         else
@@ -239,8 +239,8 @@ module.exports = {
                                         as: 'signUser.userId'
                                     }
                                 },
-                                {$project:{'signUser.address':1,'signUser.phoneNumber':1,'signUser.passed':1,'signUser.userId.name':1,'signUser.userId.logo':1,'_id':0}},
-                                {$project:{'signUser.address':1,'signUser.phoneNumber':1,'signUser.passed':1,'signUser.userId.name':1,'signUser.userId.logo':1,'_id':0}}
+                                {$project:{'signUser.timestamp':1,'signUser.address':1,'signUser.phoneNumber':1,'signUser.passed':1,'signUser.userId._id':1,'signUser.userId.name':1,'signUser.userId.logo':1,'_id':0}},
+                                {$project:{'signUser.timestamp':1,'signUser.address':1,'signUser.phoneNumber':1,'signUser.passed':1,'signUser.userId.name':1,'signUser.userId.logo':1,'_id':0}}
                             )
                             .exec();
     },
@@ -259,8 +259,8 @@ module.exports = {
                                             as: 'passUser.userId'
                                         }
                                     },
-                                   {$project:{'passUser.comment':1,'passUser.userId.name':1,'passUser.userId.logo':1,'_id':0}},
-                                   {$project:{'passUser.comment':1,'passUser.userId.name':1,'passUser.userId.logo':1,'_id':0}})
+                                   {$project:{'passUser.comment':1,'passUser.userId._id':1,'passUser.userId.name':1,'passUser.userId.logo':1,'_id':0}},
+                                   {$project:{'passUser.comment':1,'passUser.userId._id':1,'passUser.userId.name':1,'passUser.userId.logo':1,'_id':0}})
                         .exec();
         else
             return PriReport.aggregate(
@@ -274,8 +274,8 @@ module.exports = {
                                         as: 'passUser.userId'
                                     }
                                 },
-                                {$project:{'passUser.comment':1,'passUser.userId.name':1,'passUser.userId.logo':1,'_id':0}},
-                                {$project:{'passUser.comment':1,'passUser.userId.name':1,'passUser.userId.logo':1,'_id':0}}
+                                {$project:{'passUser.comment':1,'passUser.userId.name':1,'passUser.userId._id':1,'passUser.userId.logo':1,'_id':0}},
+                                {$project:{'passUser.comment':1,'passUser.userId.name':1,'passUser.userId._id':1,'passUser.userId.logo':1,'_id':0}}
                             )
     },
 
