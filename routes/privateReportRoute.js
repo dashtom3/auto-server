@@ -863,11 +863,11 @@ router.get('/modify/commentpass',checkAdminLogin,(req,res,next)=>{
         return;
     }
     co(function *(){
-        // let passed = yield PriReportModel.checkCommentPass(_getData.reportId,_getData.userId);
-        // if(passed === true){
-        //     res.json(new ResData(0,110));
-        //     return;
-        // }
+        let passed = yield PriReportModel.checkCommentPass(_getData.reportId,_getData.userId);
+        if(passed === true){
+            res.json(new ResData(0,110));
+            return;
+        }
         PriReportModel
         .passComment(_getData.reportId,_getData.userId,passedEnum[_getData.passed],passed)
         .then(r=>{
