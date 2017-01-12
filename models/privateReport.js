@@ -65,7 +65,7 @@ module.exports = {
                             if (r.signUser[0].passed !== 0)
                                 return Promise.resolve(true);
                             else {
-                                return Promise.resolve(false);
+                                return Promise.resolve(true);
                             }
                         })
     },
