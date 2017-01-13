@@ -236,7 +236,7 @@ router.get('/login',function (req,res) {
         .then(function (company) {
             if(!company){
                 res.json(new ResData(0,105,null));
-            }else if(company.password!==crypto.createHmac('md5', secret).update(password).digest('hex')){
+            }else if(company.password!==crypto.createHash('md5').update(password).digest('hex')){
                 res.json(new ResData(0,106,null));
             }else {
                 TokenModel.create(company._id)

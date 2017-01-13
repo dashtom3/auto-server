@@ -182,7 +182,7 @@ router.get('/login',function (req, res , next) {
             var resData = new ResData();
             if(!user){
                 res.json(new ResData(0,104,null));
-            }else if(user.password!==crypto.createHmac('md5', secret).update(password).digest('hex')){
+            }else if(user.password!==crypto.createHash('md5').update(password).digest('hex')){
                 res.json(new ResData(0,106,null));
             }else {
                 TokenModel.create(user._id)
