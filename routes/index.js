@@ -22,10 +22,58 @@ const hostname = config.hostname;
 let uploadHelper = require('../middlewares/uploadHelper');
 
 module.exports=function (app) {
-    app.get('/', function (req, res) {
-        res.send('Hello World');
-    });
 
+    /**
+     * @api {GET} /list/prov 获取省列表
+     * @apiName provinceList
+     * @apiGroup Province
+     * 
+     * @apiSuccessExample {json} Success-Response:
+     *      HTTP/1.1 200 OK
+     *      {
+     *          "callStatus":"SUCCEED",
+     *          "errCode":"NO_ERROR",
+     *          "data":
+     *          [
+     *              {"name":"北京"},
+     *              {"name":"广东"},
+     *              {"name":"上海"},
+     *              {"name":"天津"},
+     *              {"name":"重庆"},
+     *              {"name":"辽宁"},
+     *              {"name":"江苏"},
+     *              {"name":"湖北"},
+     *              {"name":"四川"},
+     *              {"name":"陕西"},
+     *              {"name":"河北"},
+     *              {"name":"山西"},
+     *              {"name":"河南"},
+     *              {"name":"吉林"},
+     *              {"name":"黑龙江"},
+     *              {"name":"内蒙古"},
+     *              {"name":"山东"},
+     *              {"name":"安徽"},
+     *              {"name":"浙江"},
+     *              {"name":"福建"},
+     *              {"name":"湖南"},
+     *              {"name":"广西"},
+     *              {"name":"江西"},
+     *              {"name":"贵州"},
+     *              {"name":"云南"},
+     *              {"name":"西藏"},
+     *              {"name":"海南"},
+     *              {"name":"甘肃"},
+     *              {"name":"宁夏"},
+     *              {"name":"青海"},
+     *              {"name":"新疆"},
+     *              {"name":"香港"},
+     *              {"name":"澳门"},
+     *              {"name":"台湾"},
+     *              {"name":"海外"}
+     *          ]
+     *      }
+     * 
+     * */
     app.get('/list/prov',(req,res)=>{
         native.province.getProvList()
         .then(r=>{
@@ -36,6 +84,14 @@ module.exports=function (app) {
         });
     });
 
+    /**
+     * @api {GET} /list/cityof/:prov 获取该省所有市
+     * @apiName cityList
+     * @apiGroup City
+     *
+     * @apiParam {String} prov 省名字
+     * 
+     * */
     app.get('/list/cityof/:prov',(req,res)=>{
         native.city.getCityList(req.params.prov)
         .then(r=>{
@@ -46,7 +102,27 @@ module.exports=function (app) {
         });
     });
 
-    //TODO:用省市no获取省名字市名字
+    /**
+     * @api {GET} /city/detail/:no 获取该省市编号的详细信息
+     * @apiName cityDetail
+     * @apiGroup City
+     *
+     * @apiParam {Number} no 市编号
+     * 
+     * @apiSuccessExample {json} Success-Response:
+     *      HTTP/1.1 200 OK
+     *      {
+     *          "callStatus":"SUCCEED",
+     *          "errCode":"NO_ERROR",
+     *          "data":
+     *          {
+     *              "sheng":"北京",
+     *              "shi":"朝阳区",
+     *              "no":4
+     *          }
+     *      }
+     * 
+     * */
     app.get('/city/detail/:no',(req,res)=>{
         native.city.findCityDetail(Number.parseInt(req.params.no))
         .then(r=>{
