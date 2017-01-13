@@ -663,13 +663,12 @@ router.get('/modify/password',checkCompanyLogin,function (req,res,next) {
  *
  * @apiParam {String} token Token
  * @apiParam {String} longName 公司名称
- * @apiParam {String} shortName 公司简称
+ * @apiParam {String} shortName 业务简称
  * @apiParam {String} address 省市id
- * @apiParam {String} field 业务简述
+ * @apiParam {String} field 详细地址
  * @apiParam {String} regTime 成立时间
  * @apiParam {String} legalEntity 法人代表
  * @apiParam {String} regCapital 注册资本
- * @apiParam {String} regAddress 详细地址
  * @apiParam {Boolean} isNeedCapital 有无投融资需求
  * @apiParam {File} logo Logo
  * @apiParam {String} companyDesc 公司简介
@@ -701,7 +700,6 @@ router.post('/modify/info',checkCompanyLogin,function (req,res,next) {
     let regTime = req.fields.regTime;
     let legalEntity=req.fields.legalEntity;
     let regCapital=req.fields.regCapital;
-    let regAddress=req.fields.regAddress;
     let isNeedCapital = req.fields.isNeedCapital;
     let logo=req.fields.logo;
     let companyDesc=req.fields.companyDesc;
@@ -713,7 +711,6 @@ router.post('/modify/info',checkCompanyLogin,function (req,res,next) {
     || shortName == null || shortName.trim() == ''
     || address == undefined//TODO: 省市idEnum[address] == undefined
     || regTime.trim() ==''
-    || regAddress.trim() ==''
     || (isNeedCapital !== true && isNeedCapital !== false)
     || phone.trim() == ''){
         res.json(new ResData(0,101));
