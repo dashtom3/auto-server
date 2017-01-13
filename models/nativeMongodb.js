@@ -1,3 +1,4 @@
+/// <reference path="../typings/index.d.ts" />
 /**
  * Created by zhujay on 2016/12/29.
  */
@@ -151,6 +152,10 @@ module.exports={
                       else      fulfill(docs);
                   })
             })
+        },
+        findCityDetail:(no)=>{
+            return db.collection('shi')
+                     .findOne({no:no},{'_id':0})
         }
     }
 

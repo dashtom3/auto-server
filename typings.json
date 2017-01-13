@@ -2,6 +2,7 @@
   "globalDependencies": {
     "async": "registry:dt/async#2.0.1+20161211174247",
     "connect-flash": "registry:dt/connect-flash#0.0.0+20160721174308",
+    "es6-promise": "registry:dt/es6-promise#0.0.0+20160726191732",
     "express-session": "registry:dt/express-session#0.0.0+20161119044246",
     "marked": "registry:dt/marked#0.0.0+20160510002910",
     "mocha": "registry:dt/mocha#2.2.5+20161221010438",
@@ -15,6 +16,7 @@
     "cors": "registry:npm/cors#2.7.0+20160902012746",
     "express": "registry:npm/express#4.14.0+20160925001530",
     "formidable": "registry:dt/formidable#1.0.16+20160510010627",
+    "mongodb": "registry:npm/mongodb#2.1.0+20170107184700",
     "mongoose": "registry:npm/mongoose#4.3.5+20160628072220",
     "winston": "registry:dt/winston#0.0.0+20161122193333"
   }

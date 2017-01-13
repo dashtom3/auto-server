@@ -44,10 +44,18 @@ module.exports=function (app) {
         .catch(e=>{
             res.json(new ResData(0,999));
         });
-    })
+    });
 
     //TODO:用省市no获取省名字市名字
-
+    app.get('/city/detail/:no',(req,res)=>{
+        native.city.findCityDetail(Number.parseInt(req.params.no))
+        .then(r=>{
+            res.json(new ResData(1,0,r));
+        })
+        .catch(e=>{
+            res.json(new ResData(0,999));
+        })
+    });
 
     //上传单张图片到本地，返回url
     app.post('/picupload',(req,res,next)=>{
