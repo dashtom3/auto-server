@@ -120,7 +120,10 @@ exports.privateReport = mongolass.model('privateReport',{
             timestamp:{type:'number'},
             passed:{type:'number',enum:[-1,0,1]},
             score:[{type:'number'}]
-        }
+        },
+        signTimestamp:{type:'number'},
+        phoneNumber:{type:'string'},
+        address:{type:'string'}
     }],
     argc:[{type:'string'}],//评分参数[]结束之后有个平均分、打分人数 *
     scores:[{type:'number'}],//各参数评分数组
