@@ -756,7 +756,7 @@ router.post('/modify/info',checkCompanyLogin,function (req,res,next) {
                     return;
                 })
                 .catch((e)=>{
-                    res.json(new ResData(0,705));
+                    res.json(new ResData(0,705,e.toString()));
                     return;
                 });
         })
