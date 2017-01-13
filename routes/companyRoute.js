@@ -726,7 +726,7 @@ router.post('/modify/info',checkCompanyLogin,function (req,res,next) {
         regTime: regTime,
         legalEntity: legalEntity,
         regCapital: regCapital,
-        regAddress: regAddress,
+        // regAddress: regAddress,
         isNeedCapital: isNeedCapital,
         companyDesc: companyDesc,
         productDesc: productDesc,
