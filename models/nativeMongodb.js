@@ -37,6 +37,10 @@ module.exports={
                                      },{
                                          'signUser.$':1
                                      });
+                //信息提取
+                const address = result.signUser[0].address;
+                const timestamp = result.signUser[0].timestamp;
+                const phoneNumber = result.signUser[0].phoneNumber;
                 //阶段转换
                 lastPass = result.signUser[0].passed;
                 //如果已经通过了不予修改
@@ -55,7 +59,10 @@ module.exports={
                                 $push:{
                                     'passUser':{
                                         userId:OBJ(userId),
-                                        comment:{}
+                                        comment:{},
+                                        address:address,
+                                        phoneNumber:phoneNumber,
+                                        signTimestamp:timestamp
                                     }
                                 }
                             })

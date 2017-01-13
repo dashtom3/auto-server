@@ -259,8 +259,8 @@ module.exports = {
                                             as: 'passUser.userId'
                                         }
                                     },
-                                   {$project:{'passUser.signTimestamp':1,'passUser.phone':1,'passUser.address':1,'passUser.comment':1,'passUser.userId._id':1,'passUser.userId.name':1,'passUser.userId.logo':1,'_id':0}},
-                                   {$project:{'passUser.signTimestamp':1,'passUser.phone':1,'passUser.address':1,'passUser.comment':1,'passUser.userId._id':1,'passUser.userId.name':1,'passUser.userId.logo':1,'_id':0}})
+                                   {$project:{'passUser.signTimestamp':1,'passUser.phoneNumber':1,'passUser.address':1,'passUser.comment':1,'passUser.userId._id':1,'passUser.userId.name':1,'passUser.userId.logo':1,'_id':0}},
+                                   {$project:{'passUser.signTimestamp':1,'passUser.phoneNumber':1,'passUser.address':1,'passUser.comment':1,'passUser.userId._id':1,'passUser.userId.name':1,'passUser.userId.logo':1,'_id':0}})
                         .exec();
         else
             return PriReport.aggregate(
@@ -274,8 +274,8 @@ module.exports = {
                                         as: 'passUser.userId'
                                     }
                                 },
-                                {$project:{'passUser.signTimestamp':1,'passUser.phone':1,'passUser.address':1,'passUser.comment':1,'passUser.userId.name':1,'passUser.userId._id':1,'passUser.userId.logo':1,'_id':0}},
-                                {$project:{'passUser.signTimestamp':1,'passUser.phone':1,'passUser.address':1,'passUser.comment':1,'passUser.userId.name':1,'passUser.userId._id':1,'passUser.userId.logo':1,'_id':0}}
+                                {$project:{'passUser.signTimestamp':1,'passUser.phoneNumber':1,'passUser.address':1,'passUser.comment':1,'passUser.userId.name':1,'passUser.userId._id':1,'passUser.userId.logo':1,'_id':0}},
+                                {$project:{'passUser.signTimestamp':1,'passUser.phoneNumber':1,'passUser.address':1,'passUser.comment':1,'passUser.userId.name':1,'passUser.userId._id':1,'passUser.userId.logo':1,'_id':0}}
                             )
     },
 
