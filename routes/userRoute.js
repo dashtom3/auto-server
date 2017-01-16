@@ -84,7 +84,7 @@ router.post('/signup', function(req, res, next) {
 
     // 明文密码加密
     // password = sha1(password);
-    password = ccrypto.createHash('md5').update(password).digest('hex');
+    password = crypto.createHash('md5').update(password).digest('hex');
 
     // 待写入数据库的用户信息
     let user = {
