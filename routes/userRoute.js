@@ -84,9 +84,7 @@ router.post('/signup', function(req, res, next) {
 
     // 明文密码加密
     // password = sha1(password);
-    password = crypto.createHmac('md5', secret)
-                   .update(password)
-                   .digest('hex');
+    password = ccrypto.createHash('md5').update(password).digest('hex');
 
     // 待写入数据库的用户信息
     let user = {
