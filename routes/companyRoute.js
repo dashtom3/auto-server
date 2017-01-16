@@ -26,7 +26,10 @@ function isEmptyObject(obj){
     }
     return true;
 }
-
+const str2bool={
+    'true':true,
+    'false':false
+};
 //注册
 /**
  * @api {POST} /company/signup 企业注册接口
@@ -107,7 +110,7 @@ router.post('/signup', function(req, res) {
     let legalEntity = req.fields.legalEntity || "";
     let regCapital = req.fields.regCapital || "";
     let regAddress = req.fields.regAddress || "";
-    let isNeedCapital = req.fields.isNeedCapital || "";
+    let isNeedCapital = str2bool[req.fields.isNeedCapital];
     let logo = req.fields.logo || "";
     let companyDesc = req.fields.companyDesc || "";
     let productDesc = req.fields.productDesc ||"";
@@ -120,7 +123,8 @@ router.post('/signup', function(req, res) {
     || (type == null)
     || (regTime == null)
     || (regTimeUnix === 'Invalid date')
-    || (phone == null)){
+    || (phone == null)
+    || (isNeedCapital == undefined)){
         res.json(new ResData(0,101));
         return;
     }
@@ -177,6 +181,8 @@ router.post('/signup', function(req, res) {
         .catch(function (e) {
             if (e.message.match('E11000 duplicate key')) {
                 res.json(new ResData(0,104,null));
+            }else{
+                res.json(new ResData(0,999,e.message));
             }
         });
 });
