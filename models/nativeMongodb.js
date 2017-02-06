@@ -163,6 +163,16 @@ module.exports={
         findCityDetail:(no)=>{
             return db.collection('shi')
                      .findOne({no:no},{'_id':0})
+        },
+        getAllCity:()=>{
+            return new Promise(function (fulfill, reject){
+                db.collection('shi')
+                  .find({},{'_id':0})
+                  .toArray((err,docs)=>{
+                    if(err) fulfill(null);
+                      else  fulfill(docs);
+                  })
+            })
         }
     }
 

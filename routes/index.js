@@ -133,6 +133,18 @@ module.exports=function (app) {
         })
     });
 
+
+    //获取所有城市代号与省市城市名称的对应关系
+    app.get('/city/mapping',(req,res)=>{
+        native.city.getAllCity()
+            .then(r=>{
+                res.json(new ResData(1,0,r));
+            })
+            .catch(e=>{
+                res.json(new ResData(0,999));
+            });
+    });
+
     //上传单张图片到本地，返回url
     app.post('/picupload',(req,res,next)=>{
         // console.log(req.fields.picbin);
