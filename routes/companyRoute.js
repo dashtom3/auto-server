@@ -681,6 +681,7 @@ router.get('/modify/password',checkCompanyLogin,function (req,res,next) {
  * @apiParam {String} productDesc 产品简介
  * @apiParam {String} userDesc 目标用户简介
  * @apiParam {String} phone 联系方式
+ * @apiParam {String} type 公司类型
  *
  * @apiSuccessExample {json} Success-Response:
  *      HTTP/1.1 200 OK
@@ -712,6 +713,7 @@ router.post('/modify/info',checkCompanyLogin,function (req,res,next) {
     let productDesc=req.fields.productDesc;
     let userDesc = req.fields.userDesc;
     let phone = req.fields.phone;
+    let type = req.fields.type;
 
     if(longName == null || longName.trim() == ''
     || shortName == null || shortName.trim() == ''
@@ -737,7 +739,8 @@ router.post('/modify/info',checkCompanyLogin,function (req,res,next) {
         companyDesc: companyDesc,
         productDesc: productDesc,
         userDesc: userDesc,
-        phoen: phone
+        phoen: phone,
+        type: type
     };
 
     TokenModel.findUser(token)
