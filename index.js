@@ -36,7 +36,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 var bodyParser = require('body-parser')
 var ueditor = require("ueditor")
 
-app.use("/ueditor/ue",bodyParser.urlencoded({extended: true}),bodyParser.json(), ueditor('public', function(req, res, next) {
+app.use("/ueditor/ue",bodyParser.urlencoded({extended: true,limit:'5120kb'}),bodyParser.json(), ueditor('public', function(req, res, next) {
     // ueditor 客户发起上传图片请求
     if(req.query.action === 'uploadimage'){
         var foo = req.ueditor;
